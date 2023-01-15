@@ -1,0 +1,19 @@
+{
+  "name": "@bobcats-coding/skid",
+  "version": "0.1.0",
+  "description": "Bobcats Coding Monorepo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bobcats-Coding/skid.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bobcats-Coding/skid/issues"
+  },
+  "homepage": "https://github.com/Bobcats-Coding/skid#readme"
+}
