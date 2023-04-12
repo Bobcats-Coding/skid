@@ -1,0 +1,21 @@
+{
+  "name": "@bobcats-coding/skid",
+  "version": "0.1.0",
+  "description": "",
+  "dependencies": {
+    "@bobcats-coding/skid": "file:.",
+    "@reduxjs/toolkit": "^1.9.1",
+    "deep-equal": "^2.1.0",
+    "universal-router": "^9.1.0"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "@playwright/test": "^1.29.1",
+    "@types/fs-extra": "^9.0.13",
+    "@types/deep-equal": "^1.0.1",
+    "allure-cucumberjs": "^2.0.0-beta.23",
+    "fs-extra": "^11.1.0"
+  },
+  "author": "info@bobcatscoding.com",
+  "license": "MIT"
+}
