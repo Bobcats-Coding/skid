@@ -146,6 +146,116 @@ test('onAfterAll only hook stops the "before-all" services', async () => {
   expect(state2.isStarted).toBe(false)
 })
 
+test('onAfterAll only hook stops the "before-all" services', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1, hook: 'before' },
+    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+  })
+  await testEnvironment.onAfterAll()
+  expect(state1.isStarted).toBe(true)
+  expect(state2.isStarted).toBe(false)
+})
+
+test('start service from the world', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: false })
+  const { state: state3, creator: creator3 } = setupFakeInteractor({ isStarted: false, context: 3 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'runner', creator: creator2 },
+    service3: { type: 'interactor', creator: creator3, hook: 'before-all' },
+  })
+  const world = testEnvironment.createWorld()
+  expect(state1.isStarted).toBe(false)
+  expect(state2.isStarted).toBe(false)
+  expect(state3.isStarted).toBe(false)
+  await world.start('service1')
+  await world.start('service2')
+  expect(state1.isStarted).toBe(true)
+  expect(state2.isStarted).toBe(true)
+  expect(state3.isStarted).toBe(false)
+})
+
+test('world should be able to get the started service', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: false, context: 2 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+  })
+  const world = testEnvironment.createWorld()
+  expect(state1.isStarted).toBe(false)
+  expect(state2.isStarted).toBe(false)
+  await world.start('service1')
+  const context = world.get('service1')
+  expect(context).toBe(1)
+})
+
+test('world should be able to pass params when starts a service', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: false })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'runner', creator: creator2 },
+  })
+  const world = testEnvironment.createWorld()
+  await world.start('service1', 2)
+  await world.start('service2', 3)
+  expect(state1.startArg).toBe(2)
+  expect(state2.startArg).toBe(3)
+})
+
+test('onAfter stops services started from the world', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: false, context: 2 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+  })
+  const world = testEnvironment.createWorld()
+  await testEnvironment.onBefore(world)
+  await world.start('service1')
+  await testEnvironment.onAfter(world)
+  expect(state1.isStarted).toBe(false)
+  expect(state2.isStarted).toBe(false)
+})
+
+test('start should be type-safe', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
+  const { creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+  })
+  const world = testEnvironment.createWorld()
+  await expect(async () => {
+    // @ts-expect-error
+    await world.start('service3')
+  }).rejects.toThrow('Service "service3" is not in the configuration')
+})
+
+test('start ', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
+  const { creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+  })
+  const world = testEnvironment.createWorld()
+  await expect(async () => {
+    // @ts-expect-error
+    await world.start('service3')
+  }).rejects.toThrow('Service "service3" is not in the configuration')
+})
+
+type InteractorState = {
+  isStarted: boolean
+  isContextStarted: boolean
+  startArg: number | undefined
+}
+
 const setupFakeInteractor = <T = number>({
   context,
   isStarted,
@@ -155,16 +265,18 @@ const setupFakeInteractor = <T = number>({
   isStarted?: boolean
   isContextStarted?: boolean
 }): {
-  state: { isStarted: boolean; isContextStarted: boolean }
-  creator: () => Interactor<T>
+  state: InteractorState
+  creator: (arg?: number) => Interactor<T>
 } => {
-  const state = {
+  const state: InteractorState = {
     isStarted: isStarted ?? false,
     isContextStarted: isContextStarted ?? false,
+    startArg: undefined,
   }
-  const creator = (): Interactor<T> => ({
+  const creator = (arg?: number): Interactor<T> => ({
     start: async () => {
       state.isStarted = true
+      state.startArg = arg
     },
     stop: async () => {
       state.isStarted = false
@@ -192,20 +304,27 @@ const setupFakeInteractor = <T = number>({
   }
 }
 
+type RunnerState = {
+  isStarted: boolean
+  startArg: number | undefined
+}
+
 const setupFakeRunner = (
   { isStarted } = {
     isStarted: false,
   },
 ): {
-  state: { isStarted: boolean }
-  creator: () => Runner
+  state: RunnerState
+  creator: (arg?: number) => Runner
 } => {
-  const state = {
+  const state: RunnerState = {
     isStarted,
+    startArg: undefined,
   }
-  const creator = (): Runner => ({
+  const creator = (arg?: number): Runner => ({
     start: async () => {
       state.isStarted = true
+      state.startArg = arg
     },
     stop: async () => {
       state.isStarted = false

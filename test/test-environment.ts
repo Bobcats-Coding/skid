@@ -12,53 +12,112 @@ export type Interactor<CONTEXT = any> = {
   onFailure: (context: CONTEXT, testName: string) => Promise<ReportEntry>
 } & Runner
 
-export type NamedInteractor<
+export type NamedInstance<
   NAME extends string = string,
-  INTERACTOR extends Interactor = Interactor,
+  INSTANCE extends Interactor | Runner = Interactor | Runner,
 > = {
   name: NAME
-  interactor: INTERACTOR
+  instance: INSTANCE
 }
 
-type ServicesToNamedInteractor<
-  SERVICES extends Record<string, InteractorConfig>,
+export type TestEnviornmentConfig = Record<string, RunnerConfig | InteractorConfig>
+
+type ServicesToNamedInstance<
+  SERVICES extends Record<string, InteractorConfig | RunnerConfig>,
   KEY = keyof SERVICES,
 > = KEY extends string
   ? KEY extends keyof SERVICES
-    ? NamedInteractor<KEY, ReturnType<SERVICES[KEY]['creator']>>
+    ? NamedInstance<KEY, ReturnType<SERVICES[KEY]['creator']>>
     : never
   : never
 
-export type TestEnvironmentWorld<INTERACTORS extends NamedInteractor> = {
-  get: <NAME extends INTERACTORS['name']>(
-    name: NAME,
-  ) => INTERACTORS extends NamedInteractor<NAME, infer C> ? GetContext<C> : never
+type GetContextByName<
+  INTERACTORS extends NamedInstance,
+  NAME extends string,
+> = INTERACTORS extends NamedInstance<NAME, infer C>
+  ? C extends Interactor
+    ? GetContext<C>
+    : never
+  : never
+
+export type TestEnvironmentWorld<
+  SERVICES extends Record<string, RunnerConfig | InteractorConfig>,
+  INTERACTORS extends NamedInstance = ServicesToNamedInstance<
+    FilterConfigByType<SERVICES, InteractorConfig>
+  >,
+  SERVICE_NAMES extends ServicesToNamedInstance<SERVICES>['name'] = ServicesToNamedInstance<SERVICES>['name'],
+> = {
+  get: <NAME extends INTERACTORS['name']>(name: NAME) => GetContextByName<INTERACTORS, NAME>
   register: <NAME extends INTERACTORS['name']>(
     name: NAME,
-    context: INTERACTORS extends NamedInteractor<NAME, infer I> ? GetContext<I> : never,
+    context: GetContextByName<INTERACTORS, NAME>,
   ) => void
+  start: (
+    name: SERVICE_NAMES,
+    ...args: Parameters<SERVICES[SERVICE_NAMES]['creator']>
+  ) => Promise<void>
 }
 
 type GetContext<INTERACTOR extends Interactor> = INTERACTOR extends Interactor<infer CONTEXT>
   ? CONTEXT
   : never
 
-const createWorld = <INTERACTORS extends NamedInteractor>(): TestEnvironmentWorld<INTERACTORS> => {
-  const interactors: Map<INTERACTORS['name'], GetContext<INTERACTORS['interactor']>> = new Map()
+const createWorld = <SERVICES extends Record<string, RunnerConfig | InteractorConfig>>(
+  state: TestEnviornmentState<SERVICES>,
+): TestEnvironmentWorld<SERVICES> => {
+  type Interactors = ServicesToNamedInstance<FilterConfigByType<SERVICES, InteractorConfig>>
+  const interactorContexts: Map<
+    Interactors['name'],
+    GetContext<Interactors['instance']>
+  > = new Map()
 
   return {
     get: (name) => {
-      const interactor = interactors.get(name)
-      if (interactor === undefined) {
+      const interactor = interactorContexts.get(name)
+      const isPresent = (
+        interactor: any,
+      ): interactor is GetContextByName<Interactors, typeof name> => interactor !== undefined
+      if (!isPresent(interactor)) {
         throw new Error(`Interactor "${String(name)}" is not registered`)
       }
       return interactor
     },
+    start: async (name, ...arg) => {
+      const service = state.services[name]
+      if (service === undefined) {
+        throw new Error(`Service "${String(name)}" is not in the configuration`)
+      }
+      if (isInteractorConfig(service)) {
+        const instance = service.creator(...arg)
+        await instance.start()
+        interactorContexts.set(name, (await instance.startContext()).context)
+        state.interactors.set(name, {
+          instance,
+          ...('hook' in service ? { hook: service.hook } : {}),
+        })
+      }
+      if (isRunnerConfig(service)) {
+        const instance = service.creator(...arg)
+        await instance.start()
+        state.runners.set(name, {
+          instance,
+          ...('hook' in service ? { hook: service.hook } : {}),
+        })
+      }
+    },
     register: (name, context) => {
-      interactors.set(name, context)
+      interactorContexts.set(name, context)
     },
   }
 }
+
+const isInteractorConfig = (
+  service: InteractorConfig | RunnerConfig | undefined,
+): service is InteractorConfig => service?.type === 'interactor'
+
+const isRunnerConfig = (
+  service: InteractorConfig | RunnerConfig | undefined,
+): service is RunnerConfig => service?.type === 'runner'
 
 export type ReportEntry =
   | {
@@ -70,32 +129,56 @@ export type ReportEntry =
       type: 'image/png'
     }
 
-export type TestEnviornment<INTERACTORS extends NamedInteractor> = {
+export type TestEnviornment<SERVICES extends Record<string, RunnerConfig | InteractorConfig>> = {
   onBeforeAll: () => Promise<void>
   onAfterAll: () => Promise<void>
-  onBefore: (world: TestEnvironmentWorld<INTERACTORS>) => Promise<Observable<ReportEntry>>
-  onAfter: (world: TestEnvironmentWorld<INTERACTORS>) => Promise<void>
-  onFailure: (world: TestEnvironmentWorld<INTERACTORS>, testName: string) => Promise<ReportEntry[]>
-  createWorld: () => TestEnvironmentWorld<INTERACTORS>
+  onBefore: (world: TestEnvironmentWorld<SERVICES>) => Promise<Observable<ReportEntry>>
+  onAfter: (world: TestEnvironmentWorld<SERVICES>) => Promise<void>
+  onFailure: (world: TestEnvironmentWorld<SERVICES>, testName: string) => Promise<ReportEntry[]>
+  createWorld: () => TestEnvironmentWorld<SERVICES>
 }
 
 type DefaultConfig = { hook?: 'before-all' | 'before' }
-type RunnerConfig = { type: 'runner'; creator: () => Runner } & DefaultConfig
-type InteractorConfig = { type: 'interactor'; creator: () => Interactor } & DefaultConfig
+type RunnerConfig<RUNNER = any, ARGS extends any[] = any[]> = {
+  type: 'runner'
+  creator: (...args: ARGS) => RUNNER
+} & DefaultConfig
+type InteractorConfig<INTERACTOR = any, ARGS extends any[] = any[]> = {
+  type: 'interactor'
+  creator: (...args: ARGS) => INTERACTOR
+} & DefaultConfig
 
 type RunnerInstance = { instance: Runner } & DefaultConfig
 type InteractorInstance = { instance: Interactor } & DefaultConfig
 
-type FilterInteractorConfig<SERVICES extends Record<string, RunnerConfig | InteractorConfig>> = {
-  [K in keyof SERVICES]: SERVICES[K] extends InteractorConfig ? SERVICES[K] : never
+type FilterConfigByType<
+  SERVICES extends Record<string, RunnerConfig | InteractorConfig>,
+  TYPE extends RunnerConfig | InteractorConfig,
+> = {
+  [K in keyof SERVICES]: SERVICES[K] extends TYPE ? SERVICES[K] : never
+}
+
+type TestEnviornmentState<
+  SERVICES extends Record<string, RunnerConfig | InteractorConfig>,
+  INTERACTORS extends NamedInstance = ServicesToNamedInstance<
+    FilterConfigByType<SERVICES, InteractorConfig>
+  >,
+  RUNNERS extends NamedInstance = ServicesToNamedInstance<
+    FilterConfigByType<SERVICES, RunnerConfig>
+  >,
+> = {
+  services: SERVICES
+  interactors: Map<INTERACTORS['name'], { instance: INTERACTORS['instance'] } & DefaultConfig>
+  runners: Map<RUNNERS['name'], { instance: RUNNERS['instance'] } & DefaultConfig>
 }
 
 export const createTestEnvironment = <
   SERVICES extends Record<string, RunnerConfig | InteractorConfig>,
 >(
   services: SERVICES,
-): TestEnviornment<ServicesToNamedInteractor<FilterInteractorConfig<SERVICES>>> => {
-  type Interactor = ServicesToNamedInteractor<FilterInteractorConfig<SERVICES>>
+): TestEnviornment<SERVICES> => {
+  type Interactor = ServicesToNamedInstance<FilterConfigByType<SERVICES, InteractorConfig>>
+  type Runner = ServicesToNamedInstance<FilterConfigByType<SERVICES, RunnerConfig>>
 
   const isInteractorEntry = (
     entry: [string, RunnerConfig | InteractorConfig],
@@ -105,23 +188,25 @@ export const createTestEnvironment = <
     entry: [string, RunnerConfig | InteractorConfig],
   ): entry is [string, RunnerConfig] => entry[1].type === 'runner'
 
-  const interactorsInstances = new Map(
-    Object.entries(services)
-      .filter(isInteractorEntry)
-      .map(([key, { creator, hook }]) => [
-        key,
-        { instance: creator(), ...(Boolean(hook) && { hook }) },
-      ]),
-  )
-
-  const runnersInstances = new Map(
-    Object.entries(services)
-      .filter(isRunnerEntry)
-      .map(([key, { creator, hook }]) => [
-        key,
-        { instance: creator(), ...(Boolean(hook) && { hook }) },
-      ]),
-  )
+  const state: TestEnviornmentState<SERVICES> = {
+    services,
+    interactors: new Map<string, { instance: Interactor['instance'] } & DefaultConfig>(
+      Object.entries(services)
+        .filter(isInteractorEntry)
+        .map(([key, { creator, hook }]) => [
+          key,
+          { instance: creator(), ...(Boolean(hook) && { hook }) },
+        ]),
+    ),
+    runners: new Map<string, { instance: Runner['instance'] } & DefaultConfig>(
+      Object.entries(services)
+        .filter(isRunnerEntry)
+        .map(([key, { creator, hook }]) => [
+          key,
+          { instance: creator(), ...(Boolean(hook) && { hook }) },
+        ]),
+    ),
+  }
 
   const asyncTransform = async <T, R>(
     iterable: Iterable<T>,
@@ -131,13 +216,13 @@ export const createTestEnvironment = <
   const forEachRunner = async (
     mapper: (runner: RunnerInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(runnersInstances.values(), (list) => list.map(mapper))
+    await asyncTransform(state.runners.values(), (list) => list.map(mapper))
   }
 
   const forEachBeforeAllInteractor = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(interactorsInstances.values(), (list) =>
+    await asyncTransform(state.interactors.values(), (list) =>
       list.filter(({ hook }) => hook === 'before-all').map(mapper),
     )
   }
@@ -145,15 +230,15 @@ export const createTestEnvironment = <
   const forEachBeforeInteractor = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(interactorsInstances.values(), (list) =>
-      list.filter(({ hook }) => hook === 'before').map(mapper),
+    await asyncTransform(state.interactors.values(), (list) =>
+      list.filter(({ hook }) => hook === 'before' || hook === undefined).map(mapper),
     )
   }
 
   const mapInteractors = async <T>(
     mapper: (key: Interactor['name'], interactor: InteractorInstance) => Promise<T>,
   ): Promise<T[]> =>
-    await asyncTransform(interactorsInstances.entries(), (list) =>
+    await asyncTransform(state.interactors.entries(), (list) =>
       list.map(async ([key, interactor]) => await mapper(key, interactor)),
     )
 
@@ -202,6 +287,6 @@ export const createTestEnvironment = <
         return await instance.onFailure(world.get(name), testName)
       })
     },
-    createWorld: () => createWorld<Interactor>(),
+    createWorld: () => createWorld<SERVICES>(state),
   }
 }
