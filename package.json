@@ -1,7 +1,11 @@
 {
   "name": "@bobcats-coding/skid",
   "version": "0.1.1",
-  "description": "",
+  "description": "An opinionated set of tools for building TypeScript applications.",
+  "scripts": {
+    "build": "tsc",
+    "postinstall": "npm run build"
+  },
   "dependencies": {
     "@bobcats-coding/skid": "file:.",
     "@reduxjs/toolkit": "^1.9.1",
