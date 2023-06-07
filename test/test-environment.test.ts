@@ -207,6 +207,20 @@ test('world should be able to pass params when starts a service', async () => {
   expect(state2.startArg).toBe(3)
 })
 
+test('should not start non hook services', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: false })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'runner', creator: creator2 },
+  })
+  const world = testEnvironment.createWorld()
+  await testEnvironment.onBeforeAll()
+  await testEnvironment.onBefore(world)
+  expect(state1.isStarted).toBe(false)
+  expect(state2.isStarted).toBe(false)
+})
+
 test('onAfter stops services started from the world', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
   const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: false, context: 2 })
