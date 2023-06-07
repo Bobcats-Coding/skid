@@ -227,11 +227,17 @@ export const createTestEnvironment = <
     )
   }
 
+  const forEachInteractor = async (
+    mapper: (interactor: InteractorInstance) => Promise<void>,
+  ): Promise<void> => {
+    await asyncTransform(state.interactors.values(), (list) => list.map(mapper))
+  }
+
   const forEachBeforeInteractor = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
     await asyncTransform(state.interactors.values(), (list) =>
-      list.filter(({ hook }) => hook === 'before' || hook === undefined).map(mapper),
+      list.filter(({ hook }) => hook === 'before').map(mapper),
     )
   }
 
@@ -244,8 +250,10 @@ export const createTestEnvironment = <
 
   return {
     onBeforeAll: async () => {
-      await forEachRunner(async ({ instance }) => {
-        await instance.start()
+      await forEachRunner(async ({ instance, hook }) => {
+        if (hook === 'before-all') {
+          await instance.start()
+        }
       })
       await forEachBeforeAllInteractor(async ({ instance }) => {
         await instance.start()
@@ -278,8 +286,10 @@ export const createTestEnvironment = <
       await mapInteractors(async (name, { instance }) => {
         await instance.stopContext(world.get(name))
       })
-      await forEachBeforeInteractor(async ({ instance }) => {
-        await instance.stop()
+      await forEachInteractor(async ({ instance, hook }) => {
+        if (hook !== 'before-all') {
+          await instance.stop()
+        }
       })
     },
     onFailure: async (world, testName) => {
