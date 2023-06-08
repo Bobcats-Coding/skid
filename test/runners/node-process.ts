@@ -1,7 +1,7 @@
 import type { Runner } from '@bobcats-coding/skid/test/test-environment'
 
 import type { StartedTestContainer } from 'testcontainers'
-import { GenericContainer, Wait } from 'testcontainers'
+import { GenericContainer, TestContainers, Wait } from 'testcontainers'
 
 export type NodeProcessRunnerConfig = {
   path: string
@@ -41,6 +41,7 @@ export const nodeProcessRunner = ({ path, args, port }: NodeProcessRunnerConfig)
   return {
     start: async () => {
       runningContainer = await container.start()
+      await TestContainers.exposeHostPorts(port)
     },
     stop: async () => {
       if (runningContainer !== undefined) {
