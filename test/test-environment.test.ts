@@ -1,5 +1,5 @@
-import { createTestEnvironment, Runner } from './test-environment'
-import type { Interactor } from './test-environment'
+import { createTestEnvironment } from './test-environment'
+import type { Interactor, Runner } from './type'
 
 import { EMPTY } from 'rxjs'
 
@@ -108,7 +108,7 @@ test('onBefore hook starts the "before" services', async () => {
   expect(state2.isStarted).toBe(false)
 })
 
-test('onBeforeAll only hook starts the "before-all" services', async () => {
+test('onBeforeAll hook only starts the "before-all" services', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ context: 1 })
   const { state: state2, creator: creator2 } = setupFakeInteractor({ context: 2 })
   const testEnvironment = createTestEnvironment({
@@ -134,7 +134,7 @@ test('onAfter hook stops the "before" services', async () => {
   expect(state2.isStarted).toBe(true)
 })
 
-test('onAfterAll only hook stops the "before-all" services', async () => {
+test('onAfterAll hook only stops the "before-all" services', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
   const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
   const testEnvironment = createTestEnvironment({
@@ -146,7 +146,7 @@ test('onAfterAll only hook stops the "before-all" services', async () => {
   expect(state2.isStarted).toBe(false)
 })
 
-test('onAfterAll only hook stops the "before-all" services', async () => {
+test('onAfterAll hook only stops the "before-all" services', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
   const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
   const testEnvironment = createTestEnvironment({

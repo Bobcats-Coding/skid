@@ -1,4 +1,4 @@
-import type { Runner } from '@bobcats-coding/skid/test/test-environment'
+import type { Runner } from '@bobcats-coding/skid/test/type'
 
 import type { StartedTestContainer } from 'testcontainers'
 import { GenericContainer, TestContainers, Wait } from 'testcontainers'
