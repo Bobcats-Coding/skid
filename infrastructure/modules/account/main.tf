@@ -63,9 +63,9 @@ resource "google_project_iam_member" "service-account-storage-role" {
   member = "serviceAccount:${google_service_account.service-account.email}"
 }
 
-resource "google_project_iam_member" "service-account-secret-accessor-role" {
+resource "google_project_iam_member" "service-account-secret-admin-role" {
   project = google_project.project.project_id
-  role = "roles/secretmanager.secretAccessor"
+  role = "roles/secretmanager.admin"
   member = "serviceAccount:${google_service_account.service-account.email}"
 }
 
@@ -78,5 +78,29 @@ resource "google_project_iam_member" "service-account-kms-role" {
 resource "google_project_iam_member" "service-dns-admin-role" {
   project = google_project.project.project_id
   role = "roles/dns.admin"
+  member = "serviceAccount:${google_service_account.service-account.email}"
+}
+
+resource "google_project_iam_member" "service-account-iam-service-account-viewer-role" {
+  project = google_project.project.project_id
+  role = "roles/iam.serviceAccountAdmin"
+  member = "serviceAccount:${google_service_account.service-account.email}"
+}
+
+resource "google_project_iam_member" "service-account-iam-workload-identity-role" {
+  project = google_project.project.project_id
+  role = "roles/iam.workloadIdentityPoolViewer"
+  member = "serviceAccount:${google_service_account.service-account.email}"
+}
+
+resource "google_project_iam_member" "service-account-iam-role-admin-role" {
+  project = google_project.project.project_id
+  role = "roles/iam.roleAdmin"
+  member = "serviceAccount:${google_service_account.service-account.email}"
+}
+
+resource "google_project_iam_member" "service-account-service-usage-viewer-role" {
+  project = google_project.project.project_id
+  role = "roles/serviceusage.serviceUsageViewer"
   member = "serviceAccount:${google_service_account.service-account.email}"
 }
