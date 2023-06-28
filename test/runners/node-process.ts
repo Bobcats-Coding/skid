@@ -7,13 +7,20 @@ export type NodeProcessRunnerConfig = {
   path: string
   args: string[]
   port: number
+  environment?: Record<string, string>
 }
 
-export const nodeProcessRunner = ({ path, args, port }: NodeProcessRunnerConfig): Runner => {
+export const nodeProcessRunner = ({
+  path,
+  args,
+  port,
+  environment = {},
+}: NodeProcessRunnerConfig): Runner => {
   let runningContainer: StartedTestContainer | undefined
 
   const container = new GenericContainer('node')
     .withWorkingDir('/opt/app')
+    .withEnvironment(environment)
     .withBindMounts([
       {
         source: path,
