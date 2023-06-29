@@ -41,6 +41,8 @@ export type GetResponseType<API, REQUEST extends RestEndpointRequest> = API exte
   ? RESPONSE
   : never
 
+export type GetRequestType<API> = API extends RestEndpoint<infer REQUEST, any> ? REQUEST : never
+
 export type Fetcher<PARSED_TYPE = any> = (
   url: string,
   request: FetcherConfigArg,
@@ -56,7 +58,7 @@ export const createRestClientCreator =
     protocol: string,
     host: string,
   ) =>
-  <REQUEST extends RestEndpointRequest>(
+  <REQUEST extends GetRequestType<API>>(
     request: REQUEST,
   ): Observable<GetResponseType<API, REQUEST>> =>
     // The value is unknown that comes from the fetcher, this is the boundary

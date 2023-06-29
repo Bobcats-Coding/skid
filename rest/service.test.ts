@@ -1,4 +1,4 @@
-import type { Fetcher, RestClient, RestEndpoint } from './service'
+import type { Fetcher, RestEndpoint } from './service'
 import { createRestClientCreator } from './service'
 
 import type { JsonType } from '@bobcats-coding/skid/core/type'
@@ -213,12 +213,61 @@ test('the client should return the narrowed type by the request config', () => {
   } as const) satisfies Observable<Response4>
 })
 
+test('the client should only allow valid type requests', () => {
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
+  type Response = { a: number }
+  type Api = RestEndpoint<
+    {
+      method: 'GET'
+      pathname: '/path'
+      search: {
+        a: string
+      }
+      headers: {
+        'header-1': 'value-1'
+      }
+    },
+    Response
+  >
+  const client = createRestClient<Api>('https', 'host')
+  const search: Record<'a', string> = { a: '1' } as const
+  const headers: Record<'header-1', 'value-1'> = {
+    'header-1': 'value-1',
+  } as const
+  client({
+    method: 'GET',
+    // @ts-expect-error
+    pathname: '/path2',
+    search,
+    headers,
+  })
+  client({
+    // @ts-expect-error
+    method: 'POST',
+    pathname: '/path',
+    search,
+    headers,
+  })
+  // @ts-expect-error
+  client({
+    method: 'GET',
+    pathname: '/path',
+    search,
+  })
+  // @ts-expect-error
+  client({
+    method: 'GET',
+    pathname: '/path',
+    headers,
+  })
+})
+
 test('the awaited value should be narrowed', async () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
     | RestEndpoint<GetRequestWithPath, Response>
     | RestEndpoint<GetRequestWithPath2, Response2>
-  const client: RestClient<Fetcher<JsonType>, Api> = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https', 'host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' } as const))
   response satisfies Response
   // @ts-expect-error
@@ -240,7 +289,7 @@ type GetRequestWithPath2 = {
 }
 
 type PostRequestWithPath = {
-  method: 'GET'
+  method: 'POST'
   pathname: '/path'
 }
 
