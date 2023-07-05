@@ -8,7 +8,6 @@ import {
 import type { AuthSearchParams } from './api'
 import { Scenario, ScenarioActionResponse } from './types'
 
-// import { catchError, of } from 'rxjs';
 import type { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
