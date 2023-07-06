@@ -3,9 +3,9 @@ import { Scenario, ScenarioActionResponse } from './types'
 
 import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
+import { AUTH_HEADER } from '../rest/type'
 
 const SCENARIO_BASE_PATHNAME = 'api/v2/scenarios' as const
-type AUTH_HEADER_BASE = `Token ${string}`
 
 export enum SCENARIO_ACTIONS {
   START = 'start',
@@ -18,9 +18,7 @@ export type ScenarioApiListRequest = {
   method: 'GET'
   pathname: typeof SCENARIO_BASE_PATHNAME
   search: AuthSearchParams
-  headers: {
-    Authorization: AUTH_HEADER_BASE
-  }
+  headers: AUTH_HEADER
 }
 
 export type ScenarioApiListResponse = {
@@ -32,9 +30,7 @@ export type ScenarioApiListEndpoint = RestEndpoint<ScenarioApiListRequest, Scena
 export type ScenarioApiSingleRequest = {
   method: 'GET'
   pathname: `${typeof SCENARIO_BASE_PATHNAME}/${number}`
-  headers: {
-    Authorization: AUTH_HEADER_BASE
-  }
+  headers: AUTH_HEADER
 }
 
 export type ScenarioApiSingleResponse = {
@@ -49,9 +45,7 @@ export type ScenarioApiSingleEndpoint = RestEndpoint<
 export type ScenarioApiActionRequest = {
   method: 'POST'
   pathname: `${typeof SCENARIO_BASE_PATHNAME}/${number}/${SCENARIO_ACTIONS}`
-  headers: {
-    Authorization: AUTH_HEADER_BASE
-  }
+  headers: AUTH_HEADER
 }
 
 export type ScenarioApiActionResponse = {
