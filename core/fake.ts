@@ -57,7 +57,7 @@ export const createStoreTools = <NAMESPACE>({
   return {
     getStateReadable: (in$: Observable<Partial<State>>): StateReadable<AppStoreState> => ({
       // We are faking a whole state so needs to force casting is needed
-      state$: in$.pipe(map((x) => ({ [namespace]: x } as unknown as AppStoreState))),
+      state$: in$.pipe(map((x) => ({ [namespace]: x }) as unknown as AppStoreState)),
     }),
     createAppStore: () => {
       const store = createCoreStore<AppStoreState & BaseState, Event>({

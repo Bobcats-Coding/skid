@@ -15,7 +15,8 @@ export type TestEnvironmentWorld<
   INTERACTORS extends NamedInstance = ServicesToNamedInstance<
     FilterConfigByType<SERVICES, InteractorConfig>
   >,
-  SERVICE_NAMES extends ServicesToNamedInstance<SERVICES>['name'] = ServicesToNamedInstance<SERVICES>['name'],
+  SERVICE_NAMES extends
+    ServicesToNamedInstance<SERVICES>['name'] = ServicesToNamedInstance<SERVICES>['name'],
 > = {
   get: <NAME extends INTERACTORS['name']>(name: NAME) => GetContextByName<INTERACTORS, NAME>
   register: <NAME extends INTERACTORS['name']>(
