@@ -24,12 +24,12 @@ test('Get internal services', () => {
   expect(services?.myService).toBe('my-service')
 })
 
-test('Pre-render can execute side-effects', () => {
+test('Pre-main can execute side-effects', () => {
   const myService = 'my-service'
   type Services = { myService: string }
   const app = createApplication<Services, Services>({
     getExternalServices: () => ({ myService }),
-    preRender: (services) => {
+    preMain: (services) => {
       services.myService += '-side-effect'
     },
   })
@@ -50,7 +50,7 @@ test('Get delivery', () => {
   expect(delivery?.AppComponent().props.children).toEqual('my-service')
 })
 
-test('Render', () => {
+test('main', () => {
   const myService = 'my-service'
   type Services = { myService: 'my-service' }
   const app = createApplication<Services, Services, { AppComponent: () => JSX.Element }>({
@@ -58,7 +58,7 @@ test('Render', () => {
     getDelivery: ({ myService }) => ({
       AppComponent: () => <span>{myService}</span>,
     }),
-    render: ({ services, delivery }) =>
+    main: ({ services, delivery }) =>
       `${delivery.AppComponent().props.children as string}-${services.myService}`,
   })
   const { output } = app.run() ?? {}
@@ -97,7 +97,7 @@ test('Redefine internal services', () => {
   expect(services?.myService).toBe('my-service-2')
 })
 
-test('Redefine pre-render', () => {
+test('Redefine pre-main', () => {
   const myService = 'my-service'
   type Services = { myService: string }
   const app = createApplication<Services, Services>({
@@ -105,7 +105,7 @@ test('Redefine pre-render', () => {
   })
   const { services } =
     app.run({
-      preRender: (services) => {
+      preMain: (services) => {
         services.myService += '-side-effect'
       },
     }) ?? {}
@@ -130,7 +130,7 @@ test('Redefine delivery', () => {
   expect(delivery?.AppComponent().props.children).toEqual('my-service-change')
 })
 
-test('Redefine render', () => {
+test('Redefine main', () => {
   const myService = 'my-service'
   type Services = { myService: 'my-service' }
   const app = createApplication<Services, Services, { AppComponent: () => JSX.Element }>({
@@ -138,12 +138,12 @@ test('Redefine render', () => {
     getDelivery: ({ myService }) => ({
       AppComponent: () => <span>{myService}</span>,
     }),
-    render: ({ services, delivery }) =>
+    main: ({ services, delivery }) =>
       `${delivery.AppComponent().props.children as string}-${services.myService}`,
   })
   const { output } =
     app.run({
-      render: ({ services, delivery }) =>
+      main: ({ services, delivery }) =>
         `${delivery.AppComponent().props.children as string}-${services.myService}-change`,
     }) ?? {}
   expect(output).toEqual('my-service-my-service-change')
@@ -156,7 +156,7 @@ test('Error handling', () => {
     onError: (err) => {
       error = err
     },
-    render() {
+    main() {
       throw new Error('error')
     },
   })

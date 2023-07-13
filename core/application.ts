@@ -20,9 +20,9 @@ export type AppArgs<
 > = {
   readonly getInternalServices?: (externalServices: EXTERNAL_SERVICES) => INTERNAL_SERVICES
   readonly getExternalServices?: () => EXTERNAL_SERVICES
-  readonly preRender?: (services: INTERNAL_SERVICES) => void
+  readonly preMain?: (services: INTERNAL_SERVICES) => void
   readonly getDelivery?: (services: INTERNAL_SERVICES) => DELIVERY
-  readonly render?: (arg: { services: INTERNAL_SERVICES; delivery: DELIVERY }) => any
+  readonly main?: (arg: { services: INTERNAL_SERVICES; delivery: DELIVERY }) => any
   readonly onError?: (err: Error) => void
   readonly topLevelErrorHandling?: (cb: (err: Error) => void) => void
 }
@@ -36,32 +36,32 @@ export const createApplication = <
   appArgs: AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>,
 ): Application<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, OUTPUT> => ({
   run: (runArgs = {}) => {
-    // Need to cast the default valuse because these are independent from the template variables
+    // Need to cast the default values because these are independent from the template variables
     const defaults = {
       getInternalServices: (services: EXTERNAL_SERVICES) =>
         services as unknown as INTERNAL_SERVICES,
       getExternalServices: () => ({} as unknown as EXTERNAL_SERVICES),
-      preRender: () => {},
+      preMain: () => {},
       getDelivery: () => ({} as unknown as DELIVERY),
-      render: () => 0,
+      main: () => 0,
       onError: () => {},
       topLevelErrorHandling: (_: (err: Error) => void) => {},
     }
     const {
       getExternalServices,
       getInternalServices,
-      preRender,
+      preMain,
       getDelivery,
-      render,
+      main,
       onError,
       topLevelErrorHandling,
     } = { ...defaults, ...appArgs, ...runArgs }
     try {
       topLevelErrorHandling(onError)
       const services = getInternalServices(getExternalServices())
-      preRender(services)
+      preMain(services)
       const delivery = getDelivery(services)
-      const output = render({ services, delivery })
+      const output = main({ services, delivery })
       return { services, delivery, output }
     } catch (err) {
       onError(err as Error)
