@@ -44,9 +44,12 @@ export const createApplication = <
       preMain: () => {},
       getDelivery: () => ({} as unknown as DELIVERY),
       main: () => 0,
-      onError: () => {},
+      onError: (err: Error) => {
+        console.error(err)
+      },
       topLevelErrorHandling: (_: (err: Error) => void) => {},
     }
+
     const {
       getExternalServices,
       getInternalServices,
