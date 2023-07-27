@@ -24,7 +24,7 @@ test('it should list available models', async () => {
   const featureService = createOpenAIAPIFeatureService(client)
   const res = await featureService.listModels()
   expect(res.data.length).toBe(1)
-  expect(res.data[0].id).toBe('text-davinci-003')
+  expect(res.data[0]?.id).toBe('text-davinci-003')
 })
 
 test('it should create a chat completion', async () => {
