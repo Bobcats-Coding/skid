@@ -1,6 +1,8 @@
 import {
   CreateChatCompletionRequest,
   CreateChatCompletionResponse,
+  CreateImageRequest,
+  ImagesResponse,
   ListModelsResponse,
   OpenAIApi,
 } from './type'
@@ -10,6 +12,7 @@ export type OpenAIApiService = {
   createChatCompletion: (
     params: CreateChatCompletionRequest,
   ) => Promise<CreateChatCompletionResponse>
+  createImage: (params: CreateImageRequest) => Promise<ImagesResponse>
 }
 
 export const createOpenAIAPIFeatureService = (openAIApiClient: OpenAIApi): OpenAIApiService => {
@@ -37,8 +40,18 @@ export const createOpenAIAPIFeatureService = (openAIApiClient: OpenAIApi): OpenA
     }
   }
 
+  const createImage = async (params: CreateImageRequest): Promise<ImagesResponse> => {
+    try {
+      const response = await openAIApiClient.createImage(params)
+      return response.data
+    } catch (error) {
+      return handleError(error as Error)
+    }
+  }
+
   return {
     listModels,
     createChatCompletion,
+    createImage,
   }
 }
