@@ -22,6 +22,7 @@ test('Get internal services', () => {
   })
   const { services } = app.run() ?? {}
   expect(services?.myService).toBe('my-service')
+  expect(services?.myExternalService).toBe('my-service')
 })
 
 test('Pre-main can execute side-effects', () => {

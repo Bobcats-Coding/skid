@@ -5,7 +5,7 @@ export type Application<
   OUTPUT = number,
   RUN_ARGS = Partial<AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>>,
   RUN_RETURN = {
-    services: INTERNAL_SERVICES
+    services: INTERNAL_SERVICES & EXTERNAL_SERVICES
     delivery: DELIVERY
     output: OUTPUT
   },
@@ -58,10 +58,12 @@ export const createApplication = <
     } = { ...defaults, ...appArgs, ...runArgs }
     try {
       topLevelErrorHandling(onError)
-      const services = getInternalServices(getExternalServices())
-      preMain(services)
-      const delivery = getDelivery(services)
-      const output = main({ services, delivery })
+      const externalServices = getExternalServices()
+      const internalServices = getInternalServices(externalServices)
+      preMain(internalServices)
+      const delivery = getDelivery(internalServices)
+      const output = main({ services: internalServices, delivery })
+      const services = { ...externalServices, ...internalServices }
       return { services, delivery, output }
     } catch (err) {
       onError(err as Error)
