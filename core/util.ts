@@ -1,5 +1,7 @@
 import { ObjectWithStringLiteralKey, StringLiteral } from './type'
 
+export const typeKey = Symbol('type')
+
 export const makeObjectFromStringLiteral = <KEY, VALUE>(
   key: StringLiteral<KEY>,
   value: VALUE,
