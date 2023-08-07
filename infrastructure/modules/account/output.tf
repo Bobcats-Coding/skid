@@ -5,7 +5,7 @@ output "main-project-id" {
 
 output "sub-project-ids" {
   value = {
-    for key, project in var.projects-to-create : key => project.name
+    for key, project in var.projects-to-create : key => google_project.sub-projects[key].project_id
   }
   sensitive = true
 }

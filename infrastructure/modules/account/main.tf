@@ -19,15 +19,8 @@ locals {
     for api in local.apis : api.id => api
   }
 
-  accesses = setunion(
-    var.projects-to-access,
-    [
-      for project in var.projects-to-create : project.name
-    ]
-  )
-
   sub-project-roles = flatten([
-    for project in var.projects-to-create : [
+    for project in merge(var.projects-to-create, var.projects-to-access) : [
       for role in project.roles : {
         id = "${project.name}-${role}"
         project = project.name
@@ -77,13 +70,10 @@ resource "google_project_iam_member" "service-account-main-project-roles" {
   member = "serviceAccount:${google_service_account.service-account.email}"
 }
 
-resource "google_project_iam_binding" "service-account-sub-project-roles" {
+resource "google_project_iam_member" "service-account-sub-project-roles" {
   for_each = local.sub-project-roles-for-foreach
   project = each.value.project
   role = "roles/${each.value.role}"
-
-  members = [
-    "serviceAccount:${google_service_account.service-account.email}",
-  ]
+  member = "serviceAccount:${google_service_account.service-account.email}"
 }
 

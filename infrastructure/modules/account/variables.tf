@@ -26,9 +26,12 @@ variable "projects-to-create" {
 }
 
 variable "projects-to-access" {
-  type = set(string)
+  type = map(object({
+    name = string
+    roles = set(string)
+  }))
   description = "List of projects to access"
-  default = []
+  default = {}
 }
 
 variable "org-id" {
