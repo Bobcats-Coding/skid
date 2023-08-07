@@ -1,5 +1,47 @@
-export type API_KEY = {
-  Authorization: `Api-Key: ${string}`
+export type LocationResponse = {
+  _links: {
+    auth?: Link
+    clock_entries?: Link
+    configuration?: Link
+    discounts?: Link
+    employees?: Link
+    item_order_modes?: Link
+    jobs?: Link
+    menu?: Link
+    order_types?: Link
+    price_check?: Link
+    reports?: Link
+    revenue_centers?: Link
+    self?: Link
+    shifts?: Link
+    tables?: Link
+    tender_types?: Link
+    terminals?: Link
+    tickets?: Link
+    transfers?: Link
+    void_types?: Link
+  }
+  address?: Address
+  agent_version: string | null
+  concept_name: string | null
+  created: number
+  custom_id: null
+  development: boolean
+  display_name: string | null
+  google_place_id: string | null
+  health: Health
+  id: string
+  latitude?: null | any
+  longitude?: null | any
+  modified: number
+  name: string | null
+  owner: string | null
+  phone: string | null
+  pos_type: string | null
+  status: string | null
+  timezone: string | null
+  updater_version: string | null
+  website: string | null
 }
 
 export type Link = {
@@ -7,48 +49,126 @@ export type Link = {
   type: string
 }
 
-export type Links = {
-  [key: string]: Link
+export type Address = {
+  city: string | null
+  country: string | null
+  state: string | null
+  street1: string | null
+  street2: string | null
+  zip: string | null
+}
+
+export type Health = {
+  agent: {
+    average_cpu: number
+    average_memory: number
+    healthy: boolean
+    processes: number
+  }
+  healthy: boolean
+  system: {
+    average_cpu: number
+    average_memory: number
+    healthy: boolean
+  }
+  tickets: {
+    response_time: number
+    status: string | null
+  }
 }
 
 export type Employee = {
-  _links: Links
+  _links: {
+    clock_entries: Link
+    open_tickets: Link
+    pay_rates: Link
+    self: Link
+  }
   check_name: string
   first_name: string
   id: string
   last_name: string
   login: string
-  middle_name: null | string
-  pos_id: null | string
+  middle_name?: null
+  pos_id: string | null
   start_date: null | string
 }
 
-export type OrderType = {
-  _links: Links
-  available: boolean
+export type SingleTicketResponse = {
+  _embedded: {
+    discounts?: Discount[]
+    employee: Employee
+    items: []
+    order_type: {
+      _links: {
+        self: Link
+      }
+      available: boolean
+      id: string
+      name: string
+      pos_id: string
+    }
+    payments: any[] // todo
+    revenue_center: {
+      _links: {
+        open_tickets: Link
+        self: Link
+        tables: Link
+      }
+      default: boolean
+      id: string
+      name: string
+      pos_id: string
+    }
+    service_charges: [
+      {
+        _links: {
+          self: Link
+        }
+        comment: string | null
+        id: string
+        included_tax: string | number // not listed in the docs so may as well be string or a number :,)
+        name: string
+        price: number
+      },
+    ]
+    voided_items: any[]
+  }
+  _links: {
+    discounts: Link
+    employee: Link
+    items: Link
+    order_type: Link
+    payments: Link
+    revenue_center: Link
+    self: Link
+    service_charges: Link
+    voided_items: Link
+  }
+  auto_send: boolean
+  closed_at: null | number
+  correlation: Correlation
+  fire_date: null | number
+  fire_time: null | number
+  guest_count: number
   id: string
-  name: string
+  name: string | null
+  open: boolean
+  opened_at: number
   pos_id: string
+  ready_date: null | number
+  ready_time: null | number
+  ticket_number: number
+  totals: Totals
+  void: boolean
 }
 
-export type RevenueCenter = {
-  _links: Links
-  default: boolean
-  id: string
-  name: string
-  pos_id: string
+export type Correlation = {
+  sequence: string
+  source: string
 }
 
-export type ServiceCharge = {
-  _links: Links
-  comment: null | string
-  id: string
-  included_tax: null | number
-  name: string
-  price: number
-}
-
-export type TicketTotal = {
+export type Totals = {
   discounts: number
   due: number
   exclusive_tax: null | number
@@ -63,265 +183,125 @@ export type TicketTotal = {
   total: number
 }
 
-export type Ticket = {
+export type GetAllTicketsResponse = {
   _embedded: {
-    discounts: any[]
-    employee: Employee
-    items: any[]
-    order_type: OrderType
-    payments: any[]
-    revenue_center: RevenueCenter
-    service_charges: ServiceCharge[]
-    voided_items: any[]
+    tickets: SingleTicketResponse[]
   }
-  _links: Links
-  auto_send: boolean
-  closed_at: null | string
-  correlation: null | any
-  fire_date: null | any
-  fire_time: null | any
-  guest_count: number
-  id: string
-  name: null | string
-  open: boolean
-  opened_at: number
-  pos_id: null | string
-  ready_date: null | any
-  ready_time: null | any
-  ticket_number: number
-  totals: TicketTotal
-  void: boolean
-}
-
-export type EmbeddedTickets = {
-  tickets: Ticket[]
-}
-
-export type TicketResponse = {
-  _embedded: EmbeddedTickets
-  _links: Links
+  _links: {
+    next: Link
+    self: Link
+  }
   count: number
   limit: number
 }
 
-export type SingleTicketResponse = {
-  _embedded: Ticket
+export type OpenTicketRequest = {
+  employee: string
+  order_type: string
+  revenue_center: string
+  items: NewItemDetails[]
+  payments: NewPaymentDetails[]
+  discounts?: Discount[]
 }
 
-export type RetrieveDiscountResponse = {
-  _embedded: DiscountEmbedded
+export type NewItemDetails = {
+  menu_item: string
+  quantity?: number
+  auto_send?: boolean
+  comment?: string
+  name?: string
+}
+
+export type NewPaymentDetails = {
+  amount?: number
+  type: string
+  tip: number
+  token: string
+  full?: boolean
+}
+
+export type Discount = {
+  value?: number
+  code?: string
+  comment?: string
+  discount: string
+}
+
+export type TicketDiscountsResponse = {
+  _embedded: {
+    discounts: [
+      {
+        _embedded: {
+          discount: DiscountBody
+        }
+        _links: {
+          discount: Link
+          self: Link
+        }
+        comment: string | null
+        id: string
+        name: string
+        value: number
+      },
+    ]
+  }
   _links: {
-    discount: Link
     self: Link
   }
-  comment: null | string
+  count: number
+}
+
+export type DiscountBody = {
+  _links: {
+    self: Link
+  }
+  applies_to: {
+    item: boolean
+    ticket: boolean
+  }
+  available: boolean
+  id: string
+  max_amount?: number
+  max_percent?: number
+  min_amount?: number
+  min_percent?: number
+  min_ticket_total?: number
+  name?: string
+  open: false
+  pos_id: string
+  type: string
+  value: number
+}
+
+export type DiscountResponse = {
+  _embedded: {
+    discount: DiscountBody
+  }
+  comment: string | null
   id: string
   name: string
   value: number
 }
 
-export type DiscountEmbedded = {
-  discount: {
-    _links: {
-      self: Link
-    }
-    applies_to: AppliesTo
-    available: boolean
-    id: string
-    max_amount: null | number
-    max_percent: null | number
-    min_amount: null | number
-    min_percent: null | number
-    min_ticket_total: null | number
-    name: string
-    open: boolean
-    pos_id: string
-    type: string
-    value: number
-  }
-}
-
-export type AppliesTo = {
-  item: boolean
-  ticket: boolean
-}
-
-export type Item = {
-  menu_item: string
-  quantity?: number
-  comment?: string
-  discounts?: any[]
-  price_per_unit?: number
-  price_level?: string
-  modifiers?: any[]
-  auto_send?: boolean
-}
-
-export type TicketRequestBody = {
-  employee: string
-  order_type: string
-  revenue_center: string
-  items: Item[]
-  payments: {
-    type: string
-    tip: number
-    amount: number
-  }[]
-}
-
-export type VoidTicketBody = {
-  void: boolean
-}
-
-export type TicketDiscount = {
+export type ApplyDiscountBody = {
   discount: string
+  value?: number
   code?: string
   comment?: string
-  value?: number
-}[]
-
-type SelfLink = {
-  href: string
-  type: string
 }
 
-export type ApplyDiscountToTicketResponse = {
-  _embedded: TicketDiscount
-  _links: {
-    discounts: SelfLink
-    employee: SelfLink
-    items: SelfLink
-    order_type: SelfLink
-    payments: SelfLink
-    revenue_center: SelfLink
-    self: SelfLink
-    service_charges: SelfLink
-    voided_items: SelfLink
-  }
-  auto_send: boolean
-  closed_at: null
-  correlation: null
-  fire_date: null
-  fire_time: null
-  guest_count: number
-  id: string
-  name: null
-  open: boolean
-  opened_at: number
-  pos_id: null
-  ready_date: null
-  ready_time: null
-  ticket_number: number
-  totals: {
-    discounts: number
-    due: number
-    exclusive_tax: null
-    inclusive_tax: null
-    items: number
-    other_charges: number
-    paid: number
-    service_charges: number
-    sub_total: number
-    tax: number
-    tips: number
-    total: number
-  }
-  void: boolean
+export type FireTicketObject = {
+  ticket_item: string
+  item_order_mode?: string
 }
 
-export type FireTicketResponse = {
-  // will fill this out once their docs site starts working again :,)
+export type FireTicketBody = {
+  items: FireTicketObject[]
 }
 
-export type FireTicketRequest = {
-  items: [
-    {
-      ticketItem: string
-    },
-  ]
-}
-
-type MenuItem = {
-  href: string
-  type: string
-}
-
-type Category = {
-  _links: {
-    self: MenuItem
-  }
-  id: string
-  level: number
-  name: string
-  pos_id: string
-}
-
-type PriceLevel = {
-  _links: {
-    self: MenuItem
-  }
-  barcodes: null
-  id: string
-  name: string
-  price_per_unit: number
-}
-
-type MenuItemDetails = {
-  _links: {
-    menu_categories: MenuItem
-    option_sets: MenuItem
-    price_levels: MenuItem
-    self: MenuItem
-  }
-  barcodes: null
-  id: string
-  in_stock: null
-  name: string
-  open: boolean
-  open_name: null
-  pos_id: string
-  price_per_unit: number
+export type TicketItemsResponse = {
   _embedded: {
-    menu_categories: Category[]
-    price_levels: PriceLevel[]
-  }
-}
-
-export type RetrieveItemResponse = {
-  _links: {
-    discounts: MenuItem
-    menu_item: MenuItem
-    modifiers: MenuItem
-    self: MenuItem
-  }
-  _embedded: {
-    discounts: any[]
-    menu_item: MenuItemDetails
-    modifiers: any[]
-  }
-  comment: string
-  id: string
-  included_tax: null
-  name: string
-  price: number
-  quantity: number
-  seat: null
-  sent: boolean
-  sent_at: null
-  split: number
-}
-
-export type AddItemsBody = {
-  items: Item[]
-}
-
-export type VoidItemBody = {
-  void_type?: string
-}
-
-export type ItemDiscountsResponse = {
-  _embedded: {
-    discounts: any[]
+    items: TicketItem[]
   }
   _links: {
     self: Link
@@ -329,10 +309,81 @@ export type ItemDiscountsResponse = {
   count: number
 }
 
+export type TicketItem = {
+  _embedded: {
+    discounts: Discount[]
+    menu_item?: {
+      _embedded: {
+        menu_categories?: [
+          {
+            _links: {
+              self: Link
+            }
+            id: string
+            level: number
+            name: string
+            pos_id: string
+          },
+        ]
+        price_levels?: [
+          {
+            _links: {
+              self: Link
+            }
+            barcodes?: any // sry, unsure what this is based on the docs
+            id: string
+            name: string
+            price_per_unit: number
+          },
+        ]
+      }
+      _links: {
+        menu_categories: Link
+        option_sets: Link
+        price_levels: Link
+        self: Link
+      }
+      barcodes: any
+      id: string
+      in_stock: any
+      name: string
+      open: boolean
+      open_name: any // again, docs don't say what this is
+      pos_id: string
+      price_per_unit: number
+    }
+    modifiers: [] // todo
+  }
+  _links: {
+    discounts: Link
+    menu_item: Link
+    modifiers: Link
+    self: Link
+  }
+  comment?: string | null
+  id: string
+  included_tax: any // could be either a strng or a number :,))
+  name: string
+  price: number
+  quantity: number
+  seat: any // idk what this is
+  sent: boolean
+  sent_at: any
+  split: number
+}
+
+export type ItemsToAdd = {
+  items: NewItemDetails[]
+}
+
 export type ItemModifiersResponse = {
   _embedded: {
-    modifiers: any[]
+    modifiers: Modifier[]
   }
-  _links: Links
+  _links: {
+    self: Link
+  }
   count: number
 }
+
+export type Modifier = any // todo once we know what this is
