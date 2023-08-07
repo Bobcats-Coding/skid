@@ -1,250 +1,538 @@
-import { API_KEY, HOST } from './config'
 import {
-  AddItemsBody,
-  ApplyDiscountToTicketResponse,
-  FireTicketRequest,
-  FireTicketResponse,
-  ItemDiscountsResponse,
+  ApplyDiscountBody,
+  DiscountResponse,
+  FireTicketBody,
+  GetAllTicketsResponse,
   ItemModifiersResponse,
-  RetrieveDiscountResponse,
-  RetrieveItemResponse,
+  ItemsToAdd,
+  LocationResponse,
+  Modifier,
+  OpenTicketRequest,
   SingleTicketResponse,
-  TicketDiscount,
-  TicketRequestBody,
-  TicketResponse,
-  VoidItemBody,
-  VoidTicketBody,
+  TicketDiscountsResponse,
+  TicketItem,
+  TicketItemsResponse,
 } from './types'
 
 import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
 
-const OMNIVORE_BASE_PATHNAME = 'locations/' as const
-// const locationID = 'cMEjrLMi' // for now, this is the only location we have (test)
+// base path with the location is the same for all requests since everything is location-specific in the API
+const basePath = 'https://api.omnivore.io/1.0/locations/'
+
+// LOCATION
+type RetrieveLocationRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}`
+  headers: Record<string, string>
+}
+
+type RetrieveLocationResponse = LocationResponse
+
+export type RetrieveLocationEndpoint = RestEndpoint<
+  RetrieveLocationRequest,
+  RetrieveLocationResponse
+>
 
 // TICKETS
 
-export type OmnivoreListTicketsRequest = {
+type RetrieveSingleTicketRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/`
+  pathname: `${typeof basePath}${string}/tickets/${string}`
   headers: Record<string, string>
 }
 
-export type OmnivoreListTicketsResponse = TicketResponse
+type RetrieveSingleTicketResponse = SingleTicketResponse
 
-export type OmnivoreListTicketsEndpoint = RestEndpoint<
-  OmnivoreListTicketsRequest,
-  OmnivoreListTicketsResponse
+export type RetrieveSingleTicketEndpoint = RestEndpoint<
+  RetrieveSingleTicketRequest,
+  RetrieveSingleTicketResponse
 >
 
-export type OmnivoreGetSingleTicketRequest = {
+type ListAllTicketsRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}`
+  pathname: `${typeof basePath}${string}/tickets`
   headers: Record<string, string>
 }
 
-export type OmnivoreGetSingleTicketResponse = SingleTicketResponse
+type ListAllTicketsResponse = GetAllTicketsResponse
 
-export type OmnivoreGetSingleTicketEndpoint = RestEndpoint<
-  OmnivoreGetSingleTicketRequest,
-  OmnivoreGetSingleTicketResponse
->
+export type ListAllTicketsEndpoint = RestEndpoint<ListAllTicketsRequest, ListAllTicketsResponse>
 
-export type OmnivoreOpenTicketRequest = {
+type CreateTicketRequest = {
   method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/`
+  pathname: `${typeof basePath}${string}/tickets`
   headers: Record<string, string>
-  body: TicketRequestBody
+  body: OpenTicketRequest
 }
 
-export type OmnivoreOpenTicketResponse = TicketResponse
+type CreateTicketResponse = SingleTicketResponse
 
-export type OmnivoreOpenTicketEndpoint = RestEndpoint<
-  OmnivoreOpenTicketRequest,
-  OmnivoreOpenTicketResponse
->
+export type CreateTicketEndpoint = RestEndpoint<CreateTicketRequest, CreateTicketResponse>
 
-export type OmnivoreVoidTicketRequest = {
+type VoidTicketRequest = {
   method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}`
+  pathname: `${typeof basePath}${string}/tickets/${string}/void`
   headers: Record<string, string>
-  body: VoidTicketBody
+  body: { void: true }
 }
 
-export type OmnivoreVoidTicketResponse = TicketResponse
+type VoidTicketResponse = SingleTicketResponse
 
-export type OmnivoreVoidTicketEndpoint = RestEndpoint<
-  OmnivoreVoidTicketRequest,
-  OmnivoreVoidTicketResponse
->
-
-export type OmnivoreFireTicketRequest = {
-  method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/fire`
-  headers: Record<string, string>
-  body: FireTicketRequest
-}
-
-export type OmnivoreFireTicketResponse = FireTicketResponse
-
-export type OmnivoreFireTicketEndpoint = RestEndpoint<
-  OmnivoreFireTicketRequest,
-  OmnivoreFireTicketResponse
->
+export type VoidTicketEndpoint = RestEndpoint<VoidTicketRequest, VoidTicketResponse>
 
 // DISCOUNTS
 
-export type OmnivoreRetrieveDiscountRequest = {
+type ListTicketDiscountsRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/discounts/${string}`
+  pathname: `${typeof basePath}${string}/tickets/${string}/discounts`
   headers: Record<string, string>
 }
 
-export type OmnivoreRetrieveDiscountResponse = RetrieveDiscountResponse
+type ListTicketDiscountsResponse = TicketDiscountsResponse
 
-export type OmnivoreRetrieveDiscountEndpoint = RestEndpoint<
-  OmnivoreRetrieveDiscountRequest,
-  OmnivoreRetrieveDiscountResponse
+export type ListTicketDiscountsEndpoint = RestEndpoint<
+  ListTicketDiscountsRequest,
+  ListTicketDiscountsResponse
 >
 
-export type OmnivoreApplyDiscountToTicketRequest = {
+type RetrieveDiscountRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}/discounts/${string}`
+  headers: Record<string, string>
+}
+
+type RetrieveDiscountResponse = DiscountResponse
+
+export type RetrieveDiscountEndpoint = RestEndpoint<
+  RetrieveDiscountRequest,
+  RetrieveDiscountResponse
+>
+
+type ApplyDiscountRequest = {
   method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/discounts/`
+  pathname: `${typeof basePath}${string}/tickets/${string}/discounts`
   headers: Record<string, string>
-  body: TicketDiscount
+  body: ApplyDiscountBody[]
 }
 
-export type OmnivoreApplyDiscountToTicketResponse = ApplyDiscountToTicketResponse
+type ApplyDiscountResponse = SingleTicketResponse
 
-export type OmnivoreApplyDiscountToTicketEndpoint = RestEndpoint<
-  OmnivoreApplyDiscountToTicketRequest,
-  OmnivoreApplyDiscountToTicketResponse
->
+export type ApplyDiscountEndpoint = RestEndpoint<ApplyDiscountRequest, ApplyDiscountResponse>
+
+// commenting this one out for now since exact endpoint and body are not known yet:(
+
+// type VoidDiscountRequest = {
+//   method: 'DELETE'
+//   pathname: `${typeof basePath}${string}/tickets/${string}/discounts/${string}/void`
+//   headers: Record<string, string>
+//   body: { void: true }
+// }
+
+// FIRE
+
+type FireTicketRequest = {
+  method: 'POST'
+  pathname: `${typeof basePath}${string}/tickets/${string}/fire`
+  headers: Record<string, string>
+  body: FireTicketBody
+}
+
+type FireTicketResponse = SingleTicketResponse
+
+export type FireTicketEndpoint = RestEndpoint<FireTicketRequest, FireTicketResponse>
 
 // ITEMS
 
-export type OmnivoreRetrieveItemRequest = {
+type ListTicketItemsRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/${string}`
+  pathname: `${typeof basePath}${string}/tickets/${string}/items`
   headers: Record<string, string>
 }
 
-export type OmnivoreRetrieveItemResponse = RetrieveItemResponse
+type ListTicketItemsResponse = TicketItemsResponse
 
-export type OmnivoreRetrieveItemEndpoint = RestEndpoint<
-  OmnivoreRetrieveItemRequest,
-  OmnivoreRetrieveItemResponse
+export type ListTicketItemsEndpoint = RestEndpoint<ListTicketItemsRequest, ListTicketItemsResponse>
+
+type RetrieveTicketItemRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}`
+  headers: Record<string, string>
+}
+
+type RetrieveTicketItemResponse = TicketItem
+
+export type RetrieveTicketItemEndpoint = RestEndpoint<
+  RetrieveTicketItemRequest,
+  RetrieveTicketItemResponse
 >
 
-export type OmnivoreAddItemsRequest = {
+type AddItemsToTicketRequest = {
   method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/`
+  pathname: `${typeof basePath}${string}/tickets/${string}/items`
   headers: Record<string, string>
-  body: AddItemsBody
+  body: ItemsToAdd
 }
 
-export type OmnivoreAddItemsResponse = SingleTicketResponse
+type AddItemsToTicketResponse = SingleTicketResponse
 
-export type OmnivoreAddItemsEndpoint = RestEndpoint<
-  OmnivoreAddItemsRequest,
-  OmnivoreAddItemsResponse
+export type AddItemsToTicketEndpoint = RestEndpoint<
+  AddItemsToTicketRequest,
+  AddItemsToTicketResponse
 >
 
-export type OmnivoreVoidItemRequest = {
-  method: 'POST'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/${string}`
-  headers: Record<string, string>
-  body: VoidItemBody
-}
-
-export type OmnivoreVoidItemResponse = SingleTicketResponse
-
-export type OmnivoreVoidItemEndpoint = RestEndpoint<
-  OmnivoreVoidItemRequest,
-  OmnivoreVoidItemResponse
->
-
-// ITEM DISCOUNTS
-
-export type OmnivoreListItemDiscountsRequest = {
+type ListItemDiscountsRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/${string}/discounts`
+  pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/discounts`
   headers: Record<string, string>
 }
 
-export type OmnivoreListItemDiscountsResponse = ItemDiscountsResponse
+type ListItemDiscountsResponse = TicketDiscountsResponse
 
-export type OmnivoreListItemDiscountsEndpoint = RestEndpoint<
-  OmnivoreListItemDiscountsRequest,
-  OmnivoreListItemDiscountsResponse
+export type ListItemDiscountsEndpoint = RestEndpoint<
+  ListItemDiscountsRequest,
+  ListItemDiscountsResponse
 >
 
-export type OmnivoreRetrieveItemDiscountRequest = {
+// documentation is missing, do not trust this 100% yet ⬇️
+
+type RetrieveItemDiscountRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/${string}/discounts`
+  pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/discounts/${string}`
   headers: Record<string, string>
 }
 
-export type OmnivoreRetrieveItemDiscountResponse = ItemDiscountsResponse
+type RetrieveItemDiscountResponse = DiscountResponse
 
-export type OmnivoreRetrieveItemDiscountEndpoint = RestEndpoint<
-  OmnivoreRetrieveItemDiscountRequest,
-  OmnivoreRetrieveItemDiscountResponse
+export type RetrieveItemDiscountEndpoint = RestEndpoint<
+  RetrieveItemDiscountRequest,
+  RetrieveItemDiscountResponse
 >
+
+// the endpoint/body are still missing for VOID ITEM, will implement that later
 
 // MODIFIERS
 
-export type OmnivoreListItemModifiersRequest = {
+type ListItemModifiersRequest = {
   method: 'GET'
-  pathname: `${typeof HOST}${typeof OMNIVORE_BASE_PATHNAME}${string}/tickets/${string}/items/${string}/modifiers`
+  pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/modifiers`
   headers: Record<string, string>
 }
 
-export type OmnivoreListItemModifiersResponse = ItemModifiersResponse
+type ListItemModifiersResponse = ItemModifiersResponse
 
-export type OmnivoreListItemModifiersEndpoint = RestEndpoint<
-  OmnivoreListItemModifiersRequest,
-  OmnivoreListItemModifiersResponse
+export type ListItemModifiersEndpoint = RestEndpoint<
+  ListItemModifiersRequest,
+  ListItemModifiersResponse
+>
+
+type RetrieveItemModifierRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/modifiers/${string}`
+  headers: Record<string, string>
+}
+
+type RetrieveItemModifierResponse = Modifier
+
+export type RetrieveItemModifierEndpoint = RestEndpoint<
+  RetrieveItemModifierRequest,
+  RetrieveItemModifierResponse
 >
 
 export type OmnivoreAPI =
-  | OmnivoreListTicketsEndpoint
-  | OmnivoreGetSingleTicketEndpoint
-  | OmnivoreOpenTicketEndpoint
-  | OmnivoreVoidTicketEndpoint
-  | OmnivoreRetrieveDiscountEndpoint
-  | OmnivoreApplyDiscountToTicketEndpoint
-  | OmnivoreRetrieveItemEndpoint
-  | OmnivoreAddItemsEndpoint
-  | OmnivoreVoidItemEndpoint
-  | OmnivoreListItemDiscountsEndpoint
-  | OmnivoreRetrieveItemDiscountEndpoint
+  | RetrieveLocationEndpoint
+  | RetrieveSingleTicketEndpoint
+  | ListAllTicketsEndpoint
+  | CreateTicketEndpoint
+  | VoidTicketEndpoint
+  | ListTicketDiscountsEndpoint
+  | RetrieveDiscountEndpoint
+  | ApplyDiscountEndpoint
+  | FireTicketEndpoint
+  | ListTicketItemsEndpoint
+  | RetrieveTicketItemEndpoint
+  | AddItemsToTicketEndpoint
+  | ListItemDiscountsEndpoint
+  | RetrieveItemDiscountEndpoint
+  | ListItemModifiersEndpoint
+  | RetrieveItemModifierEndpoint
 
-export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>('https', HOST)
+export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>('https', basePath)
 export type OmnivoreAPIClient = typeof omnivoreAPIClient
 
-export const createGetTicketsRequest = ({
+export const createRetrieveLocationRequest = ({
   locationID,
+  apiKey,
 }: {
   locationID: string
-}): OmnivoreListTicketsRequest => {
+  apiKey: string
+}): RetrieveLocationRequest => {
   return {
     method: 'GET',
-    pathname: `${HOST}${OMNIVORE_BASE_PATHNAME}${locationID}/tickets/`,
-    headers: { Authorization: API_KEY },
+    pathname: `${basePath}/${locationID}`,
+    headers: { 'Api-Key': apiKey },
   }
 }
 
-export const createGetSingleTicketRequest = ({
+export const createRetrieveSingleTicketRequest = ({
   locationID,
   ticketID,
+  apiKey,
 }: {
   locationID: string
   ticketID: string
-}): OmnivoreGetSingleTicketRequest => {
+  apiKey: string
+}): RetrieveSingleTicketRequest => {
   return {
     method: 'GET',
-    pathname: `${HOST}${OMNIVORE_BASE_PATHNAME}${locationID}/tickets/${ticketID}}`,
-    headers: { Authorization: API_KEY },
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createListAllTicketsRequest = ({
+  locationID,
+  apiKey,
+}: {
+  locationID: string
+  apiKey: string
+}): ListAllTicketsRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createCreateTicketRequest = ({
+  locationID,
+  apiKey,
+  body,
+}: {
+  locationID: string
+  apiKey: string
+  body: OpenTicketRequest
+}): CreateTicketRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}/${locationID}/tickets`,
+    headers: { 'Api-Key': apiKey },
+    body,
+  }
+}
+
+export const createVoidTicketRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+}): VoidTicketRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/void`,
+    headers: { 'Api-Key': apiKey },
+    body: { void: true },
+  }
+}
+
+export const createListTicketDiscountsRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+}): ListTicketDiscountsRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/discounts`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createRetrieveDiscountRequest = ({
+  locationID,
+  discountID,
+  apiKey,
+}: {
+  locationID: string
+  discountID: string
+  apiKey: string
+}): RetrieveDiscountRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/discounts/${discountID}`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createApplyDiscountRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+  body,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+  body: ApplyDiscountBody[]
+}): ApplyDiscountRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/discounts`,
+    headers: { 'Api-Key': apiKey },
+    body,
+  }
+}
+
+export const createFireTicketRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+  body,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+  body: FireTicketBody
+}): FireTicketRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/fire`,
+    headers: { 'Api-Key': apiKey },
+    body,
+  }
+}
+
+export const createListTicketItemsRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+}): ListTicketItemsRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createRetrieveTicketItemRequest = ({
+  locationID,
+  ticketID,
+  itemID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  itemID: string
+  apiKey: string
+}): RetrieveTicketItemRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createAddItemsToTicketRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+  body,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+  body: ItemsToAdd
+}): AddItemsToTicketRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items`,
+    headers: { 'Api-Key': apiKey },
+    body,
+  }
+}
+
+export const createListItemDiscountsRequest = ({
+  locationID,
+  ticketID,
+  itemID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  itemID: string
+  apiKey: string
+}): ListItemDiscountsRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/discounts`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createRetrieveItemDiscountRequest = ({
+  locationID,
+  ticketID,
+  itemID,
+  discountID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  itemID: string
+  discountID: string
+  apiKey: string
+}): RetrieveItemDiscountRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/discounts/${discountID}`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createListItemModifiersRequest = ({
+  locationID,
+  ticketID,
+  itemID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  itemID: string
+  apiKey: string
+}): ListItemModifiersRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/modifiers`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createRetrieveItemModifierRequest = ({
+  locationID,
+  ticketID,
+  itemID,
+  modifierID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  itemID: string
+  modifierID: string
+  apiKey: string
+}): RetrieveItemModifierRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/modifiers/${modifierID}`,
+    headers: { 'Api-Key': apiKey },
   }
 }
