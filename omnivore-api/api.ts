@@ -269,7 +269,7 @@ export const createRetrieveLocationRequest = ({
 }): RetrieveLocationRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}`,
+    pathname: `${basePath}${locationID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -285,7 +285,7 @@ export const createRetrieveSingleTicketRequest = ({
 }): RetrieveSingleTicketRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -299,7 +299,7 @@ export const createListAllTicketsRequest = ({
 }): ListAllTicketsRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets`,
+    pathname: `${basePath}${locationID}/tickets`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -315,7 +315,7 @@ export const createCreateTicketRequest = ({
 }): CreateTicketRequest => {
   return {
     method: 'POST',
-    pathname: `${basePath}/${locationID}/tickets`,
+    pathname: `${basePath}${locationID}/tickets`,
     headers: { 'Api-Key': apiKey },
     body,
   }
@@ -332,7 +332,7 @@ export const createVoidTicketRequest = ({
 }): VoidTicketRequest => {
   return {
     method: 'POST',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/void`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/void`,
     headers: { 'Api-Key': apiKey },
     body: { void: true },
   }
@@ -349,7 +349,7 @@ export const createListTicketDiscountsRequest = ({
 }): ListTicketDiscountsRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/discounts`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/discounts`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -365,7 +365,7 @@ export const createRetrieveDiscountRequest = ({
 }): RetrieveDiscountRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/discounts/${discountID}`,
+    pathname: `${basePath}${locationID}/discounts/${discountID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -383,7 +383,7 @@ export const createApplyDiscountRequest = ({
 }): ApplyDiscountRequest => {
   return {
     method: 'POST',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/discounts`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/discounts`,
     headers: { 'Api-Key': apiKey },
     body,
   }
@@ -402,7 +402,7 @@ export const createFireTicketRequest = ({
 }): FireTicketRequest => {
   return {
     method: 'POST',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/fire`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/fire`,
     headers: { 'Api-Key': apiKey },
     body,
   }
@@ -419,7 +419,7 @@ export const createListTicketItemsRequest = ({
 }): ListTicketItemsRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -437,7 +437,7 @@ export const createRetrieveTicketItemRequest = ({
 }): RetrieveTicketItemRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -455,7 +455,7 @@ export const createAddItemsToTicketRequest = ({
 }): AddItemsToTicketRequest => {
   return {
     method: 'POST',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items`,
     headers: { 'Api-Key': apiKey },
     body,
   }
@@ -474,7 +474,7 @@ export const createListItemDiscountsRequest = ({
 }): ListItemDiscountsRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/discounts`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}/discounts`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -494,7 +494,7 @@ export const createRetrieveItemDiscountRequest = ({
 }): RetrieveItemDiscountRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/discounts/${discountID}`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}/discounts/${discountID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -512,7 +512,7 @@ export const createListItemModifiersRequest = ({
 }): ListItemModifiersRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/modifiers`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}/modifiers`,
     headers: { 'Api-Key': apiKey },
   }
 }
@@ -532,7 +532,7 @@ export const createRetrieveItemModifierRequest = ({
 }): RetrieveItemModifierRequest => {
   return {
     method: 'GET',
-    pathname: `${basePath}/${locationID}/tickets/${ticketID}/items/${itemID}/modifiers/${modifierID}`,
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}/modifiers/${modifierID}`,
     headers: { 'Api-Key': apiKey },
   }
 }
