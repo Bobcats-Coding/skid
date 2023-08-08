@@ -9,9 +9,11 @@ import {
   Modifier,
   OpenTicketRequest,
   SingleTicketResponse,
+  ThirdPartyPaymentBody,
   TicketDiscountsResponse,
   TicketItem,
   TicketItemsResponse,
+  TicketPayment,
   TicketPaymentsResponse,
 } from './types'
 
@@ -252,6 +254,30 @@ type ListPaymentsResponse = TicketPaymentsResponse
 
 export type ListPaymentsEndpoint = RestEndpoint<ListPaymentsRequest, ListPaymentsResponse>
 
+type RetrievePaymentRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}/tickets/${string}/payments/${string}`
+  headers: Record<string, string>
+}
+
+type RetrievePaymentResponse = TicketPayment
+
+export type RetrievePaymentEndpoint = RestEndpoint<RetrievePaymentRequest, RetrievePaymentResponse>
+
+type ThirdPartyPaymentRequest = {
+  method: 'POST'
+  pathname: `${typeof basePath}${string}/tickets/${string}/payments`
+  headers: Record<string, string>
+  body: ThirdPartyPaymentBody
+}
+
+type ThirdPartyPaymentResponse = TicketPayment
+
+export type ThirdPartyPaymentEndpoint = RestEndpoint<
+  ThirdPartyPaymentRequest,
+  ThirdPartyPaymentResponse
+>
+
 export type OmnivoreAPI =
   | RetrieveLocationEndpoint
   | RetrieveSingleTicketEndpoint
@@ -270,6 +296,8 @@ export type OmnivoreAPI =
   | ListItemModifiersEndpoint
   | RetrieveItemModifierEndpoint
   | ListPaymentsEndpoint
+  | RetrievePaymentEndpoint
+  | ThirdPartyPaymentEndpoint
 
 export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>('https', basePath)
 export type OmnivoreAPIClient = typeof omnivoreAPIClient
@@ -548,5 +576,58 @@ export const createRetrieveItemModifierRequest = ({
     method: 'GET',
     pathname: `${basePath}${locationID}/tickets/${ticketID}/items/${itemID}/modifiers/${modifierID}`,
     headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createListTicketPaymentsRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+}): ListPaymentsRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/payments`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createRetrieveTicketPaymentRequest = ({
+  locationID,
+  ticketID,
+  paymentID,
+  apiKey,
+}: {
+  locationID: string
+  ticketID: string
+  paymentID: string
+  apiKey: string
+}): RetrievePaymentRequest => {
+  return {
+    method: 'GET',
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/payments/${paymentID}`,
+    headers: { 'Api-Key': apiKey },
+  }
+}
+
+export const createThirdPartyPaymentRequest = ({
+  locationID,
+  ticketID,
+  apiKey,
+  body,
+}: {
+  locationID: string
+  ticketID: string
+  apiKey: string
+  body: ThirdPartyPaymentBody
+}): ThirdPartyPaymentRequest => {
+  return {
+    method: 'POST',
+    pathname: `${basePath}${locationID}/tickets/${ticketID}/payments`,
+    headers: { 'Api-Key': apiKey },
+    body,
   }
 }
