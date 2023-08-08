@@ -407,7 +407,7 @@ export type ThirdPartyPaymentBody = {
   type: string
 }
 
-type TicketPayment = {
+export type TicketPayment = {
   _embedded: {
     tender_type: {
       _links: {
