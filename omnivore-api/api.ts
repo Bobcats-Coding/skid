@@ -12,6 +12,7 @@ import {
   TicketDiscountsResponse,
   TicketItem,
   TicketItemsResponse,
+  TicketPaymentsResponse,
 } from './types'
 
 import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
@@ -239,6 +240,18 @@ export type RetrieveItemModifierEndpoint = RestEndpoint<
   RetrieveItemModifierResponse
 >
 
+// PAYMENTS
+
+type ListPaymentsRequest = {
+  method: 'GET'
+  pathname: `${typeof basePath}${string}/tickets/${string}/payments`
+  headers: Record<string, string>
+}
+
+type ListPaymentsResponse = TicketPaymentsResponse
+
+export type ListPaymentsEndpoint = RestEndpoint<ListPaymentsRequest, ListPaymentsResponse>
+
 export type OmnivoreAPI =
   | RetrieveLocationEndpoint
   | RetrieveSingleTicketEndpoint
@@ -256,6 +269,7 @@ export type OmnivoreAPI =
   | RetrieveItemDiscountEndpoint
   | ListItemModifiersEndpoint
   | RetrieveItemModifierEndpoint
+  | ListPaymentsEndpoint
 
 export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>('https', basePath)
 export type OmnivoreAPIClient = typeof omnivoreAPIClient
