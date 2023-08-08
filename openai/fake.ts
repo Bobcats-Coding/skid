@@ -1,4 +1,10 @@
-import { CreateChatCompletionRequest, CreateChatCompletionResponse, ListModelsResponse } from '.'
+import {
+  CreateChatCompletionRequest,
+  CreateChatCompletionResponse,
+  CreateImageRequest,
+  ImagesResponse,
+  ListModelsResponse,
+} from '.'
 
 import { OpenAIApi } from 'openai'
 
@@ -40,6 +46,18 @@ class FakeOpenAIApiClient {
           },
         ],
         usage: { prompt_tokens: 23, completion_tokens: 179, total_tokens: 202 },
+      },
+    }
+  }
+
+  public async createImage(
+    // @ts-ignore
+    createImageRequest: CreateImageRequest,
+  ): Promise<{ data: ImagesResponse }> {
+    return {
+      data: {
+        created: 123,
+        data: [{ url: 'https://cdn.openai.com/image.png' }],
       },
     }
   }
