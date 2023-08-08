@@ -398,7 +398,16 @@ export type TicketPaymentsResponse = {
   count: number
 }
 
-export type TicketPayment = {
+export type ThirdPartyPaymentBody = {
+  amount: number
+  comment?: string
+  auto_close?: boolean
+  tender_type: string
+  tip: number
+  type: string
+}
+
+type TicketPayment = {
   _embedded: {
     tender_type: {
       _links: {
@@ -409,18 +418,21 @@ export type TicketPayment = {
       name: string
       pos_id: string
     }
+    ticket?: SingleTicketResponse
   }
   _links: {
     self: Link
     tender_type: Link
+    ticket?: Link
   }
   amount: number
   change: number
-  comment?: string | null
-  full_name: string
+  comment?: string
+  full_name?: string
+  gift_card_balance?: number
   id: string
-  last4: string
-  status: string | number
+  last4: number | null
+  status?: string
   tip: number
   type: string
 }
