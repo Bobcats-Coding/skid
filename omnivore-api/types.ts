@@ -387,3 +387,40 @@ export type ItemModifiersResponse = {
 }
 
 export type Modifier = any // todo once we know what this is
+
+export type TicketPaymentsResponse = {
+  _embedded: {
+    payments: TicketPayment[]
+  }
+  _links: {
+    self: Link
+  }
+  count: number
+}
+
+export type TicketPayment = {
+  _embedded: {
+    tender_type: {
+      _links: {
+        self: Link
+      }
+      allows_tips: boolean
+      id: string
+      name: string
+      pos_id: string
+    }
+  }
+  _links: {
+    self: Link
+    tender_type: Link
+  }
+  amount: number
+  change: number
+  comment?: string | null
+  full_name: string
+  id: string
+  last4: string
+  status: string | number
+  tip: number
+  type: string
+}
