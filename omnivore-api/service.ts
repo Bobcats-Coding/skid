@@ -25,6 +25,7 @@ type DiscountParams = TicketParams & {
 export type OmnivoreService = {
   retrieveLocation: () => Observable<LocationResponse | undefined>
   retrieveSingleTicket: (params: TicketParams) => Observable<SingleTicketResponse | undefined>
+  getAllTickets: (params: BaseParams) => Observable<SingleTicketResponse[]>
 }
 
 export const createOmnivoreService = (
@@ -41,8 +42,14 @@ export const createOmnivoreService = (
       map(({ ticket }) => ticket),
     )
   }
+  const getAllTickets = (params: BaseParams): Observable<SingleTicketResponse[]> => {
+    return omnivoreAPIClient(createListAllTicketsRequest(params)).pipe(
+        map(({ _embedded: { tickets } }) => tickets),
+    )
+  }
   return {
     retrieveLocation,
     retrieveSingleTicket,
+    getAllTickets,
   }
 }
