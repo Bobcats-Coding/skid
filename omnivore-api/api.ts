@@ -346,7 +346,7 @@ export const createListAllTicketsRequest = ({
   }
 }
 
-export const createCreateTicketRequest = ({
+export const createOpenTicketRequest = ({
   locationID,
   apiKey,
   body,
