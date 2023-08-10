@@ -112,7 +112,7 @@ export type RetrieveDiscountEndpoint = RestEndpoint<
   RetrieveDiscountResponse
 >
 
-type ApplyDiscountRequest = {
+export type ApplyDiscountRequest = {
   method: 'POST'
   pathname: `${typeof basePath}${string}/tickets/${string}/discounts`
   headers: Record<string, string>
