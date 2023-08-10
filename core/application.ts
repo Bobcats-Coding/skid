@@ -69,6 +69,7 @@ export const createApplication = <
       const services = { ...externalServices, ...internalServices }
       return { services, delivery, output }
     } catch (err) {
+      console.error(err)
       onError(err as Error)
       return undefined
     }
