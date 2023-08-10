@@ -50,10 +50,7 @@ class FakeOpenAIApiClient {
     }
   }
 
-  public async createImage(
-    // @ts-expect-error
-    createImageRequest: CreateImageRequest,
-  ): Promise<{ data: ImagesResponse }> {
+  public async createImage(_: CreateImageRequest): Promise<{ data: ImagesResponse }> {
     return {
       data: {
         created: 123,
