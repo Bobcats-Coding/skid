@@ -104,7 +104,7 @@ export const createOmnivoreService = (
   const retrieveSingleTicket = (ticketParams: TicketParams): Observable<SingleTicketResponse> => {
     return omnivoreAPIClient(
       createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
-    ).pipe(map(({ ticket }) => ticket))
+    ).pipe(map((ticketResponse) => ticketResponse))
   }
   const getAllTickets = (): Observable<SingleTicketResponse[]> => {
     return omnivoreAPIClient(createListAllTicketsRequest(baseParams)).pipe(
