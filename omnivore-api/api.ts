@@ -23,14 +23,17 @@ import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
 // base path with the location is the same for all requests since everything is location-specific in the API
 const basePath = 'https://api.omnivore.io/1.0/locations/'
 
-// LOCATION
-type RetrieveLocationRequest = {
+type GetRequest = {
   method: 'GET'
-  pathname: `${typeof basePath}${string}`
   headers: Record<string, string>
 }
 
-type RetrieveLocationResponse = LocationResponse
+// LOCATION
+type RetrieveLocationRequest = GetRequest & {
+  pathname: `${typeof basePath}${string}`
+}
+
+export type RetrieveLocationResponse = LocationResponse
 
 export type RetrieveLocationEndpoint = RestEndpoint<
   RetrieveLocationRequest,
@@ -39,10 +42,8 @@ export type RetrieveLocationEndpoint = RestEndpoint<
 
 // TICKETS
 
-type RetrieveSingleTicketRequest = {
-  method: 'GET'
+type RetrieveSingleTicketRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}`
-  headers: Record<string, string>
 }
 
 type RetrieveSingleTicketResponse = SingleTicketResponse
@@ -52,10 +53,8 @@ export type RetrieveSingleTicketEndpoint = RestEndpoint<
   RetrieveSingleTicketResponse
 >
 
-type ListAllTicketsRequest = {
-  method: 'GET'
+type ListAllTicketsRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets`
-  headers: Record<string, string>
 }
 
 type ListAllTicketsResponse = GetAllTicketsResponse
@@ -86,10 +85,8 @@ export type VoidTicketEndpoint = RestEndpoint<VoidTicketRequest, VoidTicketRespo
 
 // DISCOUNTS
 
-type ListTicketDiscountsRequest = {
-  method: 'GET'
+type ListTicketDiscountsRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/discounts`
-  headers: Record<string, string>
 }
 
 type ListTicketDiscountsResponse = TicketDiscountsResponse
@@ -99,10 +96,8 @@ export type ListTicketDiscountsEndpoint = RestEndpoint<
   ListTicketDiscountsResponse
 >
 
-type RetrieveDiscountRequest = {
-  method: 'GET'
+type RetrieveDiscountRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/discounts/${string}`
-  headers: Record<string, string>
 }
 
 type RetrieveDiscountResponse = DiscountResponse
@@ -147,20 +142,16 @@ export type FireTicketEndpoint = RestEndpoint<FireTicketRequest, FireTicketRespo
 
 // ITEMS
 
-type ListTicketItemsRequest = {
-  method: 'GET'
+type ListTicketItemsRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items`
-  headers: Record<string, string>
 }
 
 type ListTicketItemsResponse = TicketItemsResponse
 
 export type ListTicketItemsEndpoint = RestEndpoint<ListTicketItemsRequest, ListTicketItemsResponse>
 
-type RetrieveTicketItemRequest = {
-  method: 'GET'
+type RetrieveTicketItemRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}`
-  headers: Record<string, string>
 }
 
 type RetrieveTicketItemResponse = TicketItem
@@ -184,10 +175,8 @@ export type AddItemsToTicketEndpoint = RestEndpoint<
   AddItemsToTicketResponse
 >
 
-type ListItemDiscountsRequest = {
-  method: 'GET'
+type ListItemDiscountsRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/discounts`
-  headers: Record<string, string>
 }
 
 type ListItemDiscountsResponse = TicketDiscountsResponse
@@ -199,10 +188,8 @@ export type ListItemDiscountsEndpoint = RestEndpoint<
 
 // documentation is missing, do not trust this 100% yet ⬇️
 
-type RetrieveItemDiscountRequest = {
-  method: 'GET'
+type RetrieveItemDiscountRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/discounts/${string}`
-  headers: Record<string, string>
 }
 
 type RetrieveItemDiscountResponse = DiscountResponse
@@ -216,10 +203,8 @@ export type RetrieveItemDiscountEndpoint = RestEndpoint<
 
 // MODIFIERS
 
-type ListItemModifiersRequest = {
-  method: 'GET'
+type ListItemModifiersRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/modifiers`
-  headers: Record<string, string>
 }
 
 type ListItemModifiersResponse = ItemModifiersResponse
@@ -229,10 +214,8 @@ export type ListItemModifiersEndpoint = RestEndpoint<
   ListItemModifiersResponse
 >
 
-type RetrieveItemModifierRequest = {
-  method: 'GET'
+type RetrieveItemModifierRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/items/${string}/modifiers/${string}`
-  headers: Record<string, string>
 }
 
 type RetrieveItemModifierResponse = Modifier
@@ -244,20 +227,16 @@ export type RetrieveItemModifierEndpoint = RestEndpoint<
 
 // PAYMENTS
 
-type ListPaymentsRequest = {
-  method: 'GET'
+type ListPaymentsRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/payments`
-  headers: Record<string, string>
 }
 
 type ListPaymentsResponse = TicketPaymentsResponse
 
 export type ListPaymentsEndpoint = RestEndpoint<ListPaymentsRequest, ListPaymentsResponse>
 
-type RetrievePaymentRequest = {
-  method: 'GET'
+type RetrievePaymentRequest = GetRequest & {
   pathname: `${typeof basePath}${string}/tickets/${string}/payments/${string}`
-  headers: Record<string, string>
 }
 
 type RetrievePaymentResponse = TicketPayment
