@@ -10,6 +10,7 @@ import {
   ApplyDiscountBody,
   DiscountResponse,
   FireTicketBody,
+  GetAllTicketsResponse,
   ItemModifiersResponse,
   ItemsToAdd,
   LocationResponse,
@@ -72,7 +73,7 @@ type AddItemsToTicketParams = TicketParams & ItemsToAdd
 export type OmnivoreService = {
   retrieveLocation: () => Observable<LocationResponse | undefined>
   retrieveSingleTicket: (params: TicketParams) => Observable<SingleTicketResponse | undefined>
-  getAllTickets: (params: BaseParams) => Observable<SingleTicketResponse[]>
+  getAllTickets: () => Observable<GetAllTicketsResponse>
   openTicket: (params: OpenTicketParams) => Observable<SingleTicketResponse | undefined>
   voidTicket: (params: VoidTicketParams) => Observable<SingleTicketResponse>
   listTicketDiscounts: (params: TicketParams) => Observable<TicketDiscountsResponse>
@@ -106,9 +107,10 @@ export const createOmnivoreService = (
       createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
     ).pipe(map((ticketResponse) => ticketResponse))
   }
-  const getAllTickets = (): Observable<SingleTicketResponse[]> => {
+
+  const getAllTickets = (): Observable<GetAllTicketsResponse> => {
     return omnivoreAPIClient(createListAllTicketsRequest(baseParams)).pipe(
-      map(({ _embedded: { tickets } }) => tickets),
+      map((ticketsResponse) => ticketsResponse),
     )
   }
 
