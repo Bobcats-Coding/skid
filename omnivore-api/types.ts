@@ -127,7 +127,7 @@ export type SingleTicketResponse = {
         }
         comment: string | null
         id: string
-        included_tax: string | number // not listed in the docs so may as well be string or a number :,)
+        included_tax: string | number | null // not listed in the docs so may as well be string or a number :,)
         name: string
         price: number
       },
