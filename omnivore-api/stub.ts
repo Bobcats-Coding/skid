@@ -1,10 +1,10 @@
 import type {
+  ListAllTicketsEndpoint,
   OmnivoreAPI,
   OmnivoreAPIClient,
   RetrieveLocationEndpoint,
   RetrieveLocationResponse,
   RetrieveSingleTicketEndpoint,
-  ListAllTicketsEndpoint
 } from './api'
 import { GetAllTicketsResponse, Link, LocationResponse, SingleTicketResponse } from './types'
 
@@ -210,7 +210,11 @@ const getAllTicketsEndpoint: StubEndpoint<ListAllTicketsEndpoint> = {
   response: getAllTicketsResponse,
 }
 
-const endpoints = [retrieveLocationEndpoint, retrieveSingleTicketEndpoint, getAllTicketsEndpoint] as const
+const endpoints = [
+  retrieveLocationEndpoint,
+  retrieveSingleTicketEndpoint,
+  getAllTicketsEndpoint,
+] as const
 
 export const omnivoreAPIClient: OmnivoreAPIClient = createStubRestClient<
   OmnivoreAPI,
