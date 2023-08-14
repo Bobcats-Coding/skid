@@ -1,6 +1,6 @@
 import { createOmnivoreService } from './service'
-import { FAKE_LOCATION, FAKE_TICKET, omnivoreAPIClient } from './stub'
-import type { LocationResponse, SingleTicketResponse } from './types'
+import { FAKE_LOCATION, FAKE_TICKET, FAKE_TICKETS, omnivoreAPIClient } from './stub'
+import type { GetAllTicketsResponse, LocationResponse, SingleTicketResponse } from './types'
 
 import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
 
@@ -44,5 +44,21 @@ test(
       )
     const displayName$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
     expect(displayName$).toBeObservable('-(n|)', { n: FAKE_TICKET })
+  }),
+)
+
+test(
+  'get all tickets based on location',
+  coreMarbles(({ expect }) => {
+    const ticket$ = omnivoreService.getAllTickets().pipe(
+      map((response) => {
+        return response
+      }),
+      filter((tic): tic is GetAllTicketsResponse => {
+        return tic !== null
+      }),
+    )
+    const displayName$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
+    expect(displayName$).toBeObservable('-(n|)', { n: FAKE_TICKETS })
   }),
 )
