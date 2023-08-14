@@ -31,7 +31,7 @@ type BaseParams = {
   locationID: string
 }
 
-type TicketParams = BaseParams & {
+type TicketParams = {
   ticketID: string
 }
 
@@ -47,7 +47,7 @@ type DiscountParams = TicketParams & {
   discountID: string
 }
 
-type OpenTicketParams = BaseParams & {
+type OpenTicketParams = {
   body: OpenTicketRequest
 }
 
@@ -94,120 +94,132 @@ export type OmnivoreService = {
 
 export const createOmnivoreService = (
   omnivoreAPIClient: OmnivoreAPIClient,
-  params: BaseParams,
+  baseParams: BaseParams,
 ): OmnivoreService => {
   const retrieveLocation = (): Observable<LocationResponse> => {
-    return omnivoreAPIClient(createRetrieveLocationRequest(params)).pipe(
-      map(({ location }) => location),
+    return omnivoreAPIClient(createRetrieveLocationRequest(baseParams)).pipe(
+      map((_embedded) => _embedded),
     )
   }
-  const retrieveSingleTicket = (params: TicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ ticket }) => ticket),
-    )
+  const retrieveSingleTicket = (ticketParams: TicketParams): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
+    ).pipe(map(({ ticket }) => ticket))
   }
-  const getAllTickets = (params: BaseParams): Observable<SingleTicketResponse[]> => {
-    return omnivoreAPIClient(createListAllTicketsRequest(params)).pipe(
+  const getAllTickets = (): Observable<SingleTicketResponse[]> => {
+    return omnivoreAPIClient(createListAllTicketsRequest(baseParams)).pipe(
       map(({ _embedded: { tickets } }) => tickets),
     )
   }
 
-  const openTicket = (params: OpenTicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createOpenTicketRequest(params)).pipe(map((ticketInfo) => ticketInfo))
-  }
-
-  const voidTicket = (params: VoidTicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createVoidTicketRequest(params)).pipe(map((ticketInfo) => ticketInfo))
-  }
-
-  const listTicketDiscounts = (params: TicketParams): Observable<TicketDiscountsResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded: { discounts } }) => discounts),
+  const openTicket = (openTicketParams: OpenTicketParams): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(createOpenTicketRequest({ ...baseParams, ...openTicketParams })).pipe(
+      map((ticketInfo) => ticketInfo),
     )
   }
 
-  const retrieveDiscounts = (params: DiscountParams): Observable<DiscountResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded: { discounts } }) => discounts),
+  const voidTicket = (voidTicketParams: VoidTicketParams): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(createVoidTicketRequest({ ...baseParams, ...voidTicketParams })).pipe(
+      map((ticketInfo) => ticketInfo),
     )
   }
 
-  const retrieveSingleDiscount = (params: DiscountParams): Observable<DiscountResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded: { discounts } }) => discounts),
-    )
+  const listTicketDiscounts = (ticketParams: TicketParams): Observable<TicketDiscountsResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
+    ).pipe(map(({ _embedded: { discounts } }) => discounts))
   }
 
-  const retrieveItemDiscount = (params: DiscountParams): Observable<DiscountResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded: { discounts } }) => discounts),
-    )
+  const retrieveDiscounts = (discountParams: DiscountParams): Observable<DiscountResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...discountParams }),
+    ).pipe(map(({ _embedded: { discounts } }) => discounts))
   }
 
-  const applyDiscount = (params: ApplyDiscountParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const retrieveSingleDiscount = (discountParams: DiscountParams): Observable<DiscountResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...discountParams }),
+    ).pipe(map(({ _embedded: { discounts } }) => discounts))
   }
 
-  const fireTicket = (params: FireTicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const retrieveItemDiscount = (discountParams: DiscountParams): Observable<DiscountResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...discountParams }),
+    ).pipe(map(({ _embedded: { discounts } }) => discounts))
   }
 
-  const listTicketItems = (params: TicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const applyDiscount = (
+    fireTicketParams: ApplyDiscountParams,
+  ): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...fireTicketParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const retrieveTicketItem = (params: ItemParams): Observable<TicketItem> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const fireTicket = (fireTicketParams: FireTicketParams): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...fireTicketParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const addItemsToTicket = (params: AddItemsToTicketParams): Observable<SingleTicketResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const listTicketItems = (ticketParams: TicketParams): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const listItemDiscounts = (params: ItemParams): Observable<TicketDiscountsResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const retrieveTicketItem = (itemParams: ItemParams): Observable<TicketItem> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...itemParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const listItemModifiers = (params: ItemParams): Observable<ItemModifiersResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const addItemsToTicket = (
+    addItemsParams: AddItemsToTicketParams,
+  ): Observable<SingleTicketResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...addItemsParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const retrieveItemModifier = (params: ModifierParams): Observable<Modifier> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const listItemDiscounts = (itemParams: ItemParams): Observable<TicketDiscountsResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...itemParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const listTicketPayments = (params: TicketParams): Observable<TicketPaymentsResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const listItemModifiers = (itemParams: ItemParams): Observable<ItemModifiersResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...itemParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const retrieveTicketPayment = (params: PaymentParams): Observable<TicketPaymentsResponse> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const retrieveItemModifier = (modifierParams: ModifierParams): Observable<Modifier> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...modifierParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
-  const makeThirdPartyPayment = (params: MakePaymentParams): Observable<TicketPayment> => {
-    return omnivoreAPIClient(createRetrieveSingleTicketRequest(params)).pipe(
-      map(({ _embedded }) => _embedded),
-    )
+  const listTicketPayments = (ticketParams: TicketParams): Observable<TicketPaymentsResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...ticketParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
+  }
+
+  const retrieveTicketPayment = (
+    paymentParams: PaymentParams,
+  ): Observable<TicketPaymentsResponse> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...paymentParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
+  }
+
+  const makeThirdPartyPayment = (
+    makePaymentParams: MakePaymentParams,
+  ): Observable<TicketPayment> => {
+    return omnivoreAPIClient(
+      createRetrieveSingleTicketRequest({ ...baseParams, ...makePaymentParams }),
+    ).pipe(map(({ _embedded }) => _embedded))
   }
 
   return {
