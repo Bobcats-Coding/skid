@@ -199,9 +199,9 @@ export const FIRE_TICKET_BODY: FireTicketBody = {
   items: [
     {
       ticket_item: 'tequila sunrise',
-      item_order_mode: 'online'
-    }
-  ]
+      item_order_mode: 'online',
+    },
+  ],
 }
 
 const retrieveLocationResponse: RetrieveLocationResponse = FAKE_LOCATION
@@ -266,7 +266,7 @@ const endpoints = [
   retrieveSingleTicketEndpoint,
   getAllTicketsEndpoint,
   openTicketEndpoint,
-  fireTicketEndpoint
+  fireTicketEndpoint,
 ] as const
 
 export const omnivoreAPIClient: OmnivoreAPIClient = createStubRestClient<

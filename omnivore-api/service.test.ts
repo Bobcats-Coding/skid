@@ -3,6 +3,7 @@ import {
   FAKE_LOCATION,
   FAKE_TICKET,
   FAKE_TICKETS,
+  FIRE_TICKET_BODY,
   omnivoreAPIClient,
   OPEN_TICKET_BODY,
 } from './stub'
@@ -82,5 +83,26 @@ test(
     )
     const openedTicket$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
     expect(openedTicket$).toBeObservable('-(n|)', { n: FAKE_TICKET })
+  }),
+)
+
+test(
+  'Fire existing ticket',
+  coreMarbles(({ expect }) => {
+    const ticket$ = omnivoreService
+      .fireTicket({
+        body: FIRE_TICKET_BODY,
+        ticketID: 'ticket123',
+      })
+      .pipe(
+        map((response) => {
+          return response
+        }),
+        filter((tic): tic is SingleTicketResponse => {
+          return tic !== null
+        }),
+      )
+    const firedTicket$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
+    expect(firedTicket$).toBeObservable('-(n|)', { n: FAKE_TICKET })
   }),
 )
