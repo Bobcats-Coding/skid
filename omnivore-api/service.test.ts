@@ -1,5 +1,11 @@
 import { createOmnivoreService } from './service'
-import { FAKE_LOCATION, FAKE_TICKET, FAKE_TICKETS, omnivoreAPIClient } from './stub'
+import {
+  FAKE_LOCATION,
+  FAKE_TICKET,
+  FAKE_TICKETS,
+  omnivoreAPIClient,
+  OPEN_TICKET_BODY,
+} from './stub'
 import type { GetAllTicketsResponse, LocationResponse, SingleTicketResponse } from './types'
 
 import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
@@ -12,7 +18,7 @@ const omnivoreService = createOmnivoreService(omnivoreAPIClient, {
 })
 
 test(
-  'retrieve location information',
+  'Retrieve location information',
   coreMarbles(({ expect }) => {
     const locations$ = omnivoreService.retrieveLocation().pipe(
       map((response) => {
@@ -22,13 +28,13 @@ test(
         return loc !== null
       }),
     )
-    const displayName$ = locations$.pipe(map((location) => location))
-    expect(displayName$).toBeObservable('-(n|)', { n: FAKE_LOCATION })
+    const currentLocation$ = locations$.pipe(map((location) => location))
+    expect(currentLocation$).toBeObservable('-(n|)', { n: FAKE_LOCATION })
   }),
 )
 
 test(
-  'retrieve single ticket information',
+  'Retrieve single ticket information',
   coreMarbles(({ expect }) => {
     const ticket$ = omnivoreService
       .retrieveSingleTicket({
@@ -42,13 +48,13 @@ test(
           return tic !== null
         }),
       )
-    const displayName$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
-    expect(displayName$).toBeObservable('-(n|)', { n: FAKE_TICKET })
+    const ticketInfo$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
+    expect(ticketInfo$).toBeObservable('-(n|)', { n: FAKE_TICKET })
   }),
 )
 
 test(
-  'get all tickets based on location',
+  'Get all tickets based on location',
   coreMarbles(({ expect }) => {
     const ticket$ = omnivoreService.getAllTickets().pipe(
       map((response) => {
@@ -58,7 +64,23 @@ test(
         return tic !== null
       }),
     )
-    const displayName$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
-    expect(displayName$).toBeObservable('-(n|)', { n: FAKE_TICKETS })
+    const ticketsAtLocation$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
+    expect(ticketsAtLocation$).toBeObservable('-(n|)', { n: FAKE_TICKETS })
+  }),
+)
+
+test(
+  'Open new ticket',
+  coreMarbles(({ expect }) => {
+    const ticket$ = omnivoreService.openTicket({ body: OPEN_TICKET_BODY }).pipe(
+      map((response) => {
+        return response
+      }),
+      filter((tic): tic is SingleTicketResponse => {
+        return tic !== null
+      }),
+    )
+    const openedTicket$ = ticket$.pipe(map((ticketResponse) => ticketResponse))
+    expect(openedTicket$).toBeObservable('-(n|)', { n: FAKE_TICKET })
   }),
 )
