@@ -161,7 +161,7 @@ export const createOmnivoreService = (
   const fireTicket = (fireTicketParams: FireTicketParams): Observable<SingleTicketResponse> => {
     return omnivoreAPIClient(
       createRetrieveSingleTicketRequest({ ...baseParams, ...fireTicketParams }),
-    ).pipe(map(({ _embedded }) => _embedded))
+    ).pipe(map((firedTicket) => firedTicket))
   }
 
   const listTicketItems = (ticketParams: TicketParams): Observable<SingleTicketResponse> => {

@@ -1,5 +1,6 @@
 import type {
   CreateTicketEndpoint,
+  FireTicketEndpoint,
   ListAllTicketsEndpoint,
   OmnivoreAPI,
   OmnivoreAPIClient,
@@ -8,6 +9,7 @@ import type {
   RetrieveSingleTicketEndpoint,
 } from './api'
 import {
+  FireTicketBody,
   GetAllTicketsResponse,
   Link,
   LocationResponse,
@@ -193,6 +195,15 @@ export const OPEN_TICKET_BODY: OpenTicketRequest = {
   discounts: [],
 }
 
+export const FIRE_TICKET_BODY: FireTicketBody = {
+  items: [
+    {
+      ticket_item: 'tequila sunrise',
+      item_order_mode: 'online'
+    }
+  ]
+}
+
 const retrieveLocationResponse: RetrieveLocationResponse = FAKE_LOCATION
 
 const retrieveLocationEndpoint: StubEndpoint<RetrieveLocationEndpoint> = {
@@ -238,11 +249,24 @@ const openTicketEndpoint: StubEndpoint<CreateTicketEndpoint> = {
   response: openTicketResponse,
 }
 
+const fireTicketResponse: SingleTicketResponse = FAKE_TICKET
+
+const fireTicketEndpoint: StubEndpoint<FireTicketEndpoint> = {
+  request: {
+    method: 'POST',
+    pathname: `https://api.omnivore.io/1.0/locations/loc123/tickets/ticket123/fire`,
+    headers: { 'Api-Key': 'fake-api-key' },
+    body: FIRE_TICKET_BODY,
+  },
+  response: fireTicketResponse,
+}
+
 const endpoints = [
   retrieveLocationEndpoint,
   retrieveSingleTicketEndpoint,
   getAllTicketsEndpoint,
   openTicketEndpoint,
+  fireTicketEndpoint
 ] as const
 
 export const omnivoreAPIClient: OmnivoreAPIClient = createStubRestClient<
