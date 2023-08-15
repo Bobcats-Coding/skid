@@ -242,7 +242,7 @@ const endpoints = [
   retrieveLocationEndpoint,
   retrieveSingleTicketEndpoint,
   getAllTicketsEndpoint,
-  openTicketEndpoint
+  openTicketEndpoint,
 ] as const
 
 export const omnivoreAPIClient: OmnivoreAPIClient = createStubRestClient<
