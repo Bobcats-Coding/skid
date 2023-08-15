@@ -1,4 +1,5 @@
 import type {
+  CreateTicketEndpoint,
   ListAllTicketsEndpoint,
   OmnivoreAPI,
   OmnivoreAPIClient,
@@ -6,7 +7,13 @@ import type {
   RetrieveLocationResponse,
   RetrieveSingleTicketEndpoint,
 } from './api'
-import { GetAllTicketsResponse, Link, LocationResponse, SingleTicketResponse } from './types'
+import {
+  GetAllTicketsResponse,
+  Link,
+  LocationResponse,
+  OpenTicketRequest,
+  SingleTicketResponse,
+} from './types'
 
 import { createStubRestClient, StubEndpoint } from '@bobcats-coding/skid/rest/stub'
 
@@ -177,6 +184,15 @@ export const FAKE_TICKETS: GetAllTicketsResponse = {
   limit: 2,
 }
 
+export const OPEN_TICKET_BODY: OpenTicketRequest = {
+  employee: 'Joe',
+  order_type: 'takeout',
+  revenue_center: '001',
+  items: [],
+  payments: [],
+  discounts: [],
+}
+
 const retrieveLocationResponse: RetrieveLocationResponse = FAKE_LOCATION
 
 const retrieveLocationEndpoint: StubEndpoint<RetrieveLocationEndpoint> = {
@@ -210,10 +226,23 @@ const getAllTicketsEndpoint: StubEndpoint<ListAllTicketsEndpoint> = {
   response: getAllTicketsResponse,
 }
 
+const openTicketResponse: SingleTicketResponse = FAKE_TICKET
+
+const openTicketEndpoint: StubEndpoint<CreateTicketEndpoint> = {
+  request: {
+    method: 'POST',
+    pathname: `https://api.omnivore.io/1.0/locations/loc123/tickets`,
+    headers: { 'Api-Key': 'fake-api-key' },
+    body: OPEN_TICKET_BODY,
+  },
+  response: openTicketResponse,
+}
+
 const endpoints = [
   retrieveLocationEndpoint,
   retrieveSingleTicketEndpoint,
   getAllTicketsEndpoint,
+  openTicketEndpoint
 ] as const
 
 export const omnivoreAPIClient: OmnivoreAPIClient = createStubRestClient<
