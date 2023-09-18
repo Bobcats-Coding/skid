@@ -22,6 +22,7 @@
     "react": "^18.2.0",
     "rxjs-marbles": "^7.0.1",
     "testcontainers": "^9.8.0",
+    "twilio": "^4.17.0",
     "universal-router": "^9.1.0",
     "vite": "^4.3.9",
     "zod": "^3.21.4"
