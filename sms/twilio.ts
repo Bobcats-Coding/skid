@@ -1,4 +1,4 @@
-import type { SMSBackend } from './service'
+import type { SMSBackend } from './types'
 
 import { from, map } from 'rxjs'
 import twilio from 'twilio'
@@ -14,9 +14,11 @@ export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
   return {
     requestVerification: (request) => {
       return from(
-        client.verify.v2
-          .services(config.verificationServiceId)
-          .verifications.create({ to: request.to, channel: 'sms' }),
+        client.verify.v2.services(config.verificationServiceId).verifications.create({
+          to: request.to,
+          channel: 'sms',
+          ...(request.code !== undefined && { code: request.code }),
+        }),
       ).pipe(map(() => undefined))
     },
     verify: (attempt) => {
