@@ -9,13 +9,29 @@ const TEST_VERIFICATION_REQUEST = {
   code: '123456',
 }
 
+const TEST_VERIFICATION_REQUEST_INVALID_NUMBER = {
+  to: '11234567890',
+  code: '123456',
+}
+
 describe('SMS Service', () => {
   describe('Request verification', () => {
-    it('should use the provided backend', async () => {
+    it('should use the provided backend', () => {
       const { verificationRequests, backend } = createFakeSMSBackend()
       const smsSender = createSender(backend)
       smsSender.requestVerification(TEST_VERIFICATION_REQUEST)
       expect(verificationRequests).toEqual([TEST_VERIFICATION_REQUEST])
+    })
+
+    it('should enforce phone number format', (done) => {
+      const { backend } = createFakeSMSBackend()
+      const smsSender = createSender(backend)
+      smsSender.requestVerification(TEST_VERIFICATION_REQUEST_INVALID_NUMBER).subscribe({
+        error: (err) => {
+          expect(err.message).toBe('Phone number must conform the E.164 format')
+          done()
+        },
+      })
     })
 
     it('should throw error if the backend fails', (done) => {
@@ -36,7 +52,7 @@ describe('SMS Service', () => {
   })
 
   describe('Attempt to verify by code', () => {
-    it('should return the result', async () => {
+    it('should return the result', () => {
       const fakeResponse = { status: 'verified' } as const
       const { backend } = createFakeSMSBackend()
       backend.verify = () => of(fakeResponse)
@@ -44,6 +60,17 @@ describe('SMS Service', () => {
 
       smsSender.verify(TEST_VERIFICATION_REQUEST).subscribe((result) => {
         expect(result).toEqual(fakeResponse)
+      })
+    })
+
+    it('should enforce phone number format', (done) => {
+      const { backend } = createFakeSMSBackend()
+      const smsSender = createSender(backend)
+      smsSender.verify(TEST_VERIFICATION_REQUEST_INVALID_NUMBER).subscribe({
+        error: (err) => {
+          expect(err.message).toBe('Phone number must conform the E.164 format')
+          done()
+        },
       })
     })
 
