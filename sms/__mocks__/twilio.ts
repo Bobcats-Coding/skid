@@ -2,6 +2,9 @@ const mockV2Services = {
   verifications: {
     create: jest.fn().mockResolvedValue({ status: 'approved' }),
   },
+  verificationChecks: {
+    create: jest.fn().mockResolvedValue({ status: 'approved' }),
+  },
 }
 
 const mockClient = {
