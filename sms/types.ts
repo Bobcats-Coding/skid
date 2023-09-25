@@ -1,6 +1,6 @@
-import type { Observable } from 'rxjs'
+import { PhoneNumber } from './phone-number'
 
-type PhoneNumber = string
+import type { Observable } from 'rxjs'
 
 export type VerificationRequest = {
   to: PhoneNumber
