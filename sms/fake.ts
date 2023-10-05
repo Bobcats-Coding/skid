@@ -1,18 +1,21 @@
-import { SMSBackend, VerificationRequest } from './types'
+import { SMSBackend, VerificationAttempt, VerificationRequest } from './types'
 
 import { of } from 'rxjs'
 
 export const createFakeSMSBackend = (): {
   backend: SMSBackend
   verificationRequests: VerificationRequest[]
+  verificationAttempts: VerificationAttempt[]
 } => {
   const verificationRequests: VerificationRequest[] = []
+  const verificationAttempts: VerificationAttempt[] = []
   const backend: SMSBackend = {
     requestVerification: (request) => {
       verificationRequests.push(request)
       return of(undefined)
     },
-    verify: () => {
+    verify: (attempt) => {
+      verificationAttempts.push(attempt)
       return of({
         status: 'verified',
       })
@@ -21,6 +24,7 @@ export const createFakeSMSBackend = (): {
 
   return {
     verificationRequests,
+    verificationAttempts,
     backend,
   }
 }

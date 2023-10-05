@@ -3,8 +3,6 @@ import { createFakeSMSBackend } from './fake'
 import { PhoneNumber } from './phone-number'
 import { createSender } from './service'
 
-import { of } from 'rxjs'
-
 const TEST_VERIFICATION_REQUEST = {
   to: '+11234567890' as PhoneNumber,
   code: '123456',
@@ -38,13 +36,12 @@ describe('SMS Service', () => {
 
   describe('Attempt to verify by code', () => {
     it('should return the result', () => {
-      const fakeResponse = { status: 'verified' } as const
-      const { backend } = createFakeSMSBackend()
-      backend.verify = () => of(fakeResponse)
+      const { backend, verificationAttempts } = createFakeSMSBackend()
       const smsSender = createSender(backend)
 
       smsSender.verify(TEST_VERIFICATION_REQUEST).subscribe((result) => {
-        expect(result).toEqual(fakeResponse)
+        expect(verificationAttempts).toEqual([TEST_VERIFICATION_REQUEST])
+        expect(result.status).toEqual('verified')
       })
     })
 
