@@ -1,4 +1,4 @@
-import { EmailAddress } from './email-address'
+import type { EmailAddress } from './email-address'
 
 export type Email = {
   to: EmailAddress
