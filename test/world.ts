@@ -1,26 +1,27 @@
+import type { FilterRecord, GetKey, GetValue, GetValueByKey, RecordToEntries } from '../core/type'
 import type {
-  FilterConfigByType,
   GetContext,
-  GetContextByName,
+  GetInstance,
+  InstanceEntry,
   InteractorConfig,
-  NamedInstance,
   RunnerConfig,
   ServiceConfig,
-  ServicesToNamedInstance,
   TestEnviornmentState,
 } from './type'
 
 export type TestEnvironmentWorld<
   SERVICES extends Record<string, ServiceConfig>,
-  INTERACTORS extends NamedInstance = ServicesToNamedInstance<
-    FilterConfigByType<SERVICES, InteractorConfig>
+  INTERACTORS extends InstanceEntry = GetInstance<
+    RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>
   >,
-  SERVICE_NAMES extends ServicesToNamedInstance<SERVICES>['name'] = ServicesToNamedInstance<SERVICES>['name'],
+  SERVICE_NAMES extends GetKey<RecordToEntries<SERVICES>> = GetKey<RecordToEntries<SERVICES>>,
 > = {
-  get: <NAME extends INTERACTORS['name']>(name: NAME) => GetContextByName<INTERACTORS, NAME>
-  register: <NAME extends INTERACTORS['name']>(
+  get: <NAME extends GetKey<INTERACTORS>>(
     name: NAME,
-    context: GetContextByName<INTERACTORS, NAME>,
+  ) => GetContext<GetValueByKey<INTERACTORS, NAME>>
+  register: <NAME extends GetKey<INTERACTORS>>(
+    name: NAME,
+    context: GetContext<GetValueByKey<INTERACTORS, NAME>>,
   ) => void
   start: (
     name: SERVICE_NAMES,
@@ -31,18 +32,14 @@ export type TestEnvironmentWorld<
 export const createWorld = <SERVICES extends Record<string, ServiceConfig>>(
   state: TestEnviornmentState<SERVICES>,
 ): TestEnvironmentWorld<SERVICES> => {
-  type Interactors = ServicesToNamedInstance<FilterConfigByType<SERVICES, InteractorConfig>>
-  const interactorContexts: Map<
-    Interactors['name'],
-    GetContext<Interactors['instance']>
-  > = new Map()
+  type Interactors = GetInstance<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
+  const interactorContexts: Map<GetKey<Interactors>, GetContext<GetValue<Interactors>>> = new Map()
 
   return {
     get: (name) => {
       const interactor = interactorContexts.get(name)
-      const isPresent = (
-        interactor: any,
-      ): interactor is GetContextByName<Interactors, typeof name> => interactor !== undefined
+      const isPresent = (interactor: any): interactor is GetValueByKey<Interactors, typeof name> =>
+        interactor !== undefined
       if (!isPresent(interactor)) {
         throw new Error(`Interactor "${String(name)}" is not registered`)
       }

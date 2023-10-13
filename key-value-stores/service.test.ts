@@ -27,6 +27,19 @@ test('KeyValueStore multiple validators', () => {
   expect(value2).toBe(2)
 })
 
+test('KeyValueStore type validation', () => {
+  const rawStore: RawKeyValueStore = {
+    get: (arg: string) => (arg === 'key1' ? 1 : 2),
+  }
+  const store = createKeyValueStore(rawStore, {
+    key1: z.literal(1),
+    key2: z.literal(2),
+  } as const)
+  // @ts-expect-error
+  const value1: 2 = store.get('key1')
+  expect(value1).toBe(1)
+})
+
 test('KeyValueStore failed validation in guard', () => {
   const rawStore: RawKeyValueStore = {
     get: (_: string) => ({ number: 2 }),
