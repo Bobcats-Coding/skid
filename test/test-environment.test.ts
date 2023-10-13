@@ -122,40 +122,37 @@ test('onBeforeAll hook only starts the "before-all" services', async () => {
 
 test('onAfter hook stops the "before" services', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
-  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: true })
+  const { state: state3, creator: creator3 } = setupFakeInteractor({ isStarted: true, context: 2 })
   const testEnvironment = createTestEnvironment({
     service1: { type: 'interactor', creator: creator1, hook: 'before' },
-    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+    service2: { type: 'runner', creator: creator2, hook: 'before' },
+    service3: { type: 'interactor', creator: creator3, hook: 'before-all' },
   })
   const world = testEnvironment.createWorld()
   await testEnvironment.onBefore(world)
   await testEnvironment.onAfter(world)
   expect(state1.isStarted).toBe(false)
+  expect(state2.isStarted).toBe(false)
+  expect(state3.isStarted).toBe(true)
+})
+
+test('onAfterAll hook only stops the "before-all" services', async () => {
+  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: true })
+  const { state: state3, creator: creator3 } = setupFakeInteractor({ isStarted: true, context: 2 })
+  const { state: state4, creator: creator4 } = setupFakeRunner({ isStarted: true })
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1, hook: 'before' },
+    service2: { type: 'runner', creator: creator2, hook: 'before' },
+    service3: { type: 'interactor', creator: creator3, hook: 'before-all' },
+    service4: { type: 'runner', creator: creator4, hook: 'before-all' },
+  })
+  await testEnvironment.onAfterAll()
+  expect(state1.isStarted).toBe(true)
   expect(state2.isStarted).toBe(true)
-})
-
-test('onAfterAll hook only stops the "before-all" services', async () => {
-  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
-  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
-  const testEnvironment = createTestEnvironment({
-    service1: { type: 'interactor', creator: creator1, hook: 'before' },
-    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
-  })
-  await testEnvironment.onAfterAll()
-  expect(state1.isStarted).toBe(true)
-  expect(state2.isStarted).toBe(false)
-})
-
-test('onAfterAll hook only stops the "before-all" services', async () => {
-  const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
-  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
-  const testEnvironment = createTestEnvironment({
-    service1: { type: 'interactor', creator: creator1, hook: 'before' },
-    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
-  })
-  await testEnvironment.onAfterAll()
-  expect(state1.isStarted).toBe(true)
-  expect(state2.isStarted).toBe(false)
+  expect(state3.isStarted).toBe(false)
+  expect(state4.isStarted).toBe(false)
 })
 
 test('start service from the world', async () => {

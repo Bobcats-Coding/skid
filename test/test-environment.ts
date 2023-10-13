@@ -57,47 +57,47 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
     ),
   }
 
+  const isBeforeAll = ({ hook }: DefaultConfig) => hook === 'before-all'
+  const isNotBeforeAll = ({ hook }: DefaultConfig) => hook !== 'before-all'
+  const isBefore = ({ hook }: DefaultConfig) => hook === 'before'
+
   const asyncTransform = async <T, R>(
     iterable: Iterable<T>,
     transform: (list: T[]) => Array<Promise<R>>,
   ): Promise<R[]> => await Promise.all(transform([...iterable]))
 
-  const forEachRunner = async (
+  const forEachBeforeAllService = async (
     mapper: (runner: RunnerInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.runners.values(), (list) => list.map(mapper))
+    await asyncTransform([...state.interactors.values(), ...state.runners.values()], (list) =>
+      list.filter(isBeforeAll).map(mapper),
+    )
   }
 
   const forEachBeforeAllInteractor = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.interactors.values(), (list) =>
-      list.filter(({ hook }) => hook === 'before-all').map(mapper),
-    )
+    await asyncTransform(state.interactors.values(), (list) => list.filter(isBeforeAll).map(mapper))
   }
 
   const forEachBeforeAllRunner = async (
     mapper: (runner: RunnerInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.runners.values(), (list) =>
-      list.filter(({ hook }) => hook === 'before-all').map(mapper),
-    )
+    await asyncTransform(state.runners.values(), (list) => list.filter(isBeforeAll).map(mapper))
   }
 
-  const forEachScenarioInteractor = async (
+  const forEachScenarioService = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.interactors.values(), (list) =>
-      list.filter(({ hook }) => hook !== 'before-all').map(mapper),
+    await asyncTransform([...state.interactors.values(), ...state.runners.values()], (list) =>
+      list.filter(isNotBeforeAll).map(mapper),
     )
   }
 
   const forEachBeforeInteractor = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.interactors.values(), (list) =>
-      list.filter(({ hook }) => hook === 'before').map(mapper),
-    )
+    await asyncTransform(state.interactors.values(), (list) => list.filter(isBefore).map(mapper))
   }
 
   const mapInteractors = async <T>(
@@ -117,10 +117,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       })
     },
     onAfterAll: async () => {
-      await forEachRunner(async ({ instance }) => {
-        await instance.stop()
-      })
-      await forEachBeforeAllInteractor(async ({ instance }) => {
+      await forEachBeforeAllService(async ({ instance }) => {
         await instance.stop()
       })
     },
@@ -143,7 +140,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       await mapInteractors(async (name, { instance }) => {
         await instance.stopContext(world.get(name))
       })
-      await forEachScenarioInteractor(async ({ instance }) => {
+      await forEachScenarioService(async ({ instance }) => {
         await instance.stop()
       })
     },
