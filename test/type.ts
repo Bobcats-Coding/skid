@@ -1,3 +1,5 @@
+import type { EntryTuple, FilterRecord, GetKey, GetValue, RecordToEntries } from '../core/type'
+
 import type { Observable } from 'rxjs'
 
 export type Runner = {
@@ -11,37 +13,28 @@ export type Interactor<CONTEXT = any> = {
   onFailure: (context: CONTEXT, testName: string) => Promise<ReportEntry>
 } & Runner
 
-export type NamedInstance<
+export type InstanceEntry<
   NAME extends string = string,
   INSTANCE extends Interactor | Runner = Interactor | Runner,
-> = {
-  name: NAME
-  instance: INSTANCE
-}
+> = EntryTuple<NAME, INSTANCE>
+
+type ConfigEntry<
+  NAME extends string = string,
+  CONFIG extends ServiceConfig = ServiceConfig,
+> = EntryTuple<NAME, CONFIG>
 
 export type ServiceConfig = InteractorConfig | RunnerConfig
 
 export type TestEnviornmentConfig = Record<string, ServiceConfig>
 
-export type ServicesToNamedInstance<
-  SERVICES extends Record<string, ServiceConfig>,
-  KEY = keyof SERVICES,
-> = KEY extends string
-  ? KEY extends keyof SERVICES
-    ? NamedInstance<KEY, ReturnType<SERVICES[KEY]['creator']>>
-    : never
-  : never
+export type GetInstance<CONFIGS extends ConfigEntry> = InstanceEntry<
+  GetKey<CONFIGS>,
+  ReturnType<GetValue<CONFIGS>['creator']>
+>
 
-export type GetContextByName<
-  INTERACTORS extends NamedInstance,
-  NAME extends string,
-> = INTERACTORS extends NamedInstance<NAME, infer C>
-  ? C extends Interactor
-    ? GetContext<C>
-    : never
-  : never
-
-export type GetContext<INTERACTOR extends Interactor> = INTERACTOR extends Interactor<infer CONTEXT>
+export type GetContext<INTERACTOR extends Interactor | Runner> = INTERACTOR extends Interactor<
+  infer CONTEXT
+>
   ? CONTEXT
   : never
 
@@ -70,23 +63,16 @@ export type InteractorConfig<INTERACTOR = any, ARGS extends any[] = any[]> = {
 export type RunnerInstance = { instance: Runner } & DefaultConfig
 export type InteractorInstance = { instance: Interactor } & DefaultConfig
 
-export type FilterConfigByType<
-  SERVICES extends Record<string, ServiceConfig>,
-  TYPE extends RunnerConfig | InteractorConfig,
-> = {
-  [K in keyof SERVICES]: SERVICES[K] extends TYPE ? SERVICES[K] : never
-}
-
 export type TestEnviornmentState<
   SERVICES extends Record<string, ServiceConfig>,
-  INTERACTORS extends NamedInstance = ServicesToNamedInstance<
-    FilterConfigByType<SERVICES, InteractorConfig>
+  INTERACTORS extends InstanceEntry = GetInstance<
+    RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>
   >,
-  RUNNERS extends NamedInstance = ServicesToNamedInstance<
-    FilterConfigByType<SERVICES, RunnerConfig>
+  RUNNERS extends InstanceEntry = GetInstance<
+    RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>
   >,
 > = {
   services: SERVICES
-  interactors: Map<INTERACTORS['name'], { instance: INTERACTORS['instance'] } & DefaultConfig>
-  runners: Map<RUNNERS['name'], { instance: RUNNERS['instance'] } & DefaultConfig>
+  interactors: Map<GetKey<INTERACTORS>, { instance: GetValue<INTERACTORS> } & DefaultConfig>
+  runners: Map<GetKey<RUNNERS>, { instance: GetValue<RUNNERS> } & DefaultConfig>
 }

@@ -1,35 +1,30 @@
+import type {
+  EntryTuple,
+  GetKey,
+  GetValueByKey,
+  RecordToEntries,
+} from '@Bobcats-Coding/skid/core/type'
 import { type ZodSchema } from 'zod'
 
 export type RawKeyValueStore = {
   get: (key: string) => unknown
 }
 
+type Schemas = Record<string, ZodSchema>
+
 export type KeyValueStore<
-  SCHEMAS extends Record<string, ZodSchema>,
-  KEY_SCHEMAS extends KeySchema = GetKeySchemas<SCHEMAS>,
+  SCHEMAS extends Schemas,
+  SCHEMA_ENTRIES extends EntryTuple = RecordToEntries<SCHEMAS>,
 > = {
-  get: <KEY extends KEY_SCHEMAS['key']>(key: KEY) => GetSchemaTypeByKey<KEY_SCHEMAS, KEY>
+  get: <KEY extends GetKey<SCHEMA_ENTRIES>>(
+    key: KEY,
+  ) => GetSchemaType<GetValueByKey<SCHEMA_ENTRIES, KEY>>
   validate: () => void
 }
 
-type KeySchema<KEY extends string = string, SCHEMA extends ZodSchema = ZodSchema> = {
-  key: KEY
-  schema: SCHEMA
-}
-
-type GetKeySchemas<
-  SCHEMAS extends Record<string, ZodSchema>,
-  KEY = keyof SCHEMAS,
-> = KEY extends string ? (KEY extends keyof SCHEMAS ? KeySchema<KEY, SCHEMAS[KEY]> : never) : never
-
 type GetSchemaType<SCHEMA = ZodSchema> = SCHEMA extends ZodSchema<infer TYPE> ? TYPE : never
 
-type GetSchemaTypeByKey<
-  KEY_SCHEMAS extends KeySchema,
-  KEY extends string,
-> = KEY_SCHEMAS extends KeySchema<KEY, infer SCHEMA> ? GetSchemaType<SCHEMA> : never
-
-export const createKeyValueStore = <SCHEMAS extends Record<string, ZodSchema>>(
+export const createKeyValueStore = <SCHEMAS extends Schemas>(
   rawStore: RawKeyValueStore,
   validators: SCHEMAS,
 ): KeyValueStore<SCHEMAS> => {

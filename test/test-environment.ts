@@ -1,13 +1,13 @@
+import type { FilterRecord, GetKey, GetValue, RecordToEntries } from '../core/type'
 import type {
   DefaultConfig,
-  FilterConfigByType,
+  GetInstance,
   InteractorConfig,
   InteractorInstance,
   ReportEntry,
   RunnerConfig,
   RunnerInstance,
   ServiceConfig,
-  ServicesToNamedInstance,
   TestEnviornmentState,
 } from './type'
 import type { TestEnvironmentWorld } from './world'
@@ -28,8 +28,8 @@ export type TestEnviornment<SERVICES extends Record<string, ServiceConfig>> = {
 export const createTestEnvironment = <SERVICES extends Record<string, ServiceConfig>>(
   services: SERVICES,
 ): TestEnviornment<SERVICES> => {
-  type Interactor = ServicesToNamedInstance<FilterConfigByType<SERVICES, InteractorConfig>>
-  type Runner = ServicesToNamedInstance<FilterConfigByType<SERVICES, RunnerConfig>>
+  type Interactor = GetInstance<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
+  type Runner = GetInstance<RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>>
 
   const isInteractorEntry = (entry: [string, ServiceConfig]): entry is [string, InteractorConfig] =>
     entry[1].type === 'interactor'
@@ -39,7 +39,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
 
   const state: TestEnviornmentState<SERVICES> = {
     services,
-    interactors: new Map<string, { instance: Interactor['instance'] } & DefaultConfig>(
+    interactors: new Map<string, { instance: GetValue<Interactor> } & DefaultConfig>(
       Object.entries(services)
         .filter(isInteractorEntry)
         .map(([key, { creator, hook }]) => [
@@ -47,7 +47,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
           { instance: creator(), ...(Boolean(hook) && { hook }) },
         ]),
     ),
-    runners: new Map<string, { instance: Runner['instance'] } & DefaultConfig>(
+    runners: new Map<string, { instance: GetValue<Runner> } & DefaultConfig>(
       Object.entries(services)
         .filter(isRunnerEntry)
         .map(([key, { creator, hook }]) => [
@@ -101,7 +101,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
   }
 
   const mapInteractors = async <T>(
-    mapper: (key: Interactor['name'], interactor: InteractorInstance) => Promise<T>,
+    mapper: (key: GetKey<Interactor>, interactor: InteractorInstance) => Promise<T>,
   ): Promise<T[]> =>
     await asyncTransform(state.interactors.entries(), (list) =>
       list.map(async ([key, interactor]) => await mapper(key, interactor)),
