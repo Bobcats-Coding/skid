@@ -4,7 +4,8 @@ import type {
   GetValueByKey,
   RecordToEntries,
 } from '@Bobcats-Coding/skid/core/type'
-import { type ZodSchema } from 'zod'
+import type { GetSchemaType } from '@Bobcats-Coding/skid/core/zod'
+import type { ZodSchema } from 'zod'
 
 export type RawKeyValueStore = {
   get: (key: string) => unknown
@@ -22,8 +23,6 @@ export type KeyValueStore<
   validate: () => void
 }
 
-type GetSchemaType<SCHEMA = ZodSchema> = SCHEMA extends ZodSchema<infer TYPE> ? TYPE : never
-
 export const createKeyValueStore = <SCHEMAS extends Schemas>(
   rawStore: RawKeyValueStore,
   validators: SCHEMAS,
@@ -32,7 +31,7 @@ export const createKeyValueStore = <SCHEMAS extends Schemas>(
     const rawValue = rawStore.get(key)
     const validator = validators[key]
     if (validator === undefined) {
-      throw new Error()
+      throw new Error('Key does not exist in schema')
     }
     try {
       return validator.parse(rawValue)
