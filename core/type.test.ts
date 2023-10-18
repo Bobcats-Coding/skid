@@ -8,6 +8,7 @@ import type {
   GetValueByKey,
   GetValueByPath,
   Guard,
+  JoinArray,
   JsonType,
   ObjectWithStringLiteralKey,
   RecordToEntries,
@@ -132,4 +133,9 @@ test('GetValuesByPath<OBJECT, PATH>', () => {
   type Object = { a: { b: { c: 1 }; d: 2 }; e: 3 }
   type Values = GetValueByPath<Object, 'a.b.c'>
   assert<Equals<Values, 1>>()
+})
+
+test('JoinArray<STRINGS, DELIMITER>', () => {
+  type Joined = JoinArray<['a', 'b', 'c'], '.'>
+  assert<Equals<Joined, 'a.b.c'>>()
 })

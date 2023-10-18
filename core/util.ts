@@ -1,4 +1,4 @@
-import type { ObjectWithStringLiteralKey, Split, StringLiteral } from './type'
+import type { JoinArray, ObjectWithStringLiteralKey, Split, StringLiteral } from './type'
 
 export const typeKey = Symbol('type')
 
@@ -15,3 +15,8 @@ export const split = <const STRING extends string, const DELIMITER extends strin
   str: STRING,
   delimiter: DELIMITER,
 ): Split<STRING, DELIMITER> => str.split(delimiter) as unknown as Split<STRING, DELIMITER>
+
+export const join = <const KEYS extends string[], const DELIMITER extends string>(
+  keys: KEYS,
+  delimiter: DELIMITER,
+): JoinArray<KEYS, DELIMITER> => keys.join(delimiter) as JoinArray<KEYS, DELIMITER>
