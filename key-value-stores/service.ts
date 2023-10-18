@@ -3,8 +3,9 @@ import type {
   GetKey,
   GetValueByKey,
   RecordToEntries,
-} from '@Bobcats-Coding/skid/core/type'
-import type { GetSchemaType } from '@Bobcats-Coding/skid/core/zod'
+} from '@bobcats-coding/skid/core/type'
+import type { GetSchemaType } from '@bobcats-coding/skid/core/zod'
+
 import type { ZodSchema } from 'zod'
 
 export type RawKeyValueStore = {

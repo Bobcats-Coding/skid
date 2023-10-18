@@ -1,6 +1,7 @@
-import type { GetAllPaths, GetValueByPath } from '@Bobcats-Coding/skid/core/type'
-import { split } from '@Bobcats-Coding/skid/core/util'
-import { getSchemaByObjectPath, GetSchemaType } from '@Bobcats-Coding/skid/core/zod'
+import type { GetAllPaths, GetValueByPath } from '@bobcats-coding/skid/core/type'
+import { split } from '@bobcats-coding/skid/core/util'
+import { getSchemaByObjectPath, GetSchemaType } from '@bobcats-coding/skid/core/zod'
+
 import type { ZodSchema } from 'zod'
 
 export type RawKeyValueStore = {
