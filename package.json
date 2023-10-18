@@ -22,6 +22,7 @@
     "react": "^18.2.0",
     "rxjs": "^7.8.1",
     "rxjs-marbles": "^7.0.1",
+    "tsafe": "^1.6.5",
     "testcontainers": "^9.8.0",
     "twilio": "^4.17.0",
     "universal-router": "^9.1.0",
@@ -30,7 +31,6 @@
   },
   "devDependencies": {
     "allure-cucumberjs": "^2.0.0-beta.23",
-    "tsafe": "^1.6.5",
     "typescript": "5.1.6"
   },
   "author": "info@bobcatscoding.com",
