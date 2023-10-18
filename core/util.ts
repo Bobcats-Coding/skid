@@ -1,4 +1,4 @@
-import { ObjectWithStringLiteralKey, StringLiteral } from './type'
+import type { ObjectWithStringLiteralKey, Split, StringLiteral } from './type'
 
 export const typeKey = Symbol('type')
 
@@ -10,3 +10,8 @@ export const makeObjectFromStringLiteral = <KEY, VALUE>(
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return { [key]: value } as ObjectWithStringLiteralKey<KEY, VALUE>
 }
+
+export const split = <const STRING extends string, const DELIMITER extends string>(
+  str: STRING,
+  delimiter: DELIMITER,
+): Split<STRING, DELIMITER> => str.split(delimiter) as unknown as Split<STRING, DELIMITER>
