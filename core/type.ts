@@ -76,3 +76,17 @@ export type GetValueByPath<OBJECT, PATH extends string> = PATH extends keyof OBJ
     ? GetValueByPath<OBJECT[K], Rest & string>
     : never
   : never
+
+export type JoinArray<
+  STRINGS extends readonly string[],
+  DELIMITER extends string,
+  ACC extends string = '',
+> = STRINGS extends [infer L, ...infer R]
+  ? L extends string
+    ? R['length'] extends 0
+      ? `${ACC}${L & string}`
+      : R extends string[]
+      ? JoinArray<R, DELIMITER, `${ACC}${L}${DELIMITER}`>
+      : never
+    : ACC
+  : never
