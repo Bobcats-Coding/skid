@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "allure-cucumberjs": "^2.0.0-beta.23",
+    "tsafe": "^1.6.5",
     "typescript": "5.1.6"
   },
   "author": "info@bobcatscoding.com",
