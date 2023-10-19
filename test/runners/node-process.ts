@@ -40,7 +40,7 @@ export const nodeProcessRunner = ({
         console.error(line)
       })
       stream.on('end', () => {
-        console.log('Container closed')
+        console.log(`Container closed: ${path}`)
       })
     })
     .withWaitStrategy(Wait.forListeningPorts())
@@ -53,6 +53,7 @@ export const nodeProcessRunner = ({
     stop: async () => {
       if (runningContainer !== undefined) {
         await runningContainer.stop()
+        console.log(`Container stopped: ${path}`)
       }
     },
   }
