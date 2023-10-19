@@ -78,3 +78,25 @@ test('KeyValueStore validate all keys', () => {
   expect(message).toBe('Invalid type in store: "key2" => 3')
   expect(cause.issues[0].code).toBe('invalid_literal')
 })
+
+test('KeyValueStore store throws error', () => {
+  const error = new Error('Store error')
+  const rawStore: RawKeyValueStore = {
+    get: (_: string) => {
+      throw error
+    },
+  }
+  const store = createKeyValueStore(rawStore, {
+    key: z.literal(1),
+  } as const)
+  let message
+  let cause
+  try {
+    store.get('key')
+  } catch (e: any) {
+    message = e.message
+    cause = e.cause
+  }
+  expect(message).toBe('Key is not present in store: "key"')
+  expect(cause).toBe(error)
+})

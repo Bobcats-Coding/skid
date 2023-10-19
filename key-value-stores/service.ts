@@ -28,8 +28,18 @@ export const createKeyValueStore = <SCHEMAS extends Schemas>(
   rawStore: RawKeyValueStore,
   validators: SCHEMAS,
 ): KeyValueStore<SCHEMAS> => {
+  const getRawValue = (key: string): unknown => {
+    try {
+      return rawStore.get(key)
+    } catch (e) {
+      throw new Error(`Key is not present in store: "${key}"`, {
+        cause: e,
+      })
+    }
+  }
+
   const get: KeyValueStore<SCHEMAS>['get'] = (key) => {
-    const rawValue = rawStore.get(key)
+    const rawValue = getRawValue(key)
     const validator = validators[key]
     if (validator === undefined) {
       throw new Error('Key does not exist in schema')

@@ -2,7 +2,7 @@ import { createKeyValueStoreDeep, type RawKeyValueStore } from './service-deep'
 
 import { z } from 'zod'
 
-test('KeyValueStore single validator', () => {
+test('KeyValueStoreDeep single validator', () => {
   const rawStore: RawKeyValueStore = {
     get: (_: string) => 'value',
   }
@@ -13,7 +13,7 @@ test('KeyValueStore single validator', () => {
   expect(value).toBe('value')
 })
 
-test('KeyValueStore multiple validators', () => {
+test('KeyValueStoreDeep multiple validators', () => {
   const rawStore: RawKeyValueStore = {
     get: (arg: string) => (arg === 'key1' ? 1 : 2),
   }
@@ -29,7 +29,7 @@ test('KeyValueStore multiple validators', () => {
   store.get('key2') satisfies 3
 })
 
-test('KeyValueStore type validation', () => {
+test('KeyValueStoreDeep type validation', () => {
   const rawStore: RawKeyValueStore = {
     get: (arg: string) => (arg === 'key1' ? 1 : 2),
   }
@@ -42,7 +42,7 @@ test('KeyValueStore type validation', () => {
   expect(value1).toBe(1)
 })
 
-test('KeyValueStore failed validation in guard', () => {
+test('KeyValueStoreDeep failed validation in guard', () => {
   const rawStore: RawKeyValueStore = {
     get: (_: string) => ({ number: 2 }),
   }
@@ -61,7 +61,7 @@ test('KeyValueStore failed validation in guard', () => {
   expect(cause.issues[0].code).toBe('invalid_literal')
 })
 
-test('KeyValueStore deep validator', () => {
+test('KeyValueStoreDeep deep validator', () => {
   const rawStore: RawKeyValueStore = {
     get: (arg: string) => {
       switch (arg) {
@@ -90,7 +90,7 @@ test('KeyValueStore deep validator', () => {
   store.get('key2.key3') satisfies 4
 })
 
-test('KeyValueStore validate all keys', () => {
+test('KeyValueStoreDeep validate all keys', () => {
   const rawStore: RawKeyValueStore = {
     get: (arg: string) => (arg === 'key1' ? 1 : 3),
   }
@@ -108,4 +108,26 @@ test('KeyValueStore validate all keys', () => {
   }
   expect(message).toBe('Invalid type in store: "key2" => 3')
   expect(cause.issues[0].code).toBe('invalid_literal')
+})
+
+test('KeyValueStoreDeep store throws error', () => {
+  const error = new Error('Store error')
+  const rawStore: RawKeyValueStore = {
+    get: (_: string) => {
+      throw error
+    },
+  }
+  const store = createKeyValueStoreDeep(rawStore, {
+    key: z.literal(1),
+  } as const)
+  let message
+  let cause
+  try {
+    store.get('key')
+  } catch (e: any) {
+    message = e.message
+    cause = e.cause
+  }
+  expect(message).toBe('Key is not present in store: "key"')
+  expect(cause).toBe(error)
 })
