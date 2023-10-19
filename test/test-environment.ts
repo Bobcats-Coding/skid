@@ -14,13 +14,13 @@ import type { TestEnvironmentWorld } from './world'
 import { createWorld } from './world'
 
 import type { Observable } from 'rxjs'
-import { map, merge } from 'rxjs'
+import { map, merge, ReplaySubject } from 'rxjs'
 
 export type TestEnviornment<SERVICES extends Record<string, ServiceConfig>> = {
-  onBeforeAll: () => Promise<void>
-  onAfterAll: () => Promise<void>
+  onBeforeAll: () => Promise<Observable<ReportEntry>>
+  onAfterAll: () => Promise<Observable<ReportEntry>>
   onBefore: (world: TestEnvironmentWorld<SERVICES>) => Promise<Observable<ReportEntry>>
-  onAfter: (world: TestEnvironmentWorld<SERVICES>) => Promise<void>
+  onAfter: (world: TestEnvironmentWorld<SERVICES>) => Promise<Observable<ReportEntry>>
   onFailure: (world: TestEnvironmentWorld<SERVICES>, testName: string) => Promise<ReportEntry[]>
   createWorld: () => TestEnvironmentWorld<SERVICES>
 }
@@ -60,6 +60,7 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
   const isBeforeAll = ({ hook }: DefaultConfig) => hook === 'before-all'
   const isNotBeforeAll = ({ hook }: DefaultConfig) => hook !== 'before-all'
   const isBefore = ({ hook }: DefaultConfig) => hook === 'before'
+  const keyValueToObject = <T>([name, service]: [string, T]) => ({ name, ...service })
 
   const asyncTransform = async <T, R>(
     iterable: Iterable<T>,
@@ -67,30 +68,18 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
   ): Promise<R[]> => await Promise.all(transform([...iterable]))
 
   const forEachBeforeAllService = async (
-    mapper: (runner: RunnerInstance) => Promise<void>,
+    mapper: (runner: { name: GetKey<Interactor> } & RunnerInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform([...state.interactors.values(), ...state.runners.values()], (list) =>
-      list.filter(isBeforeAll).map(mapper),
+    await asyncTransform([...state.runners.entries(), ...state.interactors.entries()], (list) =>
+      list.map(keyValueToObject).filter(isBeforeAll).map(mapper),
     )
   }
 
-  const forEachBeforeAllInteractor = async (
-    mapper: (interactor: InteractorInstance) => Promise<void>,
-  ): Promise<void> => {
-    await asyncTransform(state.interactors.values(), (list) => list.filter(isBeforeAll).map(mapper))
-  }
-
-  const forEachBeforeAllRunner = async (
-    mapper: (runner: RunnerInstance) => Promise<void>,
-  ): Promise<void> => {
-    await asyncTransform(state.runners.values(), (list) => list.filter(isBeforeAll).map(mapper))
-  }
-
   const forEachScenarioService = async (
-    mapper: (interactor: InteractorInstance) => Promise<void>,
+    mapper: (interactor: { name: GetKey<Interactor> } & InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform([...state.interactors.values(), ...state.runners.values()], (list) =>
-      list.filter(isNotBeforeAll).map(mapper),
+    await asyncTransform([...state.interactors.entries(), ...state.runners.entries()], (list) =>
+      list.map(keyValueToObject).filter(isNotBeforeAll).map(mapper),
     )
   }
 
@@ -101,31 +90,34 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
   }
 
   const mapInteractors = async <T>(
-    mapper: (key: GetKey<Interactor>, interactor: InteractorInstance) => Promise<T>,
+    mapper: (interactor: { name: GetKey<Interactor> } & InteractorInstance) => Promise<T>,
   ): Promise<T[]> =>
     await asyncTransform(state.interactors.entries(), (list) =>
-      list.map(async ([key, interactor]) => await mapper(key, interactor)),
+      list.map(async ([name, interactor]) => await mapper({ name, ...interactor })),
     )
 
   return {
     onBeforeAll: async () => {
-      await forEachBeforeAllRunner(async ({ instance }) => {
+      const entries$ = new ReplaySubject<ReportEntry>()
+      await forEachBeforeAllService(async ({ instance, name }) => {
         await instance.start()
+        entries$.next({ entry: `${name}: Started in before-all`, type: 'text/plain' })
       })
-      await forEachBeforeAllInteractor(async ({ instance }) => {
-        await instance.start()
-      })
+      return entries$.asObservable()
     },
     onAfterAll: async () => {
-      await forEachBeforeAllService(async ({ instance }) => {
+      const entries$ = new ReplaySubject<ReportEntry>()
+      await forEachBeforeAllService(async ({ instance, name }) => {
         await instance.stop()
+        entries$.next({ entry: `${name}: Stopped in after-all`, type: 'text/plain' })
       })
+      return entries$.asObservable()
     },
     onBefore: async (world) => {
       await forEachBeforeInteractor(async ({ instance }) => {
         await instance.start()
       })
-      const reportEntries = await mapInteractors(async (name, { instance }) => {
+      const reportEntries = await mapInteractors(async ({ name, instance }) => {
         const { context, reportEntry$ } = await instance.startContext()
         world.register(name, context)
         return reportEntry$.pipe(
@@ -137,15 +129,18 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       return merge<ReportEntry[]>(...reportEntries)
     },
     onAfter: async (world) => {
-      await mapInteractors(async (name, { instance }) => {
+      const entries$ = new ReplaySubject<ReportEntry>()
+      await mapInteractors(async ({ name, instance }) => {
         await instance.stopContext(world.get(name))
       })
-      await forEachScenarioService(async ({ instance }) => {
+      await forEachScenarioService(async ({ instance, name }) => {
         await instance.stop()
+        entries$.next({ entry: `${name}: Stopped in after`, type: 'text/plain' })
       })
+      return entries$.asObservable()
     },
     onFailure: async (world, testName) => {
-      return await mapInteractors(async (name, { instance }) => {
+      return await mapInteractors(async ({ name, instance }) => {
         return await instance.onFailure(world.get(name), testName)
       })
     },
