@@ -1,6 +1,6 @@
 {
   "name": "@bobcats-coding/skid",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "An opinionated set of tools for building TypeScript applications.",
   "scripts": {
     "build": "tsc",
