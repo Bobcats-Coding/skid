@@ -10,6 +10,8 @@ export type NodeProcessRunnerConfig = {
   environment?: Record<string, string>
 }
 
+const GLOBAL_EXPOSED_PORTS = new Set<number>()
+
 export const nodeProcessRunner = ({
   path,
   args,
@@ -48,7 +50,14 @@ export const nodeProcessRunner = ({
   return {
     start: async () => {
       runningContainer = await container.start()
+      console.log(`Checking port: ${port}`)
+      if (GLOBAL_EXPOSED_PORTS.has(port)) {
+        console.log(`Port already exposed: ${port}`)
+        return
+      }
       await TestContainers.exposeHostPorts(port)
+      GLOBAL_EXPOSED_PORTS.add(port)
+      console.log(`Port exposed: ${port}`)
     },
     stop: async () => {
       if (runningContainer !== undefined) {
