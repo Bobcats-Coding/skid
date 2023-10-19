@@ -1,7 +1,7 @@
 import { createTestEnvironment } from './test-environment'
 import type { Interactor, Runner } from './type'
 
-import { EMPTY } from 'rxjs'
+import { of } from 'rxjs'
 
 test('onBeforeAll hook starts the runners', async () => {
   const { state: state1, creator: creator1 } = setupFakeRunner()
@@ -220,17 +220,21 @@ test('should not start non hook services', async () => {
 
 test('onAfter stops services started from the world', async () => {
   const { state: state1, creator: creator1 } = setupFakeInteractor({ isStarted: false, context: 1 })
-  const { state: state2, creator: creator2 } = setupFakeInteractor({ isStarted: false, context: 2 })
+  const { state: state2, creator: creator2 } = setupFakeRunner({ isStarted: false })
+  const { state: state3, creator: creator3 } = setupFakeInteractor({ isStarted: false, context: 2 })
   const testEnvironment = createTestEnvironment({
     service1: { type: 'interactor', creator: creator1 },
-    service2: { type: 'interactor', creator: creator2, hook: 'before-all' },
+    service2: { type: 'runner', creator: creator2 },
+    service3: { type: 'interactor', creator: creator3, hook: 'before-all' },
   })
   const world = testEnvironment.createWorld()
   await testEnvironment.onBefore(world)
   await world.start('service1')
+  await world.start('service2')
   await testEnvironment.onAfter(world)
   expect(state1.isStarted).toBe(false)
   expect(state2.isStarted).toBe(false)
+  expect(state3.isStarted).toBe(false)
 })
 
 test('start should be type-safe', async () => {
@@ -247,7 +251,7 @@ test('start should be type-safe', async () => {
   }).rejects.toThrow('Service "service3" is not in the configuration')
 })
 
-test('start ', async () => {
+test('start is typesafe', async () => {
   const { creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
   const { creator: creator2 } = setupFakeInteractor({ isStarted: true, context: 2 })
   const testEnvironment = createTestEnvironment({
@@ -259,6 +263,73 @@ test('start ', async () => {
     // @ts-expect-error
     await world.start('service3')
   }).rejects.toThrow('Service "service3" is not in the configuration')
+})
+
+test('start context shows its log entries', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ isStarted: true, context: 1 })
+  const { creator: creator2 } = setupFakeRunner()
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1 },
+    service2: { type: 'runner', creator: creator2, hook: 'before' },
+  })
+  const world = testEnvironment.createWorld()
+  const entries$ = await testEnvironment.onBefore(world)
+  const messages = new Set<string | Buffer>()
+  entries$.subscribe(({ entry }) => {
+    messages.add(entry)
+  })
+  expect(messages).toEqual(new Set(['service1: Coming from context start']))
+})
+
+test('onBeforeAll should log the started services', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ context: 1 })
+  const { creator: creator2 } = setupFakeRunner()
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1, hook: 'before-all' },
+    service2: { type: 'runner', creator: creator2, hook: 'before-all' },
+  })
+  const entries$ = await testEnvironment.onBeforeAll()
+  const messages = new Set<string | Buffer>()
+  entries$.subscribe(({ entry }) => {
+    messages.add(entry)
+  })
+  expect(messages).toEqual(
+    new Set(['service1: Started in before-all', 'service2: Started in before-all']),
+  )
+})
+
+test('onAfterAll should log the stopped services', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ context: 1 })
+  const { creator: creator2 } = setupFakeRunner()
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1, hook: 'before-all' },
+    service2: { type: 'runner', creator: creator2, hook: 'before-all' },
+  })
+  const entries$ = await testEnvironment.onAfterAll()
+  const messages = new Set<string | Buffer>()
+  entries$.subscribe(({ entry }) => {
+    messages.add(entry)
+  })
+  expect(messages).toEqual(
+    new Set(['service1: Stopped in after-all', 'service2: Stopped in after-all']),
+  )
+})
+
+test('onAfter should log the stopped services', async () => {
+  const { creator: creator1 } = setupFakeInteractor({ context: 1 })
+  const { creator: creator2 } = setupFakeRunner()
+  const testEnvironment = createTestEnvironment({
+    service1: { type: 'interactor', creator: creator1, hook: 'before' },
+    service2: { type: 'runner', creator: creator2, hook: 'before' },
+  })
+  const world = testEnvironment.createWorld()
+  await testEnvironment.onBefore(world)
+  const entries$ = await testEnvironment.onAfter(world)
+  const messages = new Set<string | Buffer>()
+  entries$.subscribe(({ entry }) => {
+    messages.add(entry)
+  })
+  expect(messages).toEqual(new Set(['service1: Stopped in after', 'service2: Stopped in after']))
 })
 
 type InteractorState = {
@@ -296,7 +367,10 @@ const setupFakeInteractor = <T = number>({
       state.isContextStarted = true
       return {
         context,
-        reportEntry$: EMPTY,
+        reportEntry$: of({
+          entry: 'Coming from context start',
+          type: 'text/plain',
+        }),
       }
     },
     stopContext: async (_: T) => {
