@@ -33,8 +33,18 @@ export const createKeyValueStoreDeep = <SCHEMAS extends Schemas>(
     return getSchemaByObjectPath(schema as any, restKeys.join('.') as any)
   }
 
+  const getRawValue = (key: string): unknown => {
+    try {
+      return rawStore.get(key)
+    } catch (e) {
+      throw new Error(`Key is not present in store: "${key}"`, {
+        cause: e,
+      })
+    }
+  }
+
   const get: KeyValueStoreDeep<SCHEMAS>['get'] = (key) => {
-    const rawValue = rawStore.get(key)
+    const rawValue = getRawValue(key)
     const validator = getValidator(key)
     try {
       return validator.parse(rawValue)
