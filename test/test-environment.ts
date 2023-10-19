@@ -101,7 +101,9 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       const entries$ = new ReplaySubject<ReportEntry>()
       await forEachBeforeAllService(async ({ instance, name }) => {
         await instance.start()
-        entries$.next({ entry: `${name}: Started in before-all`, type: 'text/plain' })
+        const message = `${name}: Started in before-all`
+        entries$.next({ entry: message, type: 'text/plain' })
+        console.log(message)
       })
       return entries$.asObservable()
     },
@@ -109,7 +111,9 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       const entries$ = new ReplaySubject<ReportEntry>()
       await forEachBeforeAllService(async ({ instance, name }) => {
         await instance.stop()
-        entries$.next({ entry: `${name}: Stopped in after-all`, type: 'text/plain' })
+        const message = `${name}: Stopped in after-all`
+        entries$.next({ entry: message, type: 'text/plain' })
+        console.log(message)
       })
       return entries$.asObservable()
     },
@@ -135,7 +139,9 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
       })
       await forEachScenarioService(async ({ instance, name }) => {
         await instance.stop()
-        entries$.next({ entry: `${name}: Stopped in after`, type: 'text/plain' })
+        const message = `${name}: Stopped in after`
+        entries$.next({ entry: message, type: 'text/plain' })
+        console.log(message)
       })
       return entries$.asObservable()
     },

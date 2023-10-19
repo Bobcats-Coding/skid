@@ -67,6 +67,7 @@ export const createWorld = <SERVICES extends Record<string, ServiceConfig>>(
           ...('hook' in service ? { hook: service.hook } : {}),
         })
       }
+      console.log(`${name}: Started in step`)
     },
     register: (name, context) => {
       interactorContexts.set(name, context)
