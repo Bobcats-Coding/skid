@@ -57,7 +57,7 @@ export type SplitFilePath<PATH extends string> = Split<PATH, '/'>
 
 export type GetAllPaths<OBJECT, PATH extends string = ''> = PathsHelper<OBJECT, PATH, never>
 
-type PathsHelper<OBJECT, PATH extends string, ACC> =
+type PathsHelper<OBJECT, PATH extends string, ACC extends string> =
   | {
       [K in keyof OBJECT & string]: PATH extends ''
         ? K | (OBJECT[K] extends Record<string, any> ? PathsHelper<OBJECT[K], K, K> : never)
