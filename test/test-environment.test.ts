@@ -77,7 +77,8 @@ test('world keys should be typesafe', async () => {
   await testEnvironment.onBefore(world)
   // @ts-expect-error
   expect(() => world.get('service3')).toThrow()
-  world.get('service1') satisfies 1
+  const a: 1 = world.get('service1')
+  expect(a).toBe(1)
 })
 
 test('onBefore hook starts the contexts', async () => {

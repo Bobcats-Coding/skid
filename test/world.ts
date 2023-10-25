@@ -1,8 +1,9 @@
 import type { FilterRecord, GetKey, GetValue, GetValueByKey, RecordToEntries } from '../core/type'
 import type {
+  ConfigEntry,
   GetContext,
   GetInstance,
-  InstanceEntry,
+  GetInstanceEntry,
   InteractorConfig,
   RunnerConfig,
   ServiceConfig,
@@ -11,17 +12,15 @@ import type {
 
 export type TestEnvironmentWorld<
   SERVICES extends Record<string, ServiceConfig>,
-  INTERACTORS extends InstanceEntry = GetInstance<
-    RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>
-  >,
+  INTERACTORS extends ConfigEntry = RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>,
   SERVICE_NAMES extends GetKey<RecordToEntries<SERVICES>> = GetKey<RecordToEntries<SERVICES>>,
 > = {
   get: <NAME extends GetKey<INTERACTORS>>(
     name: NAME,
-  ) => GetContext<GetValueByKey<INTERACTORS, NAME>>
+  ) => GetContext<GetInstance<GetValueByKey<INTERACTORS, NAME>>>
   register: <NAME extends GetKey<INTERACTORS>>(
     name: NAME,
-    context: GetContext<GetValueByKey<INTERACTORS, NAME>>,
+    context: GetContext<GetInstance<GetValueByKey<INTERACTORS, NAME>>>,
   ) => void
   start: (
     name: SERVICE_NAMES,
@@ -32,8 +31,8 @@ export type TestEnvironmentWorld<
 export const createWorld = <SERVICES extends Record<string, ServiceConfig>>(
   state: TestEnviornmentState<SERVICES>,
 ): TestEnvironmentWorld<SERVICES> => {
-  type Interactors = GetInstance<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
-  const interactorContexts: Map<GetKey<Interactors>, GetContext<GetValue<Interactors>>> = new Map()
+  type Interactors = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
+  const interactorContexts = new Map<GetKey<Interactors>, GetContext<GetValue<Interactors>>>()
 
   return {
     get: (name) => {

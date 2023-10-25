@@ -1,7 +1,7 @@
 import type { FilterRecord, GetKey, GetValue, RecordToEntries } from '../core/type'
 import type {
   DefaultConfig,
-  GetInstance,
+  GetInstanceEntry,
   InteractorConfig,
   InteractorInstance,
   ReportEntry,
@@ -25,11 +25,11 @@ export type TestEnviornment<SERVICES extends Record<string, ServiceConfig>> = {
   createWorld: () => TestEnvironmentWorld<SERVICES>
 }
 
-export const createTestEnvironment = <SERVICES extends Record<string, ServiceConfig>>(
+export const createTestEnvironment = <const SERVICES extends Record<string, ServiceConfig>>(
   services: SERVICES,
 ): TestEnviornment<SERVICES> => {
-  type Interactor = GetInstance<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
-  type Runner = GetInstance<RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>>
+  type Interactor = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
+  type Runner = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>>
 
   const isInteractorEntry = (entry: [string, ServiceConfig]): entry is [string, InteractorConfig] =>
     entry[1].type === 'interactor'
@@ -57,9 +57,9 @@ export const createTestEnvironment = <SERVICES extends Record<string, ServiceCon
     ),
   }
 
-  const isBeforeAll = ({ hook }: DefaultConfig) => hook === 'before-all'
-  const isNotBeforeAll = ({ hook }: DefaultConfig) => hook !== 'before-all'
-  const isBefore = ({ hook }: DefaultConfig) => hook === 'before'
+  const isBeforeAll = ({ hook }: DefaultConfig): boolean => hook === 'before-all'
+  const isNotBeforeAll = ({ hook }: DefaultConfig): boolean => hook !== 'before-all'
+  const isBefore = ({ hook }: DefaultConfig): boolean => hook === 'before'
   const keyValueToObject = <T>([name, service]: [string, T]) => ({ name, ...service })
 
   const asyncTransform = async <T, R>(

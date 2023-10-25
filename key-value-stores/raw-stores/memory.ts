@@ -1,5 +1,5 @@
-import { RawKeyValueStore } from '../type'
+import { type WriteableRawKeyValueStore } from '../type'
 
-export const createMemoryRawKeyValueStore: () => RawKeyValueStore = () => {
+export const createMemoryRawKeyValueStore = (): WriteableRawKeyValueStore => {
   return new Map()
 }

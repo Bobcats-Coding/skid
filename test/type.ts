@@ -18,7 +18,7 @@ export type InstanceEntry<
   INSTANCE extends Interactor | Runner = Interactor | Runner,
 > = EntryTuple<NAME, INSTANCE>
 
-type ConfigEntry<
+export type ConfigEntry<
   NAME extends string = string,
   CONFIG extends ServiceConfig = ServiceConfig,
 > = EntryTuple<NAME, CONFIG>
@@ -27,10 +27,14 @@ export type ServiceConfig = InteractorConfig | RunnerConfig
 
 export type TestEnviornmentConfig = Record<string, ServiceConfig>
 
-export type GetInstance<CONFIGS extends ConfigEntry> = InstanceEntry<
-  GetKey<CONFIGS>,
-  ReturnType<GetValue<CONFIGS>['creator']>
+export type GetInstance<CONFIG extends ServiceConfig> = ReturnType<CONFIG['creator']>
+
+export type GetInstanceEntry<CONFIG extends ConfigEntry> = CONFIG extends ConfigEntry<
+  infer N,
+  infer C
 >
+  ? InstanceEntry<N, GetInstance<C>>
+  : never
 
 export type GetContext<INTERACTOR extends Interactor | Runner> = INTERACTOR extends Interactor<
   infer CONTEXT
@@ -65,10 +69,10 @@ export type InteractorInstance = { instance: Interactor } & DefaultConfig
 
 export type TestEnviornmentState<
   SERVICES extends Record<string, ServiceConfig>,
-  INTERACTORS extends InstanceEntry = GetInstance<
+  INTERACTORS extends InstanceEntry = GetInstanceEntry<
     RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>
   >,
-  RUNNERS extends InstanceEntry = GetInstance<
+  RUNNERS extends InstanceEntry = GetInstanceEntry<
     RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>
   >,
 > = {

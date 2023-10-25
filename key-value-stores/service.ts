@@ -1,4 +1,9 @@
-import type { KeyValueStoreWithValidator, RawKeyValueStore, Schemas } from './type'
+import {
+  isWritableRawKeyValueStore,
+  type RawKeyValueStore,
+  type Schemas,
+  type WriteableRawKeyValueStore,
+} from './type'
 
 import type {
   EntryTuple,
@@ -8,26 +13,30 @@ import type {
 } from '@bobcats-coding/skid/core/type'
 import type { GetSchemaType } from '@bobcats-coding/skid/core/zod'
 
-import { ZodSchema } from 'zod'
+import { type ZodSchema } from 'zod'
 
 export type KeyValueStore<
   SCHEMAS extends Schemas,
+  RAW_STORE extends RawKeyValueStore = RawKeyValueStore,
   SCHEMA_ENTRIES extends EntryTuple = RecordToEntries<SCHEMAS>,
-> = KeyValueStoreWithValidator<{
-  get: <KEY extends GetKey<SCHEMA_ENTRIES>>(
-    key: KEY,
-  ) => GetSchemaType<GetValueByKey<SCHEMA_ENTRIES, KEY>>
-  set: <KEY extends GetKey<SCHEMA_ENTRIES>>(
-    key: KEY,
-    valuse: GetSchemaType<GetValueByKey<SCHEMA_ENTRIES, KEY>>,
-  ) => void
-  validate: () => void
-}>
+  READABLE = {
+    get: <KEY extends GetKey<SCHEMA_ENTRIES>>(
+      key: KEY,
+    ) => GetSchemaType<GetValueByKey<SCHEMA_ENTRIES, KEY>>
+    validate: () => void
+  },
+  WRITABLE = {
+    set: <KEY extends GetKey<SCHEMA_ENTRIES>>(
+      key: KEY,
+      value: GetSchemaType<GetValueByKey<SCHEMA_ENTRIES, KEY>>,
+    ) => void
+  },
+> = RAW_STORE extends WriteableRawKeyValueStore<any> ? READABLE & WRITABLE : READABLE
 
-export const createKeyValueStore = <SCHEMAS extends Schemas>(
-  rawStore: RawKeyValueStore,
+export const createKeyValueStore = <SCHEMAS extends Schemas, RAW_STORE extends RawKeyValueStore>(
+  rawStore: RAW_STORE,
   validators: SCHEMAS,
-): KeyValueStore<SCHEMAS> => {
+): KeyValueStore<SCHEMAS, RAW_STORE> => {
   const getRawValue = (key: string): unknown => {
     try {
       return rawStore.get(key)
@@ -46,7 +55,7 @@ export const createKeyValueStore = <SCHEMAS extends Schemas>(
     return validator
   }
 
-  const get: KeyValueStore<SCHEMAS>['get'] = (key) => {
+  const get: KeyValueStore<SCHEMAS, RAW_STORE>['get'] = (key) => {
     const validator = getValidator(key)
     const rawValue = getRawValue(key)
     try {
@@ -58,7 +67,10 @@ export const createKeyValueStore = <SCHEMAS extends Schemas>(
     }
   }
 
-  const set: KeyValueStore<SCHEMAS>['set'] = (key, value) => {
+  const set: KeyValueStore<SCHEMAS, WriteableRawKeyValueStore<any>>['set'] = (key, value) => {
+    if (!isWritableRawKeyValueStore(rawStore)) {
+      return
+    }
     const validator = getValidator(key)
     try {
       rawStore.set(key, validator.parse(value))
@@ -71,9 +83,9 @@ export const createKeyValueStore = <SCHEMAS extends Schemas>(
 
   return {
     get,
-    set,
     validate: () => {
       Object.keys(validators).forEach((key) => get(key))
     },
-  }
+    ...(isWritableRawKeyValueStore(rawStore) ? { set } : {}),
+  } as KeyValueStore<SCHEMAS, RAW_STORE>
 }

@@ -1,6 +1,6 @@
-import { RawKeyValueStore } from '../type'
+import type { WriteableRawKeyValueStore } from '../type'
 
-export const createMemoryDeepRawKeyValueStore: () => RawKeyValueStore = () => {
+export const createMemoryDeepRawKeyValueStore: () => WriteableRawKeyValueStore = () => {
   const store: Record<string, any> = {}
 
   const get = (store: Record<string, any>, path: string): any => {
@@ -9,17 +9,17 @@ export const createMemoryDeepRawKeyValueStore: () => RawKeyValueStore = () => {
     if (!(first in store)) {
       throw new Error('Not set value')
     }
-    if (restPath.length) {
+    if (restPath.length > 0) {
       return get(store[first], restPath.join('.'))
     }
     return store[first]
   }
 
-  const set = (store: Record<string, any>, path: string, value: any, pathAcc?: string) => {
+  const set = (store: Record<string, any>, path: string, value: any, pathAcc?: string): void => {
     // The first cannot be undefined
     const [first, ...restPath] = path.split('.') as [string, ...string[]]
     const pathSoFar = pathAcc !== undefined ? `${pathAcc}.${first}` : first
-    if (restPath.length) {
+    if (restPath.length > 0) {
       if (!(store[first] instanceof Object)) {
         throw new Error(`Value under path: "${pathSoFar}" is not an object`)
       }

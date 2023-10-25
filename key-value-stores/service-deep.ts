@@ -1,31 +1,45 @@
-import type { KeyValueStoreWithValidator, RawKeyValueStore, Schemas } from './type'
+import {
+  isWritableRawKeyValueStore,
+  type RawKeyValueStore,
+  type Schemas,
+  type WriteableRawKeyValueStore,
+} from './type'
 
 import type { GetAllPaths, GetValueByPath } from '@bobcats-coding/skid/core/type'
 import { split } from '@bobcats-coding/skid/core/util'
-import { getSchemaByObjectPath, GetSchemaType } from '@bobcats-coding/skid/core/zod'
+import { getSchemaByObjectPath, type GetSchemaType } from '@bobcats-coding/skid/core/zod'
 
 import type { ZodSchema } from 'zod'
 
 export type KeyValueStoreDeep<
   SCHEMAS extends Schemas,
+  RAW_STORE extends RawKeyValueStore,
   FULL_OBJECT = SchemaRecordToObj<SCHEMAS>,
-> = KeyValueStoreWithValidator<{
-  get: <KEY extends GetAllPaths<FULL_OBJECT> & string>(key: KEY) => GetValueByPath<FULL_OBJECT, KEY>
-  set: <KEY extends GetAllPaths<FULL_OBJECT> & string>(
-    key: KEY,
-    value: GetValueByPath<FULL_OBJECT, KEY>,
-  ) => void
-  validate: () => void
-}>
+  READABLE = {
+    get: <KEY extends GetAllPaths<FULL_OBJECT> & string>(
+      key: KEY,
+    ) => GetValueByPath<FULL_OBJECT, KEY>
+    validate: () => void
+  },
+  WRITABLE = {
+    set: <KEY extends GetAllPaths<FULL_OBJECT> & string>(
+      key: KEY,
+      value: GetValueByPath<FULL_OBJECT, KEY>,
+    ) => void
+  },
+> = RAW_STORE extends WriteableRawKeyValueStore<any> ? READABLE & WRITABLE : READABLE
 
 type SchemaRecordToObj<SCHEMAS extends Schemas> = {
   [K in keyof SCHEMAS]: GetSchemaType<SCHEMAS[K]>
 }
 
-export const createKeyValueStoreDeep = <SCHEMAS extends Schemas>(
-  rawStore: RawKeyValueStore,
+export const createKeyValueStoreDeep = <
+  SCHEMAS extends Schemas,
+  RAW_STORE extends RawKeyValueStore,
+>(
+  rawStore: RAW_STORE,
   validators: SCHEMAS,
-): KeyValueStoreDeep<SCHEMAS> => {
+): KeyValueStoreDeep<SCHEMAS, RAW_STORE> => {
   const getValidator = (path: string): ZodSchema<any> => {
     const [firstKey, ...restKeys] = split(path, '.')
     const schema = validators[firstKey]
@@ -47,7 +61,7 @@ export const createKeyValueStoreDeep = <SCHEMAS extends Schemas>(
     }
   }
 
-  const get: KeyValueStoreDeep<SCHEMAS>['get'] = (path) => {
+  const get: KeyValueStoreDeep<SCHEMAS, RAW_STORE>['get'] = (path) => {
     const validator = getValidator(path)
     const rawValue = getRawValue(path)
     try {
@@ -59,7 +73,10 @@ export const createKeyValueStoreDeep = <SCHEMAS extends Schemas>(
     }
   }
 
-  const set: KeyValueStoreDeep<SCHEMAS>['set'] = (path, value) => {
+  const set: KeyValueStoreDeep<SCHEMAS, WriteableRawKeyValueStore>['set'] = (path, value) => {
+    if (!isWritableRawKeyValueStore(rawStore)) {
+      return
+    }
     const validator = getValidator(path)
     try {
       rawStore.set(path, validator.parse(value))
@@ -72,9 +89,9 @@ export const createKeyValueStoreDeep = <SCHEMAS extends Schemas>(
 
   return {
     get,
-    set,
     validate: () => {
       Object.keys(validators).forEach((key) => get(key))
     },
-  }
+    ...(isWritableRawKeyValueStore(rawStore) ? { set } : {}),
+  } as KeyValueStoreDeep<SCHEMAS, RAW_STORE>
 }

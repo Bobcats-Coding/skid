@@ -1,6 +1,6 @@
 import { createMemoryDeepRawKeyValueStore } from './raw-stores/memory-deep'
 import { createKeyValueStoreDeep } from './service-deep'
-import { RawKeyValueStore } from './type'
+import { type RawKeyValueStore } from './type'
 
 import { z } from 'zod'
 
@@ -142,7 +142,7 @@ test('KeyValueStoreDeep store throws error', () => {
 })
 
 test('KeyValueStoreDeep set should validate the input', () => {
-  const rawStore: RawKeyValueStore = createMemoryDeepRawKeyValueStore()
+  const rawStore = createMemoryDeepRawKeyValueStore()
   const store = createKeyValueStoreDeep(rawStore, {
     key: z.string(),
   } as const)
@@ -152,7 +152,7 @@ test('KeyValueStoreDeep set should validate the input', () => {
 })
 
 test('KeyValueStoreDeep deep set should validate the input', () => {
-  const rawStore: RawKeyValueStore = createMemoryDeepRawKeyValueStore()
+  const rawStore = createMemoryDeepRawKeyValueStore()
   rawStore.set('key1', { key2: 2 })
   const store = createKeyValueStoreDeep(rawStore, {
     key1: z.object({ key2: z.number() }),
@@ -171,13 +171,15 @@ test('KeyValueStoreDeep deep set should validate the input', () => {
 })
 
 test('KeyValueStoreDeep deep set and get should expect valid path', () => {
-  const rawStore: RawKeyValueStore = createMemoryDeepRawKeyValueStore()
+  const rawStore = createMemoryDeepRawKeyValueStore()
   rawStore.set('key1', { key2: 2 })
   const store = createKeyValueStoreDeep(rawStore, {
     key1: z.object({ key2: z.number() }),
   } as const)
-  // @ts-expect-error
-  expect(() => store.set('key1.key3', 3)).toThrow('Invalid path: "key1.key3"')
+  expect(() => {
+    // @ts-expect-error
+    store.set('key1.key3', 3)
+  }).toThrow('Invalid path: "key1.key3"')
   // @ts-expect-error
   expect(() => store.get('key1.key3')).toThrow('Invalid path: "key1.key3"')
 })

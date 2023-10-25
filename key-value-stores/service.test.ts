@@ -1,6 +1,6 @@
 import { createMemoryRawKeyValueStore } from './raw-stores/memory'
 import { createKeyValueStore } from './service'
-import { RawKeyValueStore } from './type'
+import type { RawKeyValueStore } from './type'
 
 import { z } from 'zod'
 
@@ -110,7 +110,7 @@ test('KeyValueStore store throws error', () => {
 })
 
 test('KeyValueStore set value', () => {
-  const rawStore: RawKeyValueStore = createMemoryRawKeyValueStore()
+  const rawStore = createMemoryRawKeyValueStore()
   const store = createKeyValueStore(rawStore, {
     key: z.string(),
   })
@@ -120,7 +120,7 @@ test('KeyValueStore set value', () => {
 })
 
 test('KeyValueStore set value validate', () => {
-  const rawStore: RawKeyValueStore = createMemoryRawKeyValueStore()
+  const rawStore = createMemoryRawKeyValueStore()
   const store = createKeyValueStore(rawStore, {
     key: z.string(),
   })
@@ -150,8 +150,10 @@ test('KeyValueStore set and get should expect valid key', () => {
   const store = createKeyValueStore(rawStore, {
     key: z.string(),
   })
-  // @ts-expect-error
-  expect(() => store.set('key1', 'hello')).toThrow('Invalid key: "key1"')
+  expect(() => {
+    // @ts-expect-error
+    store.set('key1', 'hello')
+  }).toThrow('Invalid key: "key1"')
   // @ts-expect-error
   expect(() => store.get('key1')).toThrow('Invalid key: "key1"')
 })
