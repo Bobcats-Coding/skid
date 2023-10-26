@@ -40,9 +40,9 @@ export const createApplication = <
     const defaults = {
       getInternalServices: (services: EXTERNAL_SERVICES) =>
         services as unknown as INTERNAL_SERVICES,
-      getExternalServices: () => ({} as unknown as EXTERNAL_SERVICES),
+      getExternalServices: () => ({}) as unknown as EXTERNAL_SERVICES,
       preMain: () => {},
-      getDelivery: () => ({} as unknown as DELIVERY),
+      getDelivery: () => ({}) as unknown as DELIVERY,
       main: () => 0,
       onError: (err: Error) => {
         console.error(err)
