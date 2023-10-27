@@ -87,5 +87,5 @@ export const createKeyValueStore = <SCHEMAS extends Schemas, RAW_STORE extends R
       Object.keys(validators).forEach((key) => get(key))
     },
     ...(isWritableRawKeyValueStore(rawStore) ? { set } : {}),
-  } as KeyValueStore<SCHEMAS, RAW_STORE>
+  } as unknown as KeyValueStore<SCHEMAS, RAW_STORE>
 }

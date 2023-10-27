@@ -3,7 +3,7 @@ import type { NavigationService } from './service'
 import { createChangeLocation, createPlatformNavigation } from './store'
 import type { NavigationEvent } from './store'
 
-import { CoreEffect, filterByType } from '@bobcats-coding/skid/core/effect'
+import { type CoreEffect, filterByType } from '@bobcats-coding/skid/core/effect'
 
 import { of } from 'rxjs'
 import { map, switchMap, tap } from 'rxjs/operators'

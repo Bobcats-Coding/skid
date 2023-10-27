@@ -1,6 +1,6 @@
-import { AUTH_HEADER } from '../rest/type'
+import { type AUTH_HEADER } from '../rest/type'
 import { HOST } from './config'
-import { Scenario, ScenarioActionResponse } from './types'
+import { type Scenario, type ScenarioActionResponse } from './types'
 
 import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'

@@ -3,7 +3,7 @@ import { createRestClientCreator } from './service'
 
 import type { JsonType } from '@bobcats-coding/skid/core/type'
 
-import { firstValueFrom, Observable } from 'rxjs'
+import { firstValueFrom, type Observable } from 'rxjs'
 
 test('the client should return the narrowed type by the request config', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
@@ -18,16 +18,16 @@ test('the client should return the narrowed type by the request config', () => {
   client({
     method: 'GET',
     pathname: '/path',
-    // @ts-expect-error
+    // @ts-expect-error it is not Response2
   } as const) satisfies Observable<Response2>
 })
 
 test('the request config type should be required', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
-    // @ts-expect-error
+    // @ts-expect-error cannot be undefined
     RestEndpoint<undefined, Response>
-  // @ts-expect-error
+  // @ts-expect-error not a valid request config
   createRestClient<Api>('host')
 })
 
@@ -42,14 +42,14 @@ test('the client should return the narrowed type by the request config', async (
 
 test('the rest client should expect RestEndpoints', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
-  // @ts-expect-error
+  // @ts-expect-error not a valid request config
   createRestClient<string>('host')
 })
 
 test('the fetcher type should narrow the possible response types', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api = RestEndpoint<GetRequestWithPath, () => void>
-  // @ts-expect-error
+  // @ts-expect-error not a valid fetcher
   createRestClient<Api>('https', 'host')
 })
 
@@ -195,21 +195,21 @@ test('the client should return the narrowed type by the request config', () => {
     pathname: '/path',
     search,
     headers,
-    // @ts-expect-error
+    // @ts-expect-error it is not Response2
   } as const) satisfies Observable<Response2>
   client({
     method: 'GET',
     pathname: '/path',
     search,
     headers,
-    // @ts-expect-error
+    // @ts-expect-error it is not Response3
   } as const) satisfies Observable<Response3>
   client({
     method: 'GET',
     pathname: '/path',
     search,
     headers,
-    // @ts-expect-error
+    // @ts-expect-error it is not Response4
   } as const) satisfies Observable<Response4>
 })
 
@@ -236,25 +236,25 @@ test('the client should only allow valid type requests', () => {
   } as const
   client({
     method: 'GET',
-    // @ts-expect-error
+    // @ts-expect-error not a valid pathname
     pathname: '/path2',
     search,
     headers,
   })
   client({
-    // @ts-expect-error
+    // @ts-expect-error not a valid method
     method: 'POST',
     pathname: '/path',
     search,
     headers,
   })
-  // @ts-expect-error
+  // @ts-expect-error not a valid search
   client({
     method: 'GET',
     pathname: '/path',
     search,
   })
-  // @ts-expect-error
+  // @ts-expect-error not a valid headers
   client({
     method: 'GET',
     pathname: '/path',
@@ -270,7 +270,7 @@ test('the awaited value should be narrowed', async () => {
   const client = createRestClient<Api>('https', 'host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' } as const))
   response satisfies Response
-  // @ts-expect-error
+  // @ts-expect-error it is not Response2
   response satisfies Response2
 })
 

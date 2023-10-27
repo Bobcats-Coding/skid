@@ -1,5 +1,5 @@
 import type { CoreEvent, CoreReducer, CoreReducersObject, CoreStore, StateReadable } from './store'
-import { StringLiteral } from './type'
+import { type StringLiteral } from './type'
 import { makeObjectFromStringLiteral } from './util'
 
 import { createCoreStore } from '@bobcats-coding/skid/core/store'
@@ -74,13 +74,13 @@ export const createStoreTools = <NAMESPACE>({
 
 type MethodTypes = 'sync' | 'async' | 'observable'
 
-export type FakeConfigs<FAKE extends Object> = {
+export type FakeConfigs<FAKE extends object> = {
   [KEY in keyof Partial<FAKE>]: FakeConfig
 }
 
 type FakeConfig = { type: MethodTypes; error: Error }
 
-type FakeWithThrowingMethods<FAKE extends Object, FAKE_CONFIGS extends FakeConfigs<FAKE>> = {
+type FakeWithThrowingMethods<FAKE extends object, FAKE_CONFIGS extends FakeConfigs<FAKE>> = {
   [KEY in keyof FAKE]: KEY extends keyof FAKE_CONFIGS
     ? FAKE[KEY] extends (...args: any[]) => Observable<any>
       ? ThrowingObservable
@@ -92,7 +92,7 @@ type FakeWithThrowingMethods<FAKE extends Object, FAKE_CONFIGS extends FakeConfi
     : FAKE[KEY]
 }
 
-type ThrowingMethods<FAKE extends Object> = {
+type ThrowingMethods<FAKE extends object> = {
   [KEY in keyof FakeConfigs<FAKE>]: FAKE[KEY] extends (...args: any[]) => Observable<any>
     ? ThrowingObservable
     : FAKE[KEY] extends (...args: any[]) => Promise<any>
@@ -107,7 +107,7 @@ type ThrowingAsync = (...args: any[]) => Promise<never>
 type ThrowingObservable = (...args: any[]) => Observable<never>
 
 export const addErrorMethodsToFake =
-  <T extends Object>(originalFake: (...args: any[]) => T) =>
+  <T extends object>(originalFake: (...args: any[]) => T) =>
   (
     configs: FakeConfigs<T> = {} as FakeConfigs<T>,
     ...restArgs: any[]
@@ -132,7 +132,7 @@ const THROWING_METOD_GENERATORS = {
   observable: (error: Error) => () => timer(1).pipe(mergeMap(() => throwError(() => error))),
 }
 
-const generateThrowingMethods = <FAKE extends Object>(
+const generateThrowingMethods = <FAKE extends object>(
   configs: FakeConfigs<FAKE>,
 ): ThrowingMethods<FAKE> => {
   const entries: Array<[string, FakeConfig]> = Object.entries(configs)

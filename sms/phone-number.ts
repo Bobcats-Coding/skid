@@ -1,4 +1,4 @@
-import { typeKey } from '@bobcats-coding/skid/core/util'
+import { type typeKey } from '@bobcats-coding/skid/core/util'
 
 import { z } from 'zod'
 

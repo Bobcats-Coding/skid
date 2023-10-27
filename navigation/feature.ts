@@ -13,7 +13,7 @@ type NavigationFeatureArgs<APP_STORE_EVENT extends CoreEvent> = {
   navigationService: NavigationService
 }
 
-export type NavigationFeature = {} & NavigationQuery & NavigationCommand
+export type NavigationFeature = NavigationQuery & NavigationCommand
 
 export const createNavigation = <APP_STORE_EVENT extends CoreEvent>({
   store,

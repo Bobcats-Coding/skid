@@ -1,16 +1,16 @@
 import {
-  ScenarioApi,
-  ScenarioApiActionEndpoint,
-  ScenarioApiActionResponse,
-  ScenarioApiClient,
-  ScenarioApiListEndpoint,
-  ScenarioApiListResponse,
-  ScenarioApiSingleEndpoint,
-  ScenarioApiSingleResponse,
+  type ScenarioApi,
+  type ScenarioApiActionEndpoint,
+  type ScenarioApiActionResponse,
+  type ScenarioApiClient,
+  type ScenarioApiListEndpoint,
+  type ScenarioApiListResponse,
+  type ScenarioApiSingleEndpoint,
+  type ScenarioApiSingleResponse,
 } from './api'
-import { Scenario } from './types'
+import { type Scenario } from './types'
 
-import { createStubRestClient, StubEndpoint } from '@bobcats-coding/skid/rest/stub'
+import { createStubRestClient, type StubEndpoint } from '@bobcats-coding/skid/rest/stub'
 
 export const FAKE_SCENARIO: Scenario = {
   id: 1,

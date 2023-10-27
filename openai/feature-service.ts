@@ -1,10 +1,10 @@
 import {
-  CreateChatCompletionRequest,
-  CreateChatCompletionResponse,
-  CreateImageRequest,
-  ImagesResponse,
-  ListModelsResponse,
-  OpenAIApi,
+  type CreateChatCompletionRequest,
+  type CreateChatCompletionResponse,
+  type CreateImageRequest,
+  type ImagesResponse,
+  type ListModelsResponse,
+  type OpenAIApi,
 } from './type'
 
 export type OpenAIApiService = {

@@ -26,10 +26,10 @@ test('Split<PATH, DELIMITER>', () => {
   assert<Equals<Split<'a.a.a', '.'>, readonly ['a', 'a', 'a']>>()
   assert<Equals<Split<'a', '.'>, readonly ['a']>>()
   assert<Equals<Split<'', '.'>, readonly ['']>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a string
   type error1 = Split<1, '.'>
   assert<Equals<error1, error1>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a string
   type error2 = Split<'', 1>
   assert<Equals<error2, error2>>()
 })
@@ -38,7 +38,7 @@ test('SplitObjectPath<PATH>', () => {
   assert<Equals<SplitObjectPath<'a.a.a'>, readonly ['a', 'a', 'a']>>()
   assert<Equals<SplitObjectPath<'a'>, readonly ['a']>>()
   assert<Equals<SplitObjectPath<''>, readonly ['']>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a string
   type error = SplitObjectPath<1>
   assert<Equals<error, error>>()
 })
@@ -47,7 +47,7 @@ test('SplitFilePath<PATH>', () => {
   assert<Equals<SplitFilePath<'a/a/a'>, readonly ['a', 'a', 'a']>>()
   assert<Equals<SplitFilePath<'a'>, readonly ['a']>>()
   assert<Equals<SplitFilePath<''>, readonly ['']>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a string
   type error = SplitFilePath<1>
   assert<Equals<error, error>>()
 })
@@ -55,7 +55,7 @@ test('SplitFilePath<PATH>', () => {
 test('StringLiteral<LITERAL>', () => {
   const literal: StringLiteral<'asd'> = 'asd' as const
   assert<Equals<typeof literal, 'asd'>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a literal
   const nonLiteral: StringLiteral<'asd'> = 'asd' as string
   assert<Equals<typeof nonLiteral, 'asd'>>()
 })
@@ -65,10 +65,10 @@ test('ObjectWithStringLiteralKey<KEY, VALUE>', () => {
     a: 1,
   } as const
   assert<Equals<typeof obj, { a: 1 }>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a literal
   const nonLiteral: ObjectWithStringLiteralKey<'a', 1> = {
     a: 1,
-  } as Record<string, 1>
+  } as unknown as Record<string, 1>
   assert<Equals<typeof nonLiteral, { a: 1 }>>()
 })
 
@@ -82,7 +82,7 @@ test('JsonType', () => {
   }
   assert<Equals<typeof json, typeof json>>()
 
-  // @ts-expect-error
+  // @ts-expect-error it cannot be a function
   const nonJson: JsonType = {
     f: () => {},
   }
@@ -92,7 +92,7 @@ test('JsonType', () => {
 test('TokenNonEmptyString<TOKEN>', () => {
   const token: TokenNonEmptyString<'a'> = 'a' as const
   assert<Equals<typeof token, 'a'>>()
-  // @ts-expect-error
+  // @ts-expect-error it cannot be empty
   const nonToken: TokenNonEmptyString<''> = '' as const
   assert<Equals<typeof nonToken, never>>()
 })
@@ -100,7 +100,7 @@ test('TokenNonEmptyString<TOKEN>', () => {
 test('Guard<TYPE>', () => {
   const guard: Guard<1> = (arg: unknown): arg is 1 => arg === 1
   assert<Equals<typeof guard, typeof guard>>()
-  // @ts-expect-error
+  // @ts-expect-error it has to be a guard
   const nonGuard: Guard<1> = (arg: unknown): boolean => arg === 1
   assert<Equals<typeof nonGuard, typeof nonGuard>>()
 })
@@ -130,8 +130,8 @@ test('GetAllPaths<OBJECT>', () => {
 })
 
 test('GetValuesByPath<OBJECT, PATH>', () => {
-  type Object = { a: { b: { c: 1 }; d: 2 }; e: 3 }
-  type Values = GetValueByPath<Object, 'a.b.c'>
+  type ObjectStructure = { a: { b: { c: 1 }; d: 2 }; e: 3 }
+  type Values = GetValueByPath<ObjectStructure, 'a.b.c'>
   assert<Equals<Values, 1>>()
 })
 

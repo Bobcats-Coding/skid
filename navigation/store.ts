@@ -4,9 +4,9 @@ import type { Location } from './type'
 import {
   createCoreStoreSlice,
   identityReducer,
-  NamespacedState,
+  type NamespacedState,
+  type NamespacedStoreEvent,
 } from '@bobcats-coding/skid/core/store'
-import type { NamespacedStoreEvent } from '@bobcats-coding/skid/core/store'
 
 export type NavigationState = Location
 

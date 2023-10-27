@@ -93,5 +93,5 @@ export const createKeyValueStoreDeep = <
       Object.keys(validators).forEach((key) => get(key))
     },
     ...(isWritableRawKeyValueStore(rawStore) ? { set } : {}),
-  } as KeyValueStoreDeep<SCHEMAS, RAW_STORE>
+  } as unknown as KeyValueStoreDeep<SCHEMAS, RAW_STORE>
 }

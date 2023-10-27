@@ -1,12 +1,12 @@
 import type { CoreEffectFunction } from './effect'
-import { ObjectWithStringLiteralKey } from './type'
+import { type ObjectWithStringLiteralKey } from './type'
 
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import type { SliceCaseReducers } from '@reduxjs/toolkit'
 import { Observable, Subject } from 'rxjs'
 import { mergeAll } from 'rxjs/operators'
 
-export type CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> = {} & StateReadable<ALL_STATE> &
+export type CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> = StateReadable<ALL_STATE> &
   EventReceiver<ALL_EVENT> &
   EffectRegistry<ALL_STATE, ALL_EVENT>
 
@@ -123,7 +123,7 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
     eventAfterEffects$.next(event)
   })
   event$$.next(event$)
-  const state$: Observable<STATE> = new Observable((subscriber) => {
+  const state$ = new Observable<STATE>((subscriber) => {
     subscriber.next(store.getState())
     store.subscribe(() => {
       subscriber.next(store.getState())

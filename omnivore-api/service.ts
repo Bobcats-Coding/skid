@@ -7,21 +7,21 @@ import {
 } from './api'
 import type { OmnivoreAPIClient } from './api'
 import {
-  ApplyDiscountBody,
-  DiscountResponse,
-  FireTicketBody,
-  GetAllTicketsResponse,
-  ItemModifiersResponse,
-  ItemsToAdd,
-  LocationResponse,
-  Modifier,
-  OpenTicketRequest,
-  SingleTicketResponse,
-  ThirdPartyPaymentBody,
-  TicketDiscountsResponse,
-  TicketItem,
-  TicketPayment,
-  TicketPaymentsResponse,
+  type ApplyDiscountBody,
+  type DiscountResponse,
+  type FireTicketBody,
+  type GetAllTicketsResponse,
+  type ItemModifiersResponse,
+  type ItemsToAdd,
+  type LocationResponse,
+  type Modifier,
+  type OpenTicketRequest,
+  type SingleTicketResponse,
+  type ThirdPartyPaymentBody,
+  type TicketDiscountsResponse,
+  type TicketItem,
+  type TicketPayment,
+  type TicketPaymentsResponse,
 } from './types'
 
 import type { Observable } from 'rxjs'

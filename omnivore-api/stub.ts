@@ -9,15 +9,15 @@ import type {
   RetrieveSingleTicketEndpoint,
 } from './api'
 import {
-  FireTicketBody,
-  GetAllTicketsResponse,
-  Link,
-  LocationResponse,
-  OpenTicketRequest,
-  SingleTicketResponse,
+  type FireTicketBody,
+  type GetAllTicketsResponse,
+  type Link,
+  type LocationResponse,
+  type OpenTicketRequest,
+  type SingleTicketResponse,
 } from './types'
 
-import { createStubRestClient, StubEndpoint } from '@bobcats-coding/skid/rest/stub'
+import { createStubRestClient, type StubEndpoint } from '@bobcats-coding/skid/rest/stub'
 
 export const FAKE_LOCATION: LocationResponse = {
   _links: {

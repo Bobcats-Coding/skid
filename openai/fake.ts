@@ -1,12 +1,12 @@
 import {
-  CreateChatCompletionRequest,
-  CreateChatCompletionResponse,
-  CreateImageRequest,
-  ImagesResponse,
-  ListModelsResponse,
+  type CreateChatCompletionRequest,
+  type CreateChatCompletionResponse,
+  type CreateImageRequest,
+  type ImagesResponse,
+  type ListModelsResponse,
 } from '.'
 
-import { OpenAIApi } from 'openai'
+import { type OpenAIApi } from 'openai'
 
 class FakeOpenAIApiClient {
   public async listModels(): Promise<{ data: ListModelsResponse }> {

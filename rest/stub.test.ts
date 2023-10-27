@@ -3,7 +3,7 @@ import type { StubEndpoint } from './stub'
 import { createStubRestClient } from './stub'
 
 import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
-import { JsonType } from '@bobcats-coding/skid/core/type'
+import { type JsonType } from '@bobcats-coding/skid/core/type'
 
 import type { Observable } from 'rxjs'
 
@@ -138,11 +138,11 @@ test(
     const stub = createStubRestClient<Api, typeof endpoints>(endpoints)
     const service = createService(stub)
     service satisfies Observable<Response>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response2
     service satisfies Observable<Response2>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response3
     service satisfies Observable<Response3>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response4
     service satisfies Observable<Response4>
     expect(service).toBeObservable('-(a|)', {
       a: { a: 1 },
@@ -221,7 +221,7 @@ test(
       headers,
     } as const)
     response satisfies Observable<Response2>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response
     response satisfies Observable<Response>
     expect(response).toBeObservable('-(b|)', {
       b: { b: 1 },
@@ -300,7 +300,7 @@ test(
       headers,
     } as const)
     response satisfies Observable<Response2>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response
     response satisfies Observable<Response>
     expect(response).toBeObservable('-(b|)', {
       b: { b: 1 },
@@ -379,7 +379,7 @@ test(
       headers,
     } as const)
     response satisfies Observable<Response2>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response
     response satisfies Observable<Response>
     expect(response).toBeObservable('-(b|)', {
       b: { b: 1 },
@@ -458,7 +458,7 @@ test(
       headers,
     } as const)
     response satisfies Observable<Response2>
-    // @ts-expect-error
+    // @ts-expect-error it is not Response
     response satisfies Observable<Response>
     expect(response).toBeObservable('-(b|)', {
       b: { b: 1 },

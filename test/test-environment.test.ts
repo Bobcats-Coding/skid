@@ -75,7 +75,7 @@ test('world keys should be typesafe', async () => {
   })
   const world = testEnvironment.createWorld()
   await testEnvironment.onBefore(world)
-  // @ts-expect-error
+  // @ts-expect-error service3 is not in the configuration
   expect(() => world.get('service3')).toThrow()
   const a: 1 = world.get('service1')
   expect(a).toBe(1)
@@ -247,7 +247,7 @@ test('start should be type-safe', async () => {
   })
   const world = testEnvironment.createWorld()
   await expect(async () => {
-    // @ts-expect-error
+    // @ts-expect-error service3 is not in the configuration
     await world.start('service3')
   }).rejects.toThrow('Service "service3" is not in the configuration')
 })
@@ -261,7 +261,7 @@ test('start is typesafe', async () => {
   })
   const world = testEnvironment.createWorld()
   await expect(async () => {
-    // @ts-expect-error
+    // @ts-expect-error service3 is not in the configuration
     await world.start('service3')
   }).rejects.toThrow('Service "service3" is not in the configuration')
 })

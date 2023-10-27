@@ -29,7 +29,7 @@ test('KeyValueStoreDeep multiple validators', () => {
   expect(value1).toBe(1)
   const value2: 2 = store.get('key2')
   expect(value2).toBe(2)
-  // @ts-expect-error
+  // @ts-expect-error it should be 2
   store.get('key2') satisfies 3
 })
 
@@ -42,7 +42,7 @@ test('KeyValueStoreDeep type validation', () => {
     key1: z.literal(1),
     key2: z.literal(2),
   } as const)
-  // @ts-expect-error
+  // @ts-expect-error it should be 1
   const value1: 2 = store.get('key1')
   expect(value1).toBe(1)
 })
@@ -93,7 +93,7 @@ test('KeyValueStoreDeep deep validator', () => {
   expect(value2).toEqual({ key3: 3 })
   const value3: 3 = store.get('key2.key3')
   expect(value3).toBe(3)
-  // @ts-expect-error
+  // @ts-expect-error it should be 3
   store.get('key2.key3') satisfies 4
 })
 
@@ -160,7 +160,7 @@ test('KeyValueStoreDeep deep set should validate the input', () => {
   let message
   let cause
   try {
-    // @ts-expect-error
+    // @ts-expect-error it should be number
     store.set('key1.key2', 'value')
   } catch (e: any) {
     message = e.message
@@ -177,9 +177,9 @@ test('KeyValueStoreDeep deep set and get should expect valid path', () => {
     key1: z.object({ key2: z.number() }),
   } as const)
   expect(() => {
-    // @ts-expect-error
+    // @ts-expect-error it should be key1.key2
     store.set('key1.key3', 3)
   }).toThrow('Invalid path: "key1.key3"')
-  // @ts-expect-error
+  // @ts-expect-error it should be key1.key2
   expect(() => store.get('key1.key3')).toThrow('Invalid path: "key1.key3"')
 })

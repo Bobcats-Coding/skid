@@ -1,4 +1,4 @@
-import { SMSBackend, VerificationAttempt, VerificationRequest } from './types'
+import { type SMSBackend, type VerificationAttempt, type VerificationRequest } from './types'
 
 import { of } from 'rxjs'
 

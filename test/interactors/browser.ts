@@ -1,4 +1,4 @@
-import { Interactor } from '@bobcats-coding/skid/test/type'
+import { type Interactor } from '@bobcats-coding/skid/test/type'
 
 import { chromium, firefox, webkit } from '@playwright/test'
 import type {
@@ -9,7 +9,7 @@ import type {
   Page,
 } from '@playwright/test'
 import { ensureDir } from 'fs-extra'
-import { fromEventPattern, map, Observable } from 'rxjs'
+import { fromEventPattern, map, type Observable } from 'rxjs'
 
 export type BrowserInteractorContext = {
   context: BrowserContext

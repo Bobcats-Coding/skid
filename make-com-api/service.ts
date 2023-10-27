@@ -1,12 +1,12 @@
 import {
+  type AuthSearchParams,
   createGetScenarioRequest,
   createListScenarioRequest,
   createScenarioActionRequest,
   SCENARIO_ACTIONS,
-  ScenarioApiClient,
+  type ScenarioApiClient,
 } from './api'
-import type { AuthSearchParams } from './api'
-import { Scenario, ScenarioActionResponse } from './types'
+import { type Scenario, type ScenarioActionResponse } from './types'
 
 import type { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'

@@ -60,7 +60,10 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
   const isBeforeAll = ({ hook }: DefaultConfig): boolean => hook === 'before-all'
   const isNotBeforeAll = ({ hook }: DefaultConfig): boolean => hook !== 'before-all'
   const isBefore = ({ hook }: DefaultConfig): boolean => hook === 'before'
-  const keyValueToObject = <T>([name, service]: [string, T]) => ({ name, ...service })
+  const keyValueToObject = <T>([name, service]: [string, T]): T & { name: string } => ({
+    name,
+    ...service,
+  })
 
   const asyncTransform = async <T, R>(
     iterable: Iterable<T>,

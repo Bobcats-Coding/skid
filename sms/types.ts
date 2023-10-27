@@ -1,4 +1,4 @@
-import { PhoneNumber } from './phone-number'
+import { type PhoneNumber } from './phone-number'
 
 import type { Observable } from 'rxjs'
 

@@ -1,7 +1,7 @@
 import type { Fetcher, RestClient, RestEndpoint, RestEndpointRequest } from './service'
 import { createRestClientCreator } from './service'
 
-import { JsonType } from '@bobcats-coding/skid/core/type'
+import { type JsonType } from '@bobcats-coding/skid/core/type'
 
 export const jsonFetcher: Fetcher<JsonType | Error> = async (url, request) =>
   await (await fetch(url, request)).json()

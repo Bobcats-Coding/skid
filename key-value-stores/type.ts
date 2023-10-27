@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod'
+import { type ZodSchema } from 'zod'
 
 export type KeyValueStoreCommon<STORE extends KeyValueStoreCommon_> = STORE
 

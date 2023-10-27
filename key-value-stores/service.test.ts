@@ -40,7 +40,7 @@ test('KeyValueStore type validation', () => {
     key1: z.literal(1),
     key2: z.literal(2),
   })
-  // @ts-expect-error
+  // @ts-expect-error it should be 1
   const value1: 2 = store.get('key1')
   expect(value1).toBe(1)
 })
@@ -127,7 +127,7 @@ test('KeyValueStore set value validate', () => {
   let message
   let cause
   try {
-    // @ts-expect-error
+    // @ts-expect-error it should be a string
     store.set('key', 1)
   } catch (e: any) {
     message = e.message
@@ -151,9 +151,9 @@ test('KeyValueStore set and get should expect valid key', () => {
     key: z.string(),
   })
   expect(() => {
-    // @ts-expect-error
+    // @ts-expect-error it should be key
     store.set('key1', 'hello')
   }).toThrow('Invalid key: "key1"')
-  // @ts-expect-error
+  // @ts-expect-error it should be key
   expect(() => store.get('key1')).toThrow('Invalid key: "key1"')
 })

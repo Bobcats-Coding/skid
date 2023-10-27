@@ -1,5 +1,5 @@
 import { addErrorMethodsToFake } from '../core/fake'
-import { EmailAddress } from './email-address'
+import { type EmailAddress } from './email-address'
 import { createFakeEmailBackend } from './fake'
 import { createSender } from './service'
 

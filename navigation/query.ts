@@ -1,6 +1,6 @@
 import type { RouteMatch, Router } from './router'
 import { createRouter } from './router'
-import { AppStoreNavigationStateSlice, stateToNavigation } from './store'
+import { type AppStoreNavigationStateSlice, stateToNavigation } from './store'
 import type { Location } from './type'
 
 import type { StateReadable } from '@bobcats-coding/skid/core/store'

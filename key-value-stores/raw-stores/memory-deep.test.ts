@@ -45,7 +45,7 @@ test('MemoryDeepRawKeyValueStore set value at 2 level deep', () => {
 test('MemoryDeepRawKeyValueStore set non object value at 2 level deep', () => {
   const store = createMemoryDeepRawKeyValueStore()
   store.set('key1', { key2: 2 })
-  expect(() => store.set('key1.key2.key3', 3)).toThrow(
-    'Value under path: "key1.key2" is not an object',
-  )
+  expect(() => {
+    store.set('key1.key2.key3', 3)
+  }).toThrow('Value under path: "key1.key2" is not an object')
 })

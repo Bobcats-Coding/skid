@@ -1,7 +1,7 @@
 import type { GetAllPaths, GetGuarded, GetValueByPath, Guard } from './type'
 import { join, split } from './util'
 
-import { z, ZodObject, ZodRawShape, type ZodSchema } from 'zod'
+import { z, type ZodObject, type ZodRawShape, type ZodSchema } from 'zod'
 
 export type GetSchemaType<SCHEMA = ZodSchema> = SCHEMA extends ZodSchema<infer TYPE> ? TYPE : never
 
@@ -32,7 +32,7 @@ const _getSchemaByObjectPathHelper = (schema: ZodSchema<any>, path: string): Zod
     return schema
   }
   if (!isObjectSchema(schema)) {
-    throw schema
+    throw new Error('Not an object schema')
   }
   const [firstKey, ...restPath] = split(path, '.')
   const subschema = schema.shape[firstKey]

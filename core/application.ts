@@ -28,9 +28,9 @@ export type AppArgs<
 }
 
 export const createApplication = <
-  EXTERNAL_SERVICES extends Record<string, any> = {},
-  INTERNAL_SERVICES extends Record<string, any> = {},
-  DELIVERY extends Record<string, any> = {},
+  EXTERNAL_SERVICES extends Record<string, any> = Record<string, never>,
+  INTERNAL_SERVICES extends Record<string, any> = Record<string, never>,
+  DELIVERY extends Record<string, any> = Record<string, never>,
   OUTPUT = number,
 >(
   appArgs: AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>,

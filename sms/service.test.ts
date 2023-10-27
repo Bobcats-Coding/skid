@@ -1,6 +1,6 @@
 import { addErrorMethodsToFake } from '../core/fake'
 import { createFakeSMSBackend } from './fake'
-import { PhoneNumber } from './phone-number'
+import { type PhoneNumber } from './phone-number'
 import { createSender } from './service'
 
 const TEST_VERIFICATION_REQUEST = {
