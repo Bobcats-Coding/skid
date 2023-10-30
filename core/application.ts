@@ -13,7 +13,7 @@ export type Application<
   readonly run: (
     ...args: MAIN extends (...args: any[]) => any
       ? SingleMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>
-      : MultiMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>
+      : MultiMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, MAIN>
   ) => RUN_RETURN | undefined
 }
 

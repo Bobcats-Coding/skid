@@ -215,21 +215,6 @@ test('Handling overwrite multiple main', () => {
   })
   const appOut = app.run('main1', { main: () => 'overwrite' })
   expect(appOut?.output).toEqual('overwrite')
+  // @ts-expect-error it should only expect valid keys
+  expect(app.run('main3')?.output).toBe(0)
 })
-
-/*
-test('get internal services without running the application', () => {
-  const myService = 'my-service'
-  const myExternalService = 'my-service'
-  type ExternalServices = { myExternalService: 'my-service' }
-  type InternalServices = { myService: string }
-  const app = createApplication<ExternalServices, InternalServices>({
-    getExternalServices: () => ({ myExternalService }),
-    getInternalServices: ({ myExternalService }) => ({
-      myService: myExternalService,
-    }),
-  })
-  const services = app.injectInternalServices()
-  expect(services).toEqual({ myService })
-  })
-*/
