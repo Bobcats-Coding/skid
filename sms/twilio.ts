@@ -7,11 +7,21 @@ type TwilioConfig = {
   accountSid: string
   authToken: string
   verificationServiceId: string
+  messagingServiceSid: string
 }
 
 export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
   const client = twilio(config.accountSid, config.authToken)
   return {
+    sendMessage: (request) => {
+      return from(
+        client.messages.create({
+          body: request.content,
+          messagingServiceSid: config.messagingServiceSid,
+          to: request.to
+        })
+      ).pipe(map(() => undefined))
+    },
     requestVerification: (request) => {
       return from(
         client.verify.v2.services(config.verificationServiceId).verifications.create({

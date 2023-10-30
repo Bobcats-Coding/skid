@@ -4,6 +4,15 @@ import { catchError, throwError } from 'rxjs'
 
 export const createSender = (smsBackend: SMSBackend): Sender => {
   return {
+    sendMessage: (request) => {
+      return smsBackend
+        .sendMessage(request)
+        .pipe(
+          catchError((error) =>
+            throwError(() => new Error('SMS couldn\'t be sent', { cause: error })),
+          ),
+        )
+    },
     requestVerification: (request) => {
       return smsBackend
         .requestVerification(request)
