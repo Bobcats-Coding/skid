@@ -15,6 +15,7 @@ export type Application<
       ? SingleMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>
       : MultiMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, MAIN>
   ) => RUN_RETURN | undefined
+  readonly injectInternalServices: () => INTERNAL_SERVICES
 }
 
 type SingleMainRunArgs<
@@ -62,6 +63,12 @@ export const createApplication = <
   appArgs: AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>,
 ): Application<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, MAIN, OUTPUT> => {
   type Run = Application<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, MAIN, OUTPUT>['run']
+
+  const SHARED_DEFAULTS = {
+    getExternalServices: () => ({}) as unknown as EXTERNAL_SERVICES,
+    getInternalServices: (services: EXTERNAL_SERVICES) => services as unknown as INTERNAL_SERVICES,
+  }
+
   const run: Run = (...args: Parameters<Run>) => {
     type RunArgs = Partial<AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>>
     const getSingleArgs = (args: SingleMainRunArgs<any, any, any>): RunArgs => {
@@ -73,9 +80,7 @@ export const createApplication = <
 
     // Need to cast the default values because these are independent from the template variables
     const defaults = {
-      getInternalServices: (services: EXTERNAL_SERVICES) =>
-        services as unknown as INTERNAL_SERVICES,
-      getExternalServices: () => ({}) as unknown as EXTERNAL_SERVICES,
+      ...SHARED_DEFAULTS,
       preMain: () => {},
       getDelivery: () => ({}) as unknown as DELIVERY,
       main: () => 0,
@@ -113,5 +118,12 @@ export const createApplication = <
     }
   }
 
-  return { run }
+  const injectInternalServices = (): INTERNAL_SERVICES => {
+    const { getExternalServices, getInternalServices } = { ...SHARED_DEFAULTS, ...appArgs }
+    const externalServices = getExternalServices()
+    const internalServices = getInternalServices(externalServices)
+    return internalServices
+  }
+
+  return { run, injectInternalServices }
 }
