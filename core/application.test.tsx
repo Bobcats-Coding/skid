@@ -178,3 +178,58 @@ test('Error handling', async () => {
   app.run()
   expect(cb).toBe(onError)
 })
+
+test('Handling multiple main', () => {
+  const myService = 'my-service'
+  type Services = { myService: 'my-service' }
+  type Delivery = { myDelivery: 'my-delivery' }
+  type MainArgs = { services: Services; delivery: Delivery }
+  const main = {
+    main1: ({ services, delivery }: MainArgs) => `${delivery.myDelivery}-${services.myService}-1`,
+    main2: ({ services, delivery }: MainArgs) => `${delivery.myDelivery}-${services.myService}-2`,
+  } as const
+  const app = createApplication<Services, Services, Delivery, typeof main>({
+    getExternalServices: () => ({ myService }),
+    getDelivery: () => ({ myDelivery: 'my-delivery' }),
+    main,
+  })
+  const appOut1 = app.run('main1')
+  expect(appOut1?.output).toEqual('my-delivery-my-service-1')
+  const appOut2 = app.run('main2')
+  expect(appOut2?.output).toEqual('my-delivery-my-service-2')
+})
+
+test('Handling overwrite multiple main', () => {
+  const myService = 'my-service'
+  type Services = { myService: 'my-service' }
+  type Delivery = { myDelivery: 'my-delivery' }
+  type MainArgs = { services: Services; delivery: Delivery }
+  const main = {
+    main1: ({ services, delivery }: MainArgs) => `${delivery.myDelivery}-${services.myService}-1`,
+    main2: ({ services, delivery }: MainArgs) => `${delivery.myDelivery}-${services.myService}-2`,
+  } as const
+  const app = createApplication<Services, Services, Delivery, typeof main>({
+    getExternalServices: () => ({ myService }),
+    getDelivery: () => ({ myDelivery: 'my-delivery' }),
+    main,
+  })
+  const appOut = app.run('main1', { main: () => 'overwrite' })
+  expect(appOut?.output).toEqual('overwrite')
+})
+
+/*
+test('get internal services without running the application', () => {
+  const myService = 'my-service'
+  const myExternalService = 'my-service'
+  type ExternalServices = { myExternalService: 'my-service' }
+  type InternalServices = { myService: string }
+  const app = createApplication<ExternalServices, InternalServices>({
+    getExternalServices: () => ({ myExternalService }),
+    getInternalServices: ({ myExternalService }) => ({
+      myService: myExternalService,
+    }),
+  })
+  const services = app.injectInternalServices()
+  expect(services).toEqual({ myService })
+  })
+*/
