@@ -7,7 +7,7 @@ type TwilioConfig = {
   accountSid: string
   authToken: string
   verificationServiceId: string
-  messagingServiceSid: string
+  messagingServiceId: string
 }
 
 export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
@@ -17,7 +17,7 @@ export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
       return from(
         client.messages.create({
           body: request.content,
-          messagingServiceSid: config.messagingServiceSid,
+          messagingServiceSid: config.messagingServiceId,
           to: request.to
         })
       ).pipe(map(() => undefined))
