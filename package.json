@@ -4,6 +4,7 @@
   "description": "An opinionated set of tools for building TypeScript applications.",
   "scripts": {
     "build": "tsc",
+    "build-tools": "tsc -p build-tools",
     "postinstall": "npm run build"
   },
   "dependencies": {
