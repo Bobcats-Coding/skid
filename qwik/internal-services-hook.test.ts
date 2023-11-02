@@ -3,22 +3,26 @@ import { createInternalServicesHook } from './internal-services-hook'
 
 test('create a hook', () => {
   const applications = {
-    key: createApplication<Record<string, any>, Services>({
-      getInternalServices: () => ({ service: 'service1' }),
-    }),
+    key: () =>
+      createApplication<Record<string, any>, Services>({
+        getInternalServices: () => ({ service: 'service1' }),
+      }),
   } as const
   const { useInternalServices } = createInternalServicesHook<Services, typeof applications>(
     applications,
   )
   const service = useInternalServices('key', 'service')
   expect(service).toBe('service1')
+  const services = useInternalServices('key')
+  expect(services).toEqual({ service: 'service1' })
 })
 
 test('get service from non-existing key', () => {
   const applications = {
-    key: createApplication<Record<string, any>, Services>({
-      getInternalServices: () => ({ service: 'service1' }),
-    }),
+    key: () =>
+      createApplication<Record<string, any>, Services>({
+        getInternalServices: () => ({ service: 'service1' }),
+      }),
   } as const
   const { useInternalServices } = createInternalServicesHook<Services, typeof applications>(
     applications,
@@ -31,9 +35,10 @@ test('get service from non-existing key', () => {
 
 test('load server InternalServices', () => {
   const applications = {
-    key: createApplication<Record<string, any>, Services>({
-      getInternalServices: () => ({ service: 'service1' }),
-    }),
+    key: () =>
+      createApplication<Record<string, any>, Services>({
+        getInternalServices: () => ({ service: 'service1' }),
+      }),
   } as const
   const { useInternalServices, loadServerInternalServices } = createInternalServicesHook<
     Services,
