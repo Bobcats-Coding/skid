@@ -39,7 +39,7 @@ export const createInternalServicesHook = <
     if (application === undefined) {
       throw new Error(`Internal services are not set for "${key as string}"`)
     }
-    const internalServices: INTERNAL_SERVICES = application().injectInternalServices()
+    const internalServices: INTERNAL_SERVICES = application().getInternalServices()
     if (service === undefined) {
       return internalServices as UseInternalServicesReturnType<SERVICE_NAME>
     }

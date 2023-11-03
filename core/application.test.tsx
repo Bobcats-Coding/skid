@@ -230,6 +230,6 @@ test('get internal services without running the application', () => {
       myService: myExternalService,
     }),
   })
-  const services = app.injectInternalServices()
+  const services = app.getInternalServices()
   expect(services).toEqual({ myService })
 })

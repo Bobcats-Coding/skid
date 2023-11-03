@@ -15,7 +15,7 @@ export type Application<
       ? SingleMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>
       : MultiMainRunArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, MAIN>
   ) => RUN_RETURN | undefined
-  readonly injectInternalServices: () => INTERNAL_SERVICES
+  readonly getInternalServices: () => INTERNAL_SERVICES
 }
 
 type SingleMainRunArgs<
@@ -125,5 +125,5 @@ export const createApplication = <
     return internalServices
   }
 
-  return { run, injectInternalServices }
+  return { run, getInternalServices: injectInternalServices }
 }
