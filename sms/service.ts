@@ -9,7 +9,7 @@ export const createSender = (smsBackend: SMSBackend): Sender => {
         .sendMessage(request)
         .pipe(
           catchError((error) =>
-            throwError(() => new Error("SMS couldn't be sent", { cause: error })),
+            throwError(() => new Error("SMS sending failed", { cause: error })),
           ),
         )
     },
