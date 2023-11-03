@@ -8,8 +8,8 @@ export const createSender = (smsBackend: SMSBackend): Sender => {
       return smsBackend
         .sendMessage(request)
         .pipe(
-          catchError((error) => 
-            throwError(() => new Error('SMS couldn\'t be sent', { cause: error }))
+          catchError((error) =>
+            throwError(() => new Error("SMS couldn't be sent", { cause: error })),
           ),
         )
     },
@@ -18,7 +18,7 @@ export const createSender = (smsBackend: SMSBackend): Sender => {
         .requestVerification(request)
         .pipe(
           catchError((error) =>
-            throwError(() => new Error('SMS verification request failed', { cause: error }))
+            throwError(() => new Error('SMS verification request failed', { cause: error })),
           ),
         )
     },
@@ -27,7 +27,7 @@ export const createSender = (smsBackend: SMSBackend): Sender => {
         .verify(attempt)
         .pipe(
           catchError((error) =>
-            throwError(() => new Error('SMS verification failed', { cause: error }))
+            throwError(() => new Error('SMS verification failed', { cause: error })),
           ),
         )
     },

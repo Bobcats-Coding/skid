@@ -18,8 +18,8 @@ export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
         client.messages.create({
           body: request.content,
           messagingServiceSid: config.messagingServiceId,
-          to: request.to
-        })
+          to: request.to,
+        }),
       ).pipe(map(() => undefined))
     },
     requestVerification: (request) => {
