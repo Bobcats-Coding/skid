@@ -246,3 +246,70 @@ test('identity reducer', () => {
   const state = { count: 1 }
   expect(identityReducer(state, { type: 'count/increment' })).toBe(state)
 })
+
+test(
+  'import state',
+  coreMarbles(({ expect }) => {
+    const countSlice = createCoreStoreSlice({
+      name: 'count',
+      initialState: 0,
+      reducers: {
+        increment: (state: CountState, _: TestIncrement) => state + 1,
+        incrementAmount: (state: CountState, event: TestIncrementAmount) => state + event.payload,
+      },
+    })
+    const appendSlice = createCoreStoreSlice({
+      name: 'append',
+      initialState: '',
+      reducers: {
+        appendA: (state: AppendState, _: TestAppendA) => state + 'A',
+      },
+    })
+    const coreStore = createCoreStore<AllTestState, AllTestEvents>({
+      count: countSlice.reducer,
+      append: appendSlice.reducer,
+    })
+    coreStore.importState({
+      count: 2,
+      append: 'B',
+    })
+    coreStore.send(countSlice.eventCreators.createIncrement())
+    coreStore.send(appendSlice.eventCreators.createAppendA())
+    expect(coreStore.state$).toBeObservable('1', {
+      1: {
+        count: 3,
+        append: 'BA',
+      },
+    })
+  }),
+)
+
+test('export state', () => {
+  const countSlice = createCoreStoreSlice({
+    name: 'count',
+    initialState: 0,
+    reducers: {
+      increment: (state: CountState, _: TestIncrement) => state + 1,
+      incrementAmount: (state: CountState, event: TestIncrementAmount) => state + event.payload,
+    },
+  })
+  const appendSlice = createCoreStoreSlice({
+    name: 'append',
+    initialState: '',
+    reducers: {
+      appendA: (state: AppendState, _: TestAppendA) => state + 'A',
+    },
+  })
+  const coreStore = createCoreStore<AllTestState, AllTestEvents>({
+    count: countSlice.reducer,
+    append: appendSlice.reducer,
+  })
+
+  coreStore.send(countSlice.eventCreators.createIncrement())
+  coreStore.send(appendSlice.eventCreators.createAppendA())
+  const state = coreStore.exportState()
+  expect(state).toEqual({
+    count: 1,
+    append: 'A',
+  })
+})

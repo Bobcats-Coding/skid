@@ -1,14 +1,24 @@
 import type { CoreEffectFunction } from './effect'
 import { type ObjectWithStringLiteralKey } from './type'
 
-import { configureStore, createSlice } from '@reduxjs/toolkit'
-import type { CreateSliceOptions } from '@reduxjs/toolkit'
+import { type CreateSliceOptions, combineReducers, configureStore, createSlice, type StateFromReducersMapObject, type ActionFromReducer, type ReducerFromReducersMapObject } from '@reduxjs/toolkit'
 import { Observable, Subject } from 'rxjs'
 import { mergeAll } from 'rxjs/operators'
 
 export type CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> = StateReadable<ALL_STATE> &
   EventReceiver<ALL_EVENT> &
   EffectRegistry<ALL_STATE, ALL_EVENT>
+
+export type CoreStoreImportExport<ALL_STATE> = {
+  importState: (state: ALL_STATE) => void
+  exportState: () => ALL_STATE
+}
+
+export type CoreStoreWithImport<ALL_STATE, ALL_EVENT extends CoreEvent> = CoreStore<
+  ALL_STATE,
+  ALL_EVENT
+> &
+  CoreStoreImportExport<ALL_STATE>
 
 export type StateReadable<ALL_STATE> = {
   state$: Observable<ALL_STATE>
@@ -113,8 +123,19 @@ export type StoreError = {
 
 export const createCoreStore = <STATE, EVENT extends CoreEvent>(
   reducer: CoreReducersObject<STATE, EVENT>,
-): CoreStore<STATE, EVENT> => {
-  const store = configureStore({ reducer })
+): CoreStore<STATE, EVENT> & CoreStoreImportExport<STATE> => {
+  const combinedReducer = combineReducers(reducer)
+  const reducerWithImport = (
+    state:  STATE | undefined,
+    event: EVENT,
+  ): STATE => {
+    if (event.type === 'IMPORT') {
+      return event.payload
+    } else {
+      return combinedReducer(state as StateFromReducersMapObject<CoreReducersObject<STATE, EVENT>>, event as ActionFromReducer<ReducerFromReducersMapObject<CoreReducersObject<STATE, EVENT>>>) as STATE
+    }
+  }
+  const store = configureStore({ reducer: reducerWithImport })
   const event$ = new Subject<EVENT>()
   const event$$ = new Subject<Observable<EVENT>>()
   const eventAfterEffects$ = new Subject<EVENT>()
@@ -135,10 +156,17 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
   const registerEffect = (effect: CoreEffectFunction<STATE, EVENT>): void => {
     event$$.next(effect(eventAfterEffects$, state$))
   }
+  const exportState = (): STATE => store.getState()
+  const importState = (state: STATE): void => {
+    store.dispatch({ type: 'IMPORT', payload: state })
+  }
+
   return {
     state$,
     send,
     registerEffect,
+    exportState,
+    importState,
   }
 }
 
