@@ -3,6 +3,7 @@ import type { EventBrokerBackend } from './type'
 export const createFakeEventBrokerBackend = (): {
   subscriptions: Array<[string, CallableFunction]>
   dispatchedEvents: Array<[string, any]>
+  invokeHandlers: (eventName: string, args: any) => void,
   backend: EventBrokerBackend
 } => {
   const subscriptions: Array<[string, CallableFunction]> = []
@@ -16,9 +17,18 @@ export const createFakeEventBrokerBackend = (): {
     },
   }
 
+  const invokeHandlers = (eventName: string, args: any): void => {
+    subscriptions
+      .filter(([event]) => event === eventName)
+      .forEach(([_, handler]) => {
+        handler(args)
+      })
+  }
+
   return {
     subscriptions,
     dispatchedEvents,
+    invokeHandlers,
     backend,
   }
 }
