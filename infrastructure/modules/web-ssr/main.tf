@@ -89,3 +89,16 @@ module "web-ssr-domain" {
   }
 }
 
+locals {
+  load-balancer-object-content = {
+    "foo" = "bar"
+  }
+  load-balancer-rendered-json = jsonencode(local.load-balancer-object-content)
+}
+
+resource "google_storage_bucket_object" "my_object" {
+  name   = "${terraform.workspace}-${var.name}.json"
+  bucket = var.load-balancer
+  content = local.load-balancer-rendered-json
+  provider = google.product
+}

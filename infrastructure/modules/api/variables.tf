@@ -24,3 +24,8 @@ variable "secrets" {
   default = []
   description = "Secrets"
 }
+
+variable "load-balancer" {
+  type = string
+  description = "Load balancer"
+}
