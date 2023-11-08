@@ -21,23 +21,27 @@ type OpenCheckRequest = {
   method: 'POST'
   pathname: `${string}/${typeof VERSION}/partner/${string}/checks`
   headers: RooamHeaders
-  body: Array<{
+  body: {
     check_name?: string,
     quest_count?: number,
-    items: {
+    items: Array<{
       menu_item_id: string,
       menu_item_group_id: string,
       quantity: number,
-      modifiers: Array<{
+      modifiers?: Array<{
         modifier_id: string,
         modifier_group_id: string,
         quantity: number,
-      }>
-    },
+      }>,
+    }>,
     discount?: {
-      amount: number
+      amount: number,
     }
-  }>
+    payment?: {
+      amount: number,
+      tip: number,
+    }
+  }
 }
 
 type OpenCheckResponse = {
@@ -67,17 +71,28 @@ type RooamAPI =
 
 export type RooamAPIClient = ReturnType<typeof createJsonRestClient<RooamAPI>>
 
+type OpenCheckRequestParams = {
+  apiUrl: string,
+  partnerId: string,
+  username: string,
+  password: string,
+  body: OpenCheckRequest['body']
+}
+
 export const createOpenCheckRequest = ({
-  baseUrl,
-  partnerId
-  apiKey,
-}: {
-  locationID: string
-  apiKey: string
-}): OpenCheckRequest => {
+  apiUrl,
+  username,
+  password,
+  partnerId,
+  body,
+}: OpenCheckRequestParams): OpenCheckRequest => {
   return {
     method: 'POST',
-    pathname: `${baseUrl}/v1/partner/${partnerId}/checks`,
-    headers: { 'Api-Key': apiKey },
+    pathname: `${apiUrl}/v1/partner/${partnerId}/checks`,
+    headers: {
+      Authorization: `Basic ${username}:${password}`,
+      'Idempotency-Key': `${Math.ceil(Math.random() * 20000)}`,
+    },
+    body,
   }
 }
