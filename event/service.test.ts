@@ -3,7 +3,7 @@ import { createBroker } from './service'
 
 const TEST_EVENT = 'test-event'
 const TEST_ARGS = {
-  param1: 'test-arg'
+  param1: 'test-arg',
 }
 
 describe('Event Service', () => {
@@ -22,7 +22,7 @@ describe('Event Service', () => {
       const { backend, subscriptions } = createFakeEventBrokerBackend()
       const eventBroker = createBroker(backend)
 
-      eventBroker.on(TEST_EVENT, fakeCallback);
+      eventBroker.on(TEST_EVENT, fakeCallback)
 
       expect(subscriptions[0]).toEqual([TEST_EVENT, fakeCallback])
     })

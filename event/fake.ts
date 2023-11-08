@@ -3,7 +3,7 @@ import type { EventBrokerBackend } from './type'
 export const createFakeEventBrokerBackend = (): {
   subscriptions: Array<[string, CallableFunction]>
   dispatchedEvents: Array<[string, any]>
-  invokeHandlers: (eventName: string, args: any) => void,
+  invokeHandlers: (eventName: string, args: any) => void
   backend: EventBrokerBackend
 } => {
   const subscriptions: Array<[string, CallableFunction]> = []
