@@ -42,8 +42,9 @@ export type Product = {
 }
 
 export type RooamBaseParams = {
-  username: string
-  password: string
+  apiUrl: string,
+  username: string,
+  password: string,
 }
 
 export type RooamService = {
