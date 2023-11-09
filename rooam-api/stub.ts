@@ -40,7 +40,7 @@ const openCheckResponse: OpenCheckResponse = FAKE_CHECK
 const openCheckEndpoint: StubEndpoint<OpenCheckEndpoint> = {
   request: {
     method: 'POST',
-    pathname: 'https://test.rooam.co/v1/partner/partner123/checks',
+    pathname: '/v1/partner/partner123/checks',
     headers: {
       // btoa('test-user:test-password')
       Authorization: 'Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=',
@@ -56,7 +56,7 @@ const getCheckStatusResponse: GetCheckStatusResponse = FAKE_CHECK_STATUS
 const getCheckStatusEndpoint: StubEndpoint<GetCheckStatusEndpoint> = {
   request: {
     method: 'GET',
-    pathname: `https://test.rooam.co/v1/partner/open-checks/check123/status`,
+    pathname: `/v1/partner/open-checks/check123/status`,
     headers: {
       // btoa('test-user:test-password')
       Authorization: 'Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=',
