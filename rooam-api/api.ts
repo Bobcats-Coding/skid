@@ -8,6 +8,22 @@ type RooamHeaders = {
   'Idempotency-Key': string
 } & Record<string, string>
 
+type RooamError =
+  | {
+      timestamp: string
+      status: number
+      error: string
+      path: string
+    }
+  | {
+      message: string
+    }
+  | {
+      status: 'ERROR'
+      message: string
+      timestamp: number
+    }
+
 export type OpenCheckRequest = {
   method: 'POST'
   pathname: `/${typeof VERSION}/partner/${string}/checks`
@@ -26,7 +42,7 @@ export type OpenCheckRequest = {
       }>
     }>
     discount?: {
-      amount: number,
+      amount: number
     }
     payment?: {
       amount: number
@@ -35,35 +51,29 @@ export type OpenCheckRequest = {
   }
 }
 
-export type OpenCheckResponse =
-  | {
-      status: 'accepted'
-      request_id: string
-    }
-  | {
-      status: 'error'
-      request_id: string
-      message: string
-    }
-  | {
-      message: string
-    }
+export type OpenCheckResponse = {
+  status: 'accepted'
+  request_id: string
+}
 
-export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse>
+export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse | RooamError>
 
 export type GetCheckStatusRequest = {
   method: 'GET'
-  pathname: `/${typeof VERSION}/partner/open-checks/${string}/status`
+  pathname: `${string}/${typeof VERSION}/partner/open-checks/${string}/status`
   headers: Omit<RooamHeaders, 'idempotencyKey'>
 }
 
 export type GetCheckStatusResponse = {
-  status: 'SUBMITTED' | 'ERROR' | 'PENDING'
+  status: 'SUBMITTED' | 'ERROR'
   message: string
   timestamp: number
 }
 
-export type GetCheckStatusEndpoint = RestEndpoint<GetCheckStatusRequest, GetCheckStatusResponse>
+export type GetCheckStatusEndpoint = RestEndpoint<
+  GetCheckStatusRequest,
+  GetCheckStatusResponse | RooamError
+>
 
 export type RooamAPI = OpenCheckEndpoint | GetCheckStatusEndpoint
 
@@ -74,6 +84,7 @@ export const createRooamApiClient = (apiUrl: string): RooamAPIClient => {
 }
 
 type OpenCheckRequestParams = {
+  apiUrl: string
   partnerId: string
   username: string
   password: string
@@ -100,6 +111,7 @@ export const createOpenCheckRequest = ({
 }
 
 type GetCheckStatusRequestParams = {
+  apiUrl: string
   requestId: string
   username: string
   password: string
