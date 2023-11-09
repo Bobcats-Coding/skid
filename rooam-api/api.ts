@@ -1,4 +1,4 @@
-import { type createJsonRestClient } from '@bobcats-coding/skid/rest/json'
+import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
 
 const VERSION = 'v1'
@@ -26,7 +26,7 @@ type RooamError =
 
 export type OpenCheckRequest = {
   method: 'POST'
-  pathname: `${string}/${typeof VERSION}/partner/${string}/checks`
+  pathname: `/${typeof VERSION}/partner/${string}/checks`
   headers: RooamHeaders
   body: {
     check_name?: string
@@ -60,7 +60,7 @@ export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse
 
 export type GetCheckStatusRequest = {
   method: 'GET'
-  pathname: `${string}/${typeof VERSION}/partner/open-checks/${string}/status`
+  pathname: `/${typeof VERSION}/partner/open-checks/${string}/status`
   headers: Omit<RooamHeaders, 'idempotencyKey'>
 }
 
@@ -79,8 +79,11 @@ export type RooamAPI = OpenCheckEndpoint | GetCheckStatusEndpoint
 
 export type RooamAPIClient = ReturnType<typeof createJsonRestClient<RooamAPI>>
 
+export const createRooamApiClient = (apiUrl: string): RooamAPIClient => {
+  return createJsonRestClient<RooamAPI>('https', apiUrl)
+}
+
 type OpenCheckRequestParams = {
-  apiUrl: string
   partnerId: string
   username: string
   password: string
@@ -89,7 +92,6 @@ type OpenCheckRequestParams = {
 }
 
 export const createOpenCheckRequest = ({
-  apiUrl,
   username,
   password,
   partnerId,
@@ -98,7 +100,7 @@ export const createOpenCheckRequest = ({
 }: OpenCheckRequestParams): OpenCheckRequest => {
   return {
     method: 'POST',
-    pathname: `${apiUrl}/v1/partner/${partnerId}/checks`,
+    pathname: `/v1/partner/${partnerId}/checks`,
     headers: {
       Authorization: `Basic ${btoa([username, password].join(':'))}`,
       'Idempotency-Key': idempotencyKey,
@@ -108,21 +110,19 @@ export const createOpenCheckRequest = ({
 }
 
 type GetCheckStatusRequestParams = {
-  apiUrl: string
   requestId: string
   username: string
   password: string
 }
 
 export const createGetCheckStatusRequest = ({
-  apiUrl,
   requestId,
   username,
   password,
 }: GetCheckStatusRequestParams): GetCheckStatusRequest => {
   return {
     method: 'GET',
-    pathname: `${apiUrl}/v1/partner/open-checks/${requestId}/status`,
+    pathname: `/v1/partner/open-checks/${requestId}/status`,
     headers: {
       Authorization: `Basic ${btoa([username, password].join(':'))}`,
     },

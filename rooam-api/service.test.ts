@@ -7,7 +7,6 @@ import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
 import { filter } from 'rxjs/operators'
 
 const rooamService = createRooamService(rooamAPIClient, {
-  apiUrl: 'https://test.rooam.co',
   password: 'test-password',
   username: 'test-user',
 })
@@ -34,7 +33,7 @@ describe('RooamApiClient', () => {
               payment: {
                 amount: 1000,
                 tip: 200,
-              }
+              },
             },
           )
           .pipe(
