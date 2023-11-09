@@ -29,6 +29,10 @@ const OPEN_CHECK_BODY: OpenCheckRequest['body'] = {
       quantity: 1,
     },
   ],
+  payment: {
+    amount: 1000,
+    tip: 200,
+  },
 }
 
 const openCheckResponse: OpenCheckResponse = FAKE_CHECK
