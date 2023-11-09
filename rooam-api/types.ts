@@ -1,48 +1,53 @@
 import type { Observable } from 'rxjs'
 
+export type RequestConfig = {
+  idempotencyKey: string
+  partnerId: string
+}
+
 export type Check = {
-  name?: string,
-  guestCount?: number,
+  name?: string
+  guestCount?: number
   items: Array<{
-    productId: Product['id'],
-    groupId: Product['groupId'],
-    qty: number,
+    productId: Product['id']
+    groupId: Product['groupId']
+    qty: number
     modifiers?: Array<{
-      id: string,
-      groupId: string,
-      qty: number,
+      id: string
+      groupId: string
+      qty: number
     }>
-  }>,
-  discount?: number,
+  }>
+  discount?: number
   payment?: {
-    amount: number,
-    tip: number,
+    amount: number
+    tip: number
   }
 }
 
 export type OpenCheckResult = {
-  id: string,
-  status: 'accepted',
+  id: string
+  status: 'accepted'
 }
 
 export type CheckStatus = {
-  status: 'submitted',
-  message: string,
-  timestamp: number,
+  status: 'submitted'
+  message: string
+  timestamp: number
 }
 
 export type Product = {
-  id: string,
-  groupId: string,
+  id: string
+  groupId: string
 }
 
 export type RooamBaseParams = {
-  apiUrl: string,
-  username: string,
-  password: string,
+  apiUrl: string
+  username: string
+  password: string
 }
 
 export type RooamService = {
-  openCheck: (partnerId: string, check: Check) => Observable<OpenCheckResult>
+  openCheck: (config: RequestConfig, check: Check) => Observable<OpenCheckResult>
   getCheckStatus: (id: OpenCheckResult['id']) => Observable<CheckStatus>
 }

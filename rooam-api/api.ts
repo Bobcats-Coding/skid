@@ -1,86 +1,90 @@
 import { type createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
 
-const VERSION = 'v1';
+const VERSION = 'v1'
 
 type RooamHeaders = {
-  Authorization: string,
-  'Idempotency-Key': string,
+  Authorization: string
+  'Idempotency-Key': string
 } & Record<string, string>
 
-type RooamError = {
-  timestamp: string,
-  status: number,
-  error: string,
-  path: string,
-} | {
-  message: string,
-} | {
-  status: 'ERROR',
-  message: string,
-  timestamp: number
-}
+type RooamError =
+  | {
+      timestamp: string
+      status: number
+      error: string
+      path: string
+    }
+  | {
+      message: string
+    }
+  | {
+      status: 'ERROR'
+      message: string
+      timestamp: number
+    }
 
-type OpenCheckRequest = {
+export type OpenCheckRequest = {
   method: 'POST'
   pathname: `${string}/${typeof VERSION}/partner/${string}/checks`
   headers: RooamHeaders
   body: {
-    check_name?: string,
-    quest_count?: number,
+    check_name?: string
+    quest_count?: number
     items: Array<{
-      menu_item_id: string,
-      menu_item_group_id: string,
-      quantity: number,
+      menu_item_id: string
+      menu_item_group_id: string
+      quantity: number
       modifiers?: Array<{
-        modifier_id: string,
-        modifier_group_id: string,
-        quantity: number,
-      }>,
-    }>,
+        modifier_id: string
+        modifier_group_id: string
+        quantity: number
+      }>
+    }>
     discount?: {
-      amount: number,
+      amount: number
     }
     payment?: {
-      amount: number,
-      tip: number,
+      amount: number
+      tip: number
     }
   }
 }
 
-type OpenCheckResponse = {
-  status: 'accepted',
-  request_id: string,
+export type OpenCheckResponse = {
+  status: 'accepted'
+  request_id: string
 }
 
-type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse | RooamError>
+export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse | RooamError>
 
-type GetCheckStatusRequest = {
+export type GetCheckStatusRequest = {
   method: 'GET'
   pathname: `${string}/${typeof VERSION}/partner/open-checks/${string}/status`
-  headers: RooamHeaders
+  headers: Omit<RooamHeaders, 'idempotencyKey'>
 }
 
-type GetCheckStatusResponse = {
-  status: 'SUBMITTED' | 'ERROR',
-  message: string,
-  timestamp: number,
+export type GetCheckStatusResponse = {
+  status: 'SUBMITTED' | 'ERROR'
+  message: string
+  timestamp: number
 }
 
-type GetCheckStatusEndpoint = RestEndpoint<GetCheckStatusRequest, GetCheckStatusResponse | RooamError>
+export type GetCheckStatusEndpoint = RestEndpoint<
+  GetCheckStatusRequest,
+  GetCheckStatusResponse | RooamError
+>
 
-type RooamAPI =
-  | OpenCheckEndpoint
-  | GetCheckStatusEndpoint
+export type RooamAPI = OpenCheckEndpoint | GetCheckStatusEndpoint
 
 export type RooamAPIClient = ReturnType<typeof createJsonRestClient<RooamAPI>>
 
 type OpenCheckRequestParams = {
-  apiUrl: string,
-  partnerId: string,
-  username: string,
-  password: string,
-  idempotencyKey: string,
+  apiUrl: string
+  partnerId: string
+  username: string
+  password: string
+  idempotencyKey: string
   body: OpenCheckRequest['body']
 }
 
@@ -104,10 +108,10 @@ export const createOpenCheckRequest = ({
 }
 
 type GetCheckStatusRequestParams = {
-  apiUrl: string,
-  requestId: string,
-  username: string,
-  password: string,
+  apiUrl: string
+  requestId: string
+  username: string
+  password: string
 }
 
 export const createGetCheckStatusRequest = ({
@@ -121,7 +125,6 @@ export const createGetCheckStatusRequest = ({
     pathname: `${apiUrl}/v1/partner/open-checks/${requestId}/status`,
     headers: {
       Authorization: `Basic ${btoa([username, password].join(':'))}`,
-      'Idempotency-Key': '',
     },
   }
 }
