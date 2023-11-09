@@ -15,6 +15,10 @@ type RooamError = {
   path: string,
 } | {
   message: string,
+} | {
+  status: 'ERROR',
+  message: string,
+  timestamp: number
 }
 
 type OpenCheckRequest = {
@@ -76,6 +80,7 @@ type OpenCheckRequestParams = {
   partnerId: string,
   username: string,
   password: string,
+  idempotencyKey: string,
   body: OpenCheckRequest['body']
 }
 
@@ -84,15 +89,39 @@ export const createOpenCheckRequest = ({
   username,
   password,
   partnerId,
+  idempotencyKey,
   body,
 }: OpenCheckRequestParams): OpenCheckRequest => {
   return {
     method: 'POST',
     pathname: `${apiUrl}/v1/partner/${partnerId}/checks`,
     headers: {
-      Authorization: `Basic ${username}:${password}`,
-      'Idempotency-Key': `${Math.ceil(Math.random() * 20000)}`,
+      Authorization: `Basic ${btoa([username, password].join(':'))}`,
+      'Idempotency-Key': idempotencyKey,
     },
     body,
+  }
+}
+
+type GetCheckStatusRequestParams = {
+  apiUrl: string,
+  requestId: string,
+  username: string,
+  password: string,
+}
+
+export const createGetCheckStatusRequest = ({
+  apiUrl,
+  requestId,
+  username,
+  password,
+}: GetCheckStatusRequestParams): GetCheckStatusRequest => {
+  return {
+    method: 'GET',
+    pathname: `${apiUrl}/v1/partner/open-checks/${requestId}/status`,
+    headers: {
+      Authorization: `Basic ${btoa([username, password].join(':'))}`,
+      'Idempotency-Key': '',
+    },
   }
 }
