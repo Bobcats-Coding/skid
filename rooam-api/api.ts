@@ -60,7 +60,7 @@ export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse
 
 export type GetCheckStatusRequest = {
   method: 'GET'
-  pathname: `${string}/${typeof VERSION}/partner/open-checks/${string}/status`
+  pathname: `/${typeof VERSION}/partner/open-checks/${string}/status`
   headers: Omit<RooamHeaders, 'idempotencyKey'>
 }
 
@@ -84,7 +84,6 @@ export const createRooamApiClient = (apiUrl: string): RooamAPIClient => {
 }
 
 type OpenCheckRequestParams = {
-  apiUrl: string
   partnerId: string
   username: string
   password: string
@@ -111,7 +110,6 @@ export const createOpenCheckRequest = ({
 }
 
 type GetCheckStatusRequestParams = {
-  apiUrl: string
   requestId: string
   username: string
   password: string
