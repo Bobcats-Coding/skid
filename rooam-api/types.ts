@@ -42,7 +42,7 @@ export type Product = {
 }
 
 export type RooamBaseParams = {
-  apiUrl: string
+  apiUrl: string,
   username: string
   password: string
 }
