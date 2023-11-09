@@ -1,5 +1,5 @@
 import { map } from 'rxjs'
-import { createOpenCheckRequest, type RooamAPIClient } from './api'
+import { createGetCheckStatusRequest, createOpenCheckRequest, type RooamAPIClient } from './api'
 import type { RooamBaseParams, RooamService } from './types'
 
 export const createRoamService = (
@@ -7,10 +7,11 @@ export const createRoamService = (
   baseParams: RooamBaseParams,
 ): RooamService => {
   return {
-    openCheck: (checkParams) => {
+    openCheck: (partnerId, checkParams) => {
       return rooamAPIClient(createOpenCheckRequest({
         ...baseParams,
-        partnerId: checkParams.partnerId,
+        partnerId,
+        idempotencyKey: `${Math.ceil(Math.random() * 20000)}`,
         body: {
           ...(checkParams.name !== undefined && { check_name: checkParams.name }),
           ...(checkParams.guestCount !== undefined && { quest_count: checkParams.guestCount }),
@@ -47,10 +48,31 @@ export const createRoamService = (
             throw new Error(response.error)
           }
           return {
+            id: response.request_id,
             status: response.status,
-            requestId: response.request_id,
           }
         }),
+      )
+    },
+    getCheckStatus: (id) => {
+      return rooamAPIClient(createGetCheckStatusRequest({
+        ...baseParams,
+        requestId: id,
+      }))
+      .pipe(
+        map((response) => {
+          if ('error' in response) {
+            throw new Error(response.error)
+          }
+          if (!('status' in response) || response.status === 'ERROR') {
+            throw new Error(response.message)
+          }
+          return {
+            message: response.message,
+            timestamp: response.timestamp,
+            status: 'submitted',
+          }
+        })
       )
     }
   }

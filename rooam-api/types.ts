@@ -1,7 +1,6 @@
 import type { Observable } from 'rxjs'
 
 export type Check = {
-  partnerId: string,
   name?: string,
   guestCount?: number,
   items: Array<{
@@ -22,8 +21,8 @@ export type Check = {
 }
 
 export type OpenCheckResult = {
+  id: string,
   status: 'accepted',
-  requestId: string,
 }
 
 export type CheckStatus = {
@@ -44,6 +43,6 @@ export type RooamBaseParams = {
 }
 
 export type RooamService = {
-  openCheck: (check: Check) => Observable<OpenCheckResult>
-  // getCheckStatus: (requestId: OpenCheckResult['requestId']) => Observable<CheckStatus>
+  openCheck: (partnerId: string, check: Check) => Observable<OpenCheckResult>
+  getCheckStatus: (id: OpenCheckResult['id']) => Observable<CheckStatus>
 }
