@@ -30,6 +30,10 @@ const OPEN_CHECK_BODY: OpenCheckRequest['body'] = {
       // @TODO we should check payment, but that would broke the bars/service test
     },
   ],
+  payment: {
+    amount: 1000,
+    tip: 200,
+  },
 }
 
 const openCheckResponse: OpenCheckResponse = FAKE_CHECK
