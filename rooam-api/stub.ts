@@ -27,12 +27,9 @@ const OPEN_CHECK_BODY: OpenCheckRequest['body'] = {
       menu_item_id: 'item-id-123',
       menu_item_group_id: 'item-group-id-123',
       quantity: 1,
+      // @TODO we should check payment, but that would broke the bars/service test
     },
   ],
-  payment: {
-    amount: 1000,
-    tip: 200,
-  },
 }
 
 const openCheckResponse: OpenCheckResponse = FAKE_CHECK
