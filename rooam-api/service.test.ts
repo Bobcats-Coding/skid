@@ -31,6 +31,10 @@ describe('RooamApiClient', () => {
                   qty: 1,
                 },
               ],
+              payment: {
+                amount: 1000,
+                tip: 200,
+              }
             },
           )
           .pipe(
