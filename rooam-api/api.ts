@@ -42,7 +42,7 @@ export type OpenCheckRequest = {
       }>
     }>
     discount?: {
-      amount: number,
+      amount: number
     }
     payment?: {
       amount: number
