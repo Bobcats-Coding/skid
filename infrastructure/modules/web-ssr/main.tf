@@ -91,7 +91,7 @@ module "web-ssr-domain" {
 
 locals {
   load-balancer-object-content = {
-    "foo" = "bar"
+    "service" = google_compute_backend_service.web-ssr-backend.self_link
   }
   load-balancer-rendered-json = jsonencode(local.load-balancer-object-content)
 }
