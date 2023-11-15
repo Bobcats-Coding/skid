@@ -44,11 +44,11 @@ export const createRooamService = (
         }),
       ).pipe(
         map((response) => {
-          if ('message' in response) {
+          if (!('status' in response)) {
             throw new Error(response.message)
           }
-          if ('error' in response) {
-            throw new Error(response.error)
+          if (response.status === 'error') {
+            throw new Error(response.message)
           }
           return {
             id: response.request_id,
@@ -65,16 +65,13 @@ export const createRooamService = (
         }),
       ).pipe(
         map((response) => {
-          if ('error' in response) {
-            throw new Error(response.error)
-          }
           if (!('status' in response) || response.status === 'ERROR') {
             throw new Error(response.message)
           }
           return {
             message: response.message,
             timestamp: response.timestamp,
-            status: 'submitted',
+            status: response.status === 'SUBMITTED' ? 'submitted' : 'pending',
           }
         }),
       )

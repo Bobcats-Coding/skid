@@ -27,11 +27,11 @@ export type Check = {
 
 export type OpenCheckResult = {
   id: string
-  status: 'accepted' | 'error'
+  status: 'accepted'
 }
 
 export type CheckStatus = {
-  status: 'submitted'
+  status: 'submitted' | 'pending'
   message: string
   timestamp: number
 }
