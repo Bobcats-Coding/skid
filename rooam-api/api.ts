@@ -8,22 +8,6 @@ type RooamHeaders = {
   'Idempotency-Key': string
 } & Record<string, string>
 
-type RooamError =
-  | {
-      timestamp: string
-      status: number
-      error: string
-      path: string
-    }
-  | {
-      message: string
-    }
-  | {
-      status: 'ERROR'
-      message: string
-      timestamp: number
-    }
-
 export type OpenCheckRequest = {
   method: 'POST'
   pathname: `/${typeof VERSION}/partner/${string}/checks`
@@ -51,12 +35,21 @@ export type OpenCheckRequest = {
   }
 }
 
-export type OpenCheckResponse = {
-  status: 'accepted' | 'error'
-  request_id: string
-}
+export type OpenCheckResponse =
+  | {
+      status: 'accepted'
+      request_id: string
+    }
+  | {
+      status: 'error'
+      request_id: string
+      message: string
+    }
+  | {
+      message: string
+    }
 
-export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse | RooamError>
+export type OpenCheckEndpoint = RestEndpoint<OpenCheckRequest, OpenCheckResponse>
 
 export type GetCheckStatusRequest = {
   method: 'GET'
@@ -70,10 +63,7 @@ export type GetCheckStatusResponse = {
   timestamp: number
 }
 
-export type GetCheckStatusEndpoint = RestEndpoint<
-  GetCheckStatusRequest,
-  GetCheckStatusResponse | RooamError
->
+export type GetCheckStatusEndpoint = RestEndpoint<GetCheckStatusRequest, GetCheckStatusResponse>
 
 export type RooamAPI = OpenCheckEndpoint | GetCheckStatusEndpoint
 
