@@ -27,7 +27,7 @@ export type Check = {
 
 export type OpenCheckResult = {
   id: string
-  status: 'accepted'
+  status: 'accepted' | 'error'
 }
 
 export type CheckStatus = {
