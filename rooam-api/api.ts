@@ -52,7 +52,7 @@ export type OpenCheckRequest = {
 }
 
 export type OpenCheckResponse = {
-  status: 'accepted' | 'error',
+  status: 'accepted' | 'error'
   request_id: string
 }
 
