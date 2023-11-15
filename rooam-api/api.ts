@@ -52,7 +52,7 @@ export type OpenCheckRequest = {
 }
 
 export type OpenCheckResponse = {
-  status: 'accepted'
+  status: 'accepted' | 'error',
   request_id: string
 }
 
@@ -65,7 +65,7 @@ export type GetCheckStatusRequest = {
 }
 
 export type GetCheckStatusResponse = {
-  status: 'SUBMITTED' | 'ERROR'
+  status: 'SUBMITTED' | 'ERROR' | 'PENDING'
   message: string
   timestamp: number
 }
