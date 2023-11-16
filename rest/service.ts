@@ -16,6 +16,7 @@ export type RestEndpointRequest = {
   readonly pathname: string
   readonly search?: UrlSearchConfig
   readonly headers?: Record<string, string>
+  readonly body?: Record<string, any>
 }
 
 type RestMethod =
@@ -70,12 +71,13 @@ export const createRestClientCreator =
 type FetcherConfigArg = {
   method: string
   headers: Record<string, string>
+  body: string | null
 }
 
 const getFetcherArg = (
   protocol: string,
   hostname: string,
-  { pathname, method, search, headers = {} }: RestEndpointRequest,
+  { pathname, method, search, headers = {}, body = undefined }: RestEndpointRequest,
 ): [string, FetcherConfigArg] => [
   stringifyUrl({
     protocol,
@@ -85,6 +87,10 @@ const getFetcherArg = (
   }),
   {
     method,
-    headers,
+    headers: {
+      ...headers,
+      ...(body !== undefined && { 'Content-Type': 'application/json' }),
+    },
+    body: body !== undefined ? JSON.stringify(body) : null,
   },
 ]
