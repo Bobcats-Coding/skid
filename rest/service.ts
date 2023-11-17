@@ -16,7 +16,7 @@ export type RestEndpointRequest = {
   readonly pathname: string
   readonly search?: UrlSearchConfig
   readonly headers?: Record<string, string>
-  readonly body?: Record<string, any>
+  readonly body?: unknown
 }
 
 type RestMethod =
@@ -71,7 +71,7 @@ export const createRestClientCreator =
 type FetcherConfigArg = {
   method: string
   headers: Record<string, string>
-  body: string | null
+  body: unknown
 }
 
 const getFetcherArg = (
@@ -87,10 +87,7 @@ const getFetcherArg = (
   }),
   {
     method,
-    headers: {
-      ...headers,
-      ...(body !== undefined && { 'Content-Type': 'application/json' }),
-    },
-    body: body !== undefined ? JSON.stringify(body) : null,
+    headers,
+    body,
   },
 ]
