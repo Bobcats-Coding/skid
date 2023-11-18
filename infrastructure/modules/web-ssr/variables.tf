@@ -40,7 +40,7 @@ variable "secrets" {
   description = "Secrets"
 }
 
-variable "load-balancer" {
+variable "resource-pool-bucket" {
   type = string
-  description = "Load balancer"
+  description = "Resource pool bucket name"
 }

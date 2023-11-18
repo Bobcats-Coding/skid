@@ -90,15 +90,17 @@ module "web-ssr-domain" {
 }
 
 locals {
-  load-balancer-object-content = {
+  resource-pool-object-content = {
     "service" = google_compute_backend_service.web-ssr-backend.self_link
+    "domain" = var.domain
+    "path" = "/*"
   }
-  load-balancer-rendered-json = jsonencode(local.load-balancer-object-content)
+  resource-pool-rendered-json = jsonencode(local.resource-pool-object-content)
 }
 
 resource "google_storage_bucket_object" "my_object" {
   name   = "${terraform.workspace}-${var.name}.json"
-  bucket = var.load-balancer
-  content = local.load-balancer-rendered-json
+  bucket = var.resource-pool-bucket
+  content = local.resource-pool-rendered-json
   provider = google.product
 }
