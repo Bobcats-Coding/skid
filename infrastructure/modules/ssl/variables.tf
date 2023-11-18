@@ -13,16 +13,6 @@ variable "managed-zone" {
   description = "Managed zone"
 }
 
-variable "project-domain" {
-  type = string
-  description = "GCP project holding the domain"
-}
-
-variable "project-product" {
-  type = string
-  description = "GCP project holding the product"
-}
-
 variable "is-wildcard" {
   type = bool
   default = true

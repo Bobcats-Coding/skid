@@ -13,16 +13,6 @@ variable "description" {
   description = "Description of sub domain"
 }
 
-variable "project" {
-  type = string
-  description = "GCP Project"
-}
-
-variable "parent-project" {
-  type = string
-  description = "Parent GCP Project"
-}
-
 variable "parent-managed-zone" {
   type = string
   description = "Managed zone"

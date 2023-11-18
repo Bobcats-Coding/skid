@@ -2,7 +2,6 @@ resource "google_dns_managed_zone" "sub-dns-zone" {
   name = "${var.name}-sub-dns-zone-prod"
   dns_name = "${var.sub-domain}.${var.top-domain}."
   description = var.description
-  project = var.project
   visibility = "public"
   dnssec_config {
     state = "on"
@@ -18,7 +17,6 @@ resource "google_dns_managed_zone" "sub-dns-zone" {
 data "google_dns_keys" "sub-zone-dns-keys" {
   managed_zone = google_dns_managed_zone.sub-dns-zone.name
   depends_on   = [google_dns_managed_zone.sub-dns-zone]
-  project = var.project
   provider = google.sub
 }
 
@@ -28,7 +26,6 @@ resource "google_dns_record_set" "sub-dns-zone-ds" {
   type         = "DS"
   ttl          = 300
   rrdatas      = [data.google_dns_keys.sub-zone-dns-keys.key_signing_keys[0].ds_record]
-  project = var.parent-project
   provider = google.parent
 }
 
@@ -38,6 +35,5 @@ resource "google_dns_record_set" "sub-dns-zone-ns" {
   type         = "NS"
   ttl          = 300
   rrdatas      = google_dns_managed_zone.sub-dns-zone.name_servers
-  project = var.parent-project
   provider     = google.parent
 }
