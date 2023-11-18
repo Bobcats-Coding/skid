@@ -12,5 +12,4 @@ resource "google_storage_bucket_object" "resrource-pool" {
   name   = "${terraform.workspace}-domain-${var.name}.json"
   bucket = var.resource-pool
   content = local.load-balancer-rendered-json
-  provider = google.product
 }

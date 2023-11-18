@@ -1,4 +1,4 @@
-resource "google_storage_bucket" "resource-pool" {
+resource "google_storage_bucket" "resource-pool-bucket" {
   project = var.project
   name = "${var.name}-resource-pool-bucket"
   location = var.region
