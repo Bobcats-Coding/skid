@@ -44,3 +44,9 @@ variable "resource-pool-bucket" {
   type = string
   description = "Resource pool bucket name"
 }
+
+variable "override-domain" {
+  type = string
+  description = "Override domain"
+  default = ""
+}

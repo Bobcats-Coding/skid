@@ -92,7 +92,7 @@ module "web-ssr-domain" {
 locals {
   resource-pool-object-content = {
     "service" = google_compute_backend_service.web-ssr-backend.self_link
-    "domain" = var.domain
+    "domain" = var.override-domain != "" ? var.override-domain : module.web-ssr-domain.url
     "path" = "/*"
   }
   resource-pool-rendered-json = jsonencode(local.resource-pool-object-content)
