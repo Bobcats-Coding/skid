@@ -1,5 +1,4 @@
 resource "google_storage_bucket" "resource-pool-bucket" {
-  project = var.project
   name = "${var.name}-resource-pool-bucket"
   location = var.region
   force_destroy = true
@@ -20,11 +19,12 @@ resource "google_storage_bucket" "resource-pool-bucket" {
 }
 
 resource "google_kms_key_ring" "resource-pool-keyring" {
-  name = "${var.name}-resource-pool-keyring"
+  name = "${var.name}-resource-pool-key-ring"
   location = var.region
+
 }
 
 resource "google_kms_crypto_key" "resource-pool-crypto-key" {
-  name = "${var.name}-resource-pool-cryptokey"
+  name = "${var.name}-resource-pool-crypto-key"
   key_ring = google_kms_key_ring.resource-pool-keyring.id
 }
