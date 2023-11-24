@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   build: {
@@ -6,10 +6,10 @@ export default defineConfig({
       entry: 'index.ts',
       name: 'build-scripts',
       formats: ['es'],
-      fileName: () => `index.mjs`
+      fileName: () => `index.mjs`,
     },
     rollupOptions: {
-      external: [], // Add        typescript({
+      external: ['zx'],
     },
   },
-});
+})

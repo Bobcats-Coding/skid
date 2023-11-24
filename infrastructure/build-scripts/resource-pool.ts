@@ -166,3 +166,43 @@ export const tsDomainToTerraform = (
     }),
   ) as ResourcePoolInput['domains'][string]
 }
+
+type SplitAndParseServiceAndDomainFilesArgs = {
+  files: Array<{ name: string; content: string }>
+  pullRequests: number[]
+}
+
+export const splitAndParseServiceAndDomainFiles = ({
+  files,
+  pullRequests,
+}: SplitAndParseServiceAndDomainFilesArgs): {
+  serviceFiles: ServiceFile[]
+  domainFiles: DomainFile[]
+} => {
+  const isDomain = /^pr-\d+-domain-/
+  const prFiles = files.filter(({ name }) => {
+    return pullRequests.some((pr) => {
+      return name.startsWith(`pr-${pr}`)
+    })
+  })
+  const serviceFiles = prFiles.filter(({ name }) => {
+    return !isDomain.test(name)
+  })
+  const domainFiles = prFiles.filter(({ name }) => {
+    return isDomain.test(name)
+  })
+  return {
+    serviceFiles: serviceFiles.map((file) => {
+      return {
+        ...file,
+        content: JSON.parse(file.content),
+      }
+    }),
+    domainFiles: domainFiles.map((file) => {
+      return {
+        ...file,
+        content: JSON.parse(file.content),
+      }
+    }),
+  }
+}

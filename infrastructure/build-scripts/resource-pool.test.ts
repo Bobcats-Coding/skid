@@ -1,5 +1,6 @@
 import {
   getResourcePoolServicesAndDomains,
+  splitAndParseServiceAndDomainFiles,
   terraformDomainFileToTS,
   toResourcePoolInput,
 } from './resource-pool'
@@ -140,4 +141,78 @@ test('toResourcePoolInput', () => {
       },
     },
   })
+})
+
+test('splitAndParseServiceAndDomainFiles', () => {
+  const allFiles = [
+    {
+      name: 'pr-1-test1',
+      content: '{"domain":"pr-1.sub.example.org","path":"/*","service":"test1"}',
+    },
+    {
+      name: 'pr-2-test1',
+      content: '{"domain":"pr-2.sub.example.org","path":"/*","service":"test1"}',
+    },
+    {
+      name: 'pr-3-test1',
+      content: '{"domain":"pr-3.sub.example.org","path":"/*","service":"test1"}',
+    },
+    {
+      name: 'pr-1-domain-test1',
+      content:
+        '{"domain":"sub.example.org","top-domain":"example.org","sub-domain":"sub","manged-zone":"example-org"}',
+    },
+    {
+      name: 'pr-2-domain-test1',
+      content:
+        '{"domain":"sub.example.org","top-domain":"example.org","sub-domain":"sub","manged-zone":"example-org"}',
+    },
+    {
+      name: 'pr-3-domain-test1',
+      content:
+        '{"domain":"sub.example.org","top-domain":"example.org","sub-domain":"sub","manged-zone":"example-org"}',
+    },
+  ]
+  const { serviceFiles, domainFiles } = splitAndParseServiceAndDomainFiles({
+    files: allFiles,
+    pullRequests: [1, 2],
+  })
+  expect(serviceFiles).toEqual([
+    {
+      name: 'pr-1-test1',
+      content: {
+        domain: 'pr-1.sub.example.org',
+        path: '/*',
+        service: 'test1',
+      },
+    },
+    {
+      name: 'pr-2-test1',
+      content: {
+        domain: 'pr-2.sub.example.org',
+        path: '/*',
+        service: 'test1',
+      },
+    },
+  ])
+  expect(domainFiles).toEqual([
+    {
+      name: 'pr-1-domain-test1',
+      content: {
+        domain: 'sub.example.org',
+        'top-domain': 'example.org',
+        'sub-domain': 'sub',
+        'manged-zone': 'example-org',
+      },
+    },
+    {
+      name: 'pr-2-domain-test1',
+      content: {
+        domain: 'sub.example.org',
+        'top-domain': 'example.org',
+        'sub-domain': 'sub',
+        'manged-zone': 'example-org',
+      },
+    },
+  ])
 })
