@@ -1,4 +1,11 @@
-import { join, makeObjectFromStringLiteral, split } from './util'
+import {
+  camelCase2kebabCase,
+  capitalize,
+  join,
+  kebabCase2camelCase,
+  makeObjectFromStringLiteral,
+  split,
+} from './util'
 
 import { assert, type Equals } from 'tsafe'
 
@@ -17,4 +24,26 @@ test('join is working in a typesafe way', () => {
   const joined = join<['a', 'a', 'a'], '.'>(['a', 'a', 'a'], '.')
   assert<Equals<typeof joined, 'a.a.a'>>()
   expect(joined).toBe('a.a.a')
+})
+
+test('capitalize', () => {
+  const capitalized = capitalize('apple')
+  assert<Equals<typeof capitalized, 'Apple'>>()
+  expect(capitalized).toBe('Apple')
+})
+
+test('kebabCase2camelCase', () => {
+  const kebabCase = 'first-second-third' as const
+  const camelCase = 'firstSecondThird' as const
+  const output = kebabCase2camelCase(kebabCase)
+  expect(output).toBe(camelCase)
+  assert<Equals<typeof output, typeof camelCase>>()
+})
+
+test('camelCase2kebabCase', () => {
+  const kebabCase = 'first-second-third' as const
+  const camelCase = 'firstSecondThird' as const
+  const output = camelCase2kebabCase(camelCase)
+  expect(output).toBe(kebabCase)
+  assert<Equals<typeof output, typeof kebabCase>>()
 })

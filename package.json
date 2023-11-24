@@ -4,7 +4,7 @@
   "description": "An opinionated set of tools for building TypeScript applications.",
   "scripts": {
     "build": "tsc",
-    "build-tools": "tsc -p build-tools",
+    "build-tools": "tsc -p build-tools && vite build ./infrastructure/build-scripts/",
     "postinstall": "npm run build"
   },
   "dependencies": {

@@ -81,7 +81,9 @@ export type JoinArray<
   STRINGS extends readonly string[],
   DELIMITER extends string,
   ACC extends string = '',
-> = STRINGS extends [infer L, ...infer R]
+> = STRINGS extends []
+  ? ''
+  : STRINGS extends [infer L, ...infer R]
   ? L extends string
     ? R['length'] extends 0
       ? `${ACC}${L & string}`
@@ -90,3 +92,38 @@ export type JoinArray<
       : never
     : ACC
   : never
+
+type CamelCaseSegments<
+  S extends string,
+  CurrentSegment extends string = '',
+  AccumulatedSegments extends readonly string[] = readonly [],
+> = S extends `${infer First}${infer Rest}`
+  ? First extends Uppercase<First>
+    ? CurrentSegment extends ''
+      ? CamelCaseSegments<Rest, First, AccumulatedSegments>
+      : CamelCaseSegments<Rest, First, readonly [...AccumulatedSegments, Lowercase<CurrentSegment>]>
+    : CamelCaseSegments<Rest, `${CurrentSegment}${First}`, AccumulatedSegments>
+  : CurrentSegment extends ''
+  ? AccumulatedSegments
+  : readonly [...AccumulatedSegments, Lowercase<CurrentSegment>]
+
+type CamelCaseArray<
+  SEGMENTS extends readonly string[],
+  Prev extends string = '',
+> = SEGMENTS extends readonly [infer First extends string, ...infer Rest extends readonly string[]]
+  ? CamelCaseArray<Rest, `${Prev extends '' ? Lowercase<First> : `${Prev}${Capitalize<First>}`}`>
+  : Prev
+
+export type ToCamelCase<S extends readonly string[]> = CamelCaseArray<S>
+
+export type ToKebabCase<S extends readonly string[]> = JoinArray<Mutable<S>, '-'>
+
+export type ToSnakeCase<S extends readonly string[]> = JoinArray<Mutable<S>, '_'>
+
+export type FromCamelCase<S extends string> = CamelCaseSegments<S>
+
+export type FromKebabCase<S extends string> = S extends '' ? readonly [] : Split<S, '-'>
+
+export type FromSnakeCase<S extends string> = S extends '' ? readonly [] : Split<S, '_'>
+
+export type Mutable<T> = { -readonly [K in keyof T]: T[K] }

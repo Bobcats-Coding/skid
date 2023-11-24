@@ -1,6 +1,9 @@
 import type {
   EntryTuple,
   FilterRecord,
+  FromCamelCase,
+  FromKebabCase,
+  FromSnakeCase,
   GetAllPaths,
   GetGuarded,
   GetKey,
@@ -10,13 +13,17 @@ import type {
   Guard,
   JoinArray,
   JsonType,
+  Mutable,
   ObjectWithStringLiteralKey,
   RecordToEntries,
   Split,
   SplitFilePath,
   SplitObjectPath,
   StringLiteral,
+  ToCamelCase,
+  ToKebabCase,
   TokenNonEmptyString,
+  ToSnakeCase,
 } from './type'
 
 import { assert } from 'tsafe'
@@ -136,6 +143,63 @@ test('GetValuesByPath<OBJECT, PATH>', () => {
 })
 
 test('JoinArray<STRINGS, DELIMITER>', () => {
+  type Empty = JoinArray<[], '.'>
+  assert<Equals<Empty, ''>>()
   type Joined = JoinArray<['a', 'b', 'c'], '.'>
   assert<Equals<Joined, 'a.b.c'>>()
+})
+
+test('FromCamelCase<STRING>', () => {
+  type Empty = FromCamelCase<''>
+  assert<Equals<Empty, readonly []>>()
+  type CamelCased = FromCamelCase<'camelCaseSegments'>
+  assert<Equals<CamelCased, readonly ['camel', 'case', 'segments']>>()
+  type CapitalCamelCased = FromCamelCase<'CamelCaseSegments'>
+  assert<Equals<CapitalCamelCased, readonly ['camel', 'case', 'segments']>>()
+})
+
+test('ToCamelCase<STRING[]>', () => {
+  type Empty = ToCamelCase<[]>
+  assert<Equals<Empty, ''>>()
+  type CamelCased = ToCamelCase<['camel', 'case', 'segments']>
+  assert<Equals<CamelCased, 'camelCaseSegments'>>()
+})
+
+test('FromKebabCase<STRING>', () => {
+  type Empty = FromKebabCase<''>
+  assert<Equals<Empty, readonly []>>()
+  type KebabCased = FromKebabCase<'kebab-case-segments'>
+  assert<Equals<KebabCased, readonly ['kebab', 'case', 'segments']>>()
+  type CapitalKebabCased = FromKebabCase<'Kebab-Case-Segments'>
+  assert<Equals<CapitalKebabCased, readonly ['Kebab', 'Case', 'Segments']>>()
+})
+
+test('ToKebabCase<STRING[]>', () => {
+  type Empty = ToKebabCase<[]>
+  assert<Equals<Empty, ''>>()
+  type KebabCased = ToKebabCase<['kebab', 'case', 'segments']>
+  assert<Equals<KebabCased, 'kebab-case-segments'>>()
+})
+
+test('FromSnakeCase<STRING>', () => {
+  type Empty = FromSnakeCase<''>
+  assert<Equals<Empty, readonly []>>()
+  type SnakeCased = FromSnakeCase<'snake_case_segments'>
+  assert<Equals<SnakeCased, readonly ['snake', 'case', 'segments']>>()
+  type UpperSnakeCased = FromSnakeCase<'SNAKE_CASE_SEGMENTS'>
+  assert<Equals<UpperSnakeCased, readonly ['SNAKE', 'CASE', 'SEGMENTS']>>()
+})
+
+test('ToSnakeCase<STRING[]>', () => {
+  type Empty = ToSnakeCase<[]>
+  assert<Equals<Empty, ''>>()
+  type SnakeCased = ToSnakeCase<['snake', 'case', 'segments']>
+  assert<Equals<SnakeCased, 'snake_case_segments'>>()
+})
+
+test('Mutable<TYPE>', () => {
+  type MutableObject = Mutable<{ readonly a: 1; readonly b: 2 }>
+  assert<Equals<MutableObject, { a: 1; b: 2 }>>()
+  type MutableArray = Mutable<readonly [1, 2]>
+  assert<Equals<MutableArray, [1, 2]>>()
 })
