@@ -7,6 +7,10 @@
     "build-tools": "tsc -p build-tools && vite build ./infrastructure/build-scripts/",
     "postinstall": "npm run build"
   },
+  "exports": {
+    "./*": "./*",
+    "./infrastructure/build-scripts/index.js": "./infrastructure/build-scripts/dist/index.mjs"
+  },
   "dependencies": {
     "@playwright/test": "^1.35.1",
     "@reduxjs/toolkit": "^1.9.1",
