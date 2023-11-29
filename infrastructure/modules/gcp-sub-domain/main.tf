@@ -1,5 +1,5 @@
 resource "google_dns_managed_zone" "sub-dns-zone" {
-  name = "${var.name}-sub-dns-zone-prod"
+  name = "${var.name}-sub-dns-zone-${terraform.workspace}"
   dns_name = "${var.sub-domain}.${var.top-domain}."
   description = var.description
   visibility = "public"
