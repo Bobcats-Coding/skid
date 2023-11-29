@@ -27,6 +27,7 @@ export const getFileContent = async ({
   bucketName,
   filePath,
 }: GetFileContentArgs): Promise<string> => {
+  console.log(`Getting file content from gs://${bucketName}/${filePath}`)
   const originalProject = (await $`gcloud config get-value project`.quiet()).stdout.trim()
   await $`gcloud config set project ${projectId}`.quiet()
   const bucketsOutput = await $`gsutil cat gs://${bucketName}/${filePath}`.quiet()
@@ -44,6 +45,7 @@ export const getAllFilesInBucket = async ({
   projectId,
   bucketName,
 }: ListFilesInBucketArgs): Promise<Array<{ name: string, content: string }>> => {
+  console.log(`Getting all files from gs://${bucketName}`)
   const files = await listFilesInBucket({ projectId, bucketName })
   const allFiles = await Promise.all(
     files.map(async (file) => {
