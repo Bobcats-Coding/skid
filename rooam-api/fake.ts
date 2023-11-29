@@ -9,7 +9,7 @@ export const createFakeRooamService = (): RooamService => ({
     message: 'Ok',
   }),
   openCheck: () => of({
-    id: 'fake-id',
+    id: '12345',
     status: 'accepted'
   }),
 })
