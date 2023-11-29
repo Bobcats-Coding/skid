@@ -3,6 +3,7 @@ import {
   kebabCase2camelCase,
   toCamelCase,
 } from '@bobcats-coding/skid/core/util'
+import { z } from 'zod'
 
 type DomainFileTerraform = {
   name: string
@@ -80,6 +81,13 @@ type ResourcePoolInput = {
   >
 }
 
+const serviceSchema = z.object({
+  domain: z.string().nonempty(),
+  path: z.string().nonempty(),
+  service: z.string().nonempty(),
+  domainKey: z.string().nonempty(),
+})
+
 export const getResourcePoolServicesAndDomains = ({
   serviceFiles,
   domainFiles,
@@ -95,20 +103,31 @@ export const getResourcePoolServicesAndDomains = ({
     {},
   )
 
-  const services = serviceFiles.reduce<GetResourcePoolServicesAndDomainsOutput['services']>(
-    (acc, { name, content }) => {
+  const services = serviceFiles
+    .map(({name, content}) => {
       const domainKey =
         Object.entries(domains).find(([, { domain }]) => {
           return content.domain.endsWith(domain)
         })?.[0] ?? ''
-      acc[name] = {
-        ...content,
-        domainKey,
+      return {
+        name,
+        content: {
+          ...content,
+          domainKey,
+        },
       }
-      return acc
-    },
-    {},
-  )
+    })
+    .filter(({ content }) => {
+      const result = serviceSchema.safeParse(content)
+      return result.success
+    })
+    .reduce<GetResourcePoolServicesAndDomainsOutput['services']>(
+      (acc, { name, content }) => {
+        acc[name] = content
+        return acc
+      },
+      {},
+    )
 
   return {
     services,

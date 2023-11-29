@@ -69,6 +69,81 @@ test('getResourcePoolServicesAndDomains', () => {
   })
 })
 
+test('getResourcePoolServicesAndDomains filter', () => {
+  const serviceFiles = [
+    {
+      name: 'test1',
+      content: {
+        domain: 'pr-1.sub.example.org',
+        path: '/*',
+        service: 'test1',
+      },
+    },
+    {
+      name: 'test2',
+      content: {
+        domain: 'pr-2.sub.example2.org',
+        path: '/*',
+        service: 'test2',
+      },
+    },
+    {
+      name: 'test3',
+      content: {
+        domain: 'pr-1.sub.example.org',
+        path: '/*',
+        service: '',
+      },
+    },
+    {
+      name: 'test4',
+      content: {
+        domain: '',
+        path: '/*',
+        service: 'test1',
+      },
+    },
+    {
+      name: 'test5',
+      content: {
+        domain: 'pr-1.sub.example.org',
+        path: '',
+        service: 'test1',
+      },
+    },
+  ]
+  const domainFiles = [
+    {
+      name: 'test1',
+      content: {
+        domain: 'sub.example.org',
+        topDomain: 'example.org',
+        subDomain: 'sub',
+        mangedZone: 'example-org',
+      },
+    },
+  ]
+  const { services, domains } = getResourcePoolServicesAndDomains({ serviceFiles, domainFiles })
+  expect(services).toEqual({
+    test1: {
+      domain: 'pr-1.sub.example.org',
+      path: '/*',
+      service: 'test1',
+      domainKey: 'subExampleOrg',
+    },
+  })
+  expect(domains).toEqual({
+    subExampleOrg: {
+      domain: 'sub.example.org',
+      topDomain: 'example.org',
+      subDomain: 'sub',
+      mangedZone: 'example-org',
+    },
+  })
+})
+
+
+
 test('terraformDomainFileToTS', () => {
   const domainFile = {
     name: 'test1',
