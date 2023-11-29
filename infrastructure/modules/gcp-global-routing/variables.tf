@@ -16,7 +16,7 @@ variable "domains-to-certify" {
 variable "cloud-run-services" {
   description = "A list of Cloud Run services with their subdomains and paths"
   type = map(object({
-    service-url = string
+    service = string
     domain      = string
     path        = string
     domain-key  = string

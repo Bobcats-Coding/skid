@@ -10,7 +10,7 @@ locals {
     k => {
       domain = v.domain
       managed-zone = module.sub-domain[v.domain-key].sub-dns-zone-name
-      service = v.service-url
+      service = v.service
       path = v.path
     }
   }
