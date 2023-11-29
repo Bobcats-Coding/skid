@@ -30,7 +30,7 @@ variable "secrets" {
   description = "Secrets"
 }
 
-variable "resource-pool" {
+variable "resource-pool-bucket" {
   type = string
   description = "Resource pool bucket name"
 }
