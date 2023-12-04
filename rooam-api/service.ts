@@ -53,6 +53,7 @@ export const createRooamService = (
           return {
             id: response.request_id,
             status: response.status,
+            orderNumber: checkParams.name,
           }
         }),
       )
