@@ -43,7 +43,7 @@ describe('RooamApiClient', () => {
           n: {
             id: 'fake-check-id',
             status: 'accepted',
-            orderNumber: 'check-name'
+            orderNumber: 'check-name',
           },
         })
       }),

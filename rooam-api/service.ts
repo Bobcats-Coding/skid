@@ -9,7 +9,6 @@ export const createRooamService = (
 ): RooamService => {
   return {
     openCheck: (config, checkParams) => {
-      console.log(checkParams)
       return rooamAPIClient(
         createOpenCheckRequest({
           ...baseParams,
