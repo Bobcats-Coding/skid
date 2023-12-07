@@ -1,4 +1,4 @@
-import { $ } from 'zx'
+import { Storage } from '@google-cloud/storage'
 
 type ListFilesInBucketArgs = {
   projectId: string
@@ -9,11 +9,14 @@ export const listFilesInBucket = async ({
   projectId,
   bucketName,
 }: ListFilesInBucketArgs): Promise<string[]> => {
-  const originalProject = (await $`gcloud config get-value project`.quiet()).stdout.trim()
-  await $`gcloud config set project ${projectId}`.quiet()
-  const bucketsOutput = await $`gsutil ls gs://${bucketName}`.quiet()
-  await $`gcloud config set project ${originalProject}`.quiet()
-  return bucketsOutput.stdout.trim().split('\n')
+  const storage = new Storage({ projectId })
+  try {
+    const [files] = await storage.bucket(bucketName).getFiles()
+    return files.map((file) => file.name)
+  } catch (error) {
+    console.error('Error fetching files:', error)
+    return []
+  }
 }
 
 type GetFileContentArgs = {
@@ -28,28 +31,25 @@ export const getFileContent = async ({
   filePath,
 }: GetFileContentArgs): Promise<string> => {
   console.log(`Getting file content from gs://${bucketName}/${filePath}`)
-  const originalProject = (await $`gcloud config get-value project`.quiet()).stdout.trim()
-  await $`gcloud config set project ${projectId}`.quiet()
-  const bucketsOutput = await $`gsutil cat gs://${bucketName}/${filePath}`.quiet()
-  await $`gcloud config set project ${originalProject}`.quiet()
-  return bucketsOutput.stdout.trim()
-}
-
-export const getFilePath = (url: string): string => {
-  const pattern = /^gs:\/\/[^/]+\/(.+)$/
-  const match = url.match(pattern)
-  return match !== null ? match[1] ?? '' : ''
+  try {
+    const storage = new Storage({ projectId })
+    const file = storage.bucket(bucketName).file(filePath)
+    const contents = await file.download()
+    return contents.toString()
+  } catch (error) {
+    console.error('Error fetching file content:', error)
+    return ''
+  }
 }
 
 export const getAllFilesInBucket = async ({
   projectId,
   bucketName,
-}: ListFilesInBucketArgs): Promise<Array<{ name: string, content: string }>> => {
+}: ListFilesInBucketArgs): Promise<Array<{ name: string; content: string }>> => {
   console.log(`Getting all files from gs://${bucketName}`)
   const files = await listFilesInBucket({ projectId, bucketName })
   const allFiles = await Promise.all(
-    files.map(async (file) => {
-      const filePath = getFilePath(file)
+    files.map(async (filePath) => {
       const content = await getFileContent({ projectId, bucketName, filePath })
       return {
         name: filePath,

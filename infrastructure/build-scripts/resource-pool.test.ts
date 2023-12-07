@@ -142,8 +142,6 @@ test('getResourcePoolServicesAndDomains filter', () => {
   })
 })
 
-
-
 test('terraformDomainFileToTS', () => {
   const domainFile = {
     name: 'test1',

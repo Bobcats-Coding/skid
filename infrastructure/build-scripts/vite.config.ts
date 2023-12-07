@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: () => `index.mjs`,
     },
     rollupOptions: {
-      external: ['zx'],
+      external: ['zx', '@google-cloud/storage'],
     },
   },
 })
