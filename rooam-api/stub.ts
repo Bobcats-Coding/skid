@@ -22,6 +22,7 @@ const FAKE_CHECK_STATUS = {
 } as const
 
 const OPEN_CHECK_BODY: OpenCheckRequest['body'] = {
+  check_name: 'check-name',
   items: [
     {
       menu_item_id: 'item-id-123',

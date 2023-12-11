@@ -13,5 +13,6 @@ export const createFakeRooamService = (): RooamService => ({
     of({
       id: '12345',
       status: 'accepted',
+      orderNumber: '12-345',
     }),
 })

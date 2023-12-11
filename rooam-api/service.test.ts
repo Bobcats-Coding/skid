@@ -23,6 +23,7 @@ describe('RooamApiClient', () => {
               idempotencyKey: 'random-string',
             },
             {
+              name: 'check-name',
               items: [
                 {
                   productId: 'item-id-123',
@@ -42,6 +43,7 @@ describe('RooamApiClient', () => {
           n: {
             id: 'fake-check-id',
             status: 'accepted',
+            orderNumber: 'check-name'
           },
         })
       }),
