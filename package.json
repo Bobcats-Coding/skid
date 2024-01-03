@@ -9,6 +9,7 @@
   },
   "exports": {
     "./*": "./*",
+    "./test/*": "./test/*.ts",
     "./infrastructure/build-scripts/index.js": "./infrastructure/build-scripts/dist/index.mjs"
   },
   "dependencies": {
