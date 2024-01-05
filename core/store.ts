@@ -2,7 +2,7 @@ import type { CoreEffectFunction } from './effect'
 import { type ObjectWithStringLiteralKey } from './type'
 
 import { configureStore, createSlice } from '@reduxjs/toolkit'
-import type { SliceCaseReducers } from '@reduxjs/toolkit'
+import type { CreateSliceOptions } from '@reduxjs/toolkit'
 import { Observable, Subject } from 'rxjs'
 import { mergeAll } from 'rxjs/operators'
 
@@ -152,7 +152,7 @@ export const createCoreStoreSlice = <
   const { name, reducer, actions } = createSlice({
     name: config.name,
     initialState: config.initialState,
-    reducers: config.reducers as SliceCaseReducers<STATE>,
+    reducers: config.reducers as CreateSliceOptions['reducers'],
   })
   const actionEntries = Object.entries(actions)
   const eventCreators = Object.fromEntries(
