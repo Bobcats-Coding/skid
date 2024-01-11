@@ -23,7 +23,7 @@ export const nodeProcessRunner = ({
   const container = new GenericContainer('node')
     .withWorkingDir('/opt/app')
     .withEnvironment(environment)
-    .withBindMounts([
+    .withCopyDirectoriesToContainer([
       {
         source: path,
         target: '/opt/app/',
@@ -33,7 +33,7 @@ export const nodeProcessRunner = ({
       container: port,
       host: port,
     })
-    .withCommand(args)
+    .withEntrypoint(args)
     .withLogConsumer((stream) => {
       stream.on('data', (line) => {
         console.log(line)
