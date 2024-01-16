@@ -1,19 +1,20 @@
 import type { FeatureFlipperConfiguration } from './type'
-import { createEnvVarRawKeyValueStore } from '../key-value-stores/raw-stores/env-var'
+import type { WriteableRawKeyValueStore } from '../key-value-stores/type'
 
-export type FeatureFlipperService<ENV_VARS> = {
-  isEnabled: (name: ENV_VARS) => boolean
+export type FeatureFlipperService<NAME> = {
+  isEnabled: (name: NAME) => boolean
 }
 
-export const createFeatureFlipperService = <const T extends readonly FeatureFlipperConfiguration[]>(featureFlippers: T): FeatureFlipperService<T[number]['name']> => {
+export const createFeatureFlipperService = <
+  const T extends readonly FeatureFlipperConfiguration[]
+>(featureFlippers: T, store: WriteableRawKeyValueStore<string | undefined>): FeatureFlipperService<T[number]['name']> => {
 
-  const isEnabled = (envVar: string): boolean => {
-    const formattedEnvVar = `FF_${envVar.toUpperCase()}`
-    const store = createEnvVarRawKeyValueStore()
-    const processEnv = store.get(formattedEnvVar)
+  const isEnabled = (name: string): boolean => {
+    const formattedName = `FF_${name.toUpperCase()}`
+    const processEnv = store.get(formattedName)
     return processEnv !== undefined
       ? processEnv === 'true'
-      : featureFlippers.find(ff => ff.name === envVar)?.value ?? false
+      : featureFlippers.find(ff => ff.name === name)?.value ?? false
   }
 
   return {

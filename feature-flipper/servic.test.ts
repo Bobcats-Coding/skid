@@ -1,17 +1,22 @@
-import { createEnvVarRawKeyValueStore } from '../key-value-stores/raw-stores/env-var'
+import { createMemoryRawKeyValueStore } from '../key-value-stores/raw-stores/memory'
 import { createFeatureFlipperService } from './service'
 
 test('it should return the enabled status', async () => {
-  const { isEnabled }  = createFeatureFlipperService(FEATURE_FLIPPER_CONFIG_TEST)
+  const { isEnabled } = createIsEnabled()
   expect(isEnabled('twilio')).toEqual(true)
 })
 
 test('the enabled status of a feature is overriden by the belonging environment variable', async () => {
-  const store = createEnvVarRawKeyValueStore()
+  const { isEnabled, store } = createIsEnabled()
   store.set('FF_TWILIO', 'false')
-  const { isEnabled }  = createFeatureFlipperService(FEATURE_FLIPPER_CONFIG_TEST)
   expect(isEnabled('twilio')).toEqual(false)
 })
+
+const createIsEnabled = () => {
+  const store = createMemoryRawKeyValueStore<string | undefined>()
+  const { isEnabled } = createFeatureFlipperService(FEATURE_FLIPPER_CONFIG_TEST, store)
+  return { isEnabled, store }
+}
 
 export const FEATURE_FLIPPER_CONFIG_TEST = [
   { name: 'twilio', value: true },
