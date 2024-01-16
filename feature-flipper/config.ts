@@ -1,4 +1,4 @@
 export const FEATURE_FLIPPER_CONFIG = [
-  { name: 'twilio', value: false },
+  { name: 'twilio', value: true },
   { name: 'rooam', value: true },
 ] as const
