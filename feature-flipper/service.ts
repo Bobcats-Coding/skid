@@ -11,9 +11,9 @@ export const createFeatureFlipperService = <
 
   const isEnabled = (name: string): boolean => {
     const formattedName = `FF_${name.toUpperCase()}`
-    const processEnv = store.get(formattedName)
-    return processEnv !== undefined
-      ? processEnv === 'true'
+    const envVar = store.get(formattedName)
+    return envVar !== undefined
+      ? envVar === 'true'
       : featureFlippers.find(ff => ff.name === name)?.value ?? false
   }
 
