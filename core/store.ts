@@ -1,7 +1,15 @@
 import type { CoreEffectFunction } from './effect'
 import { type ObjectWithStringLiteralKey } from './type'
 
-import { type CreateSliceOptions, combineReducers, configureStore, createSlice, type StateFromReducersMapObject, type ActionFromReducer, type ReducerFromReducersMapObject } from '@reduxjs/toolkit'
+import {
+  type ActionFromReducer,
+  combineReducers,
+  configureStore,
+  createSlice,
+  type CreateSliceOptions,
+  type ReducerFromReducersMapObject,
+  type StateFromReducersMapObject,
+} from '@reduxjs/toolkit'
 import { Observable, Subject } from 'rxjs'
 import { mergeAll } from 'rxjs/operators'
 
@@ -125,14 +133,14 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
   reducer: CoreReducersObject<STATE, EVENT>,
 ): CoreStore<STATE, EVENT> & CoreStoreImportExport<STATE> => {
   const combinedReducer = combineReducers(reducer)
-  const reducerWithImport = (
-    state:  STATE | undefined,
-    event: EVENT,
-  ): STATE => {
+  const reducerWithImport = (state: STATE | undefined, event: EVENT): STATE => {
     if (event.type === 'IMPORT') {
       return event.payload
     } else {
-      return combinedReducer(state as StateFromReducersMapObject<CoreReducersObject<STATE, EVENT>>, event as ActionFromReducer<ReducerFromReducersMapObject<CoreReducersObject<STATE, EVENT>>>) as STATE
+      return combinedReducer(
+        state as StateFromReducersMapObject<CoreReducersObject<STATE, EVENT>>,
+        event as ActionFromReducer<ReducerFromReducersMapObject<CoreReducersObject<STATE, EVENT>>>,
+      ) as STATE
     }
   }
   const store = configureStore({ reducer: reducerWithImport })
