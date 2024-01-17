@@ -15,7 +15,7 @@ export const createFeatureFlipperService = <const T extends readonly FeatureFlip
 
     const envVarProcess = store.get(formattedNameProcessEnv)
     const envVarImportMeta = store.get(formattedNameImportMetaEnv)
-    const envVar = envVarProcess !== undefined ? envVarProcess : envVarImportMeta
+    const envVar = envVarProcess ?? envVarImportMeta
 
     return envVar !== undefined
       ? envVar === 'true'
