@@ -10,7 +10,6 @@ export const createProcessEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore
 }
 
 export const createImportMetaEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore<string | undefined> => {
-  console.log(import.meta.env)
   return {
     get: (key) => import.meta.env[key],
     set: (key, value) => {
