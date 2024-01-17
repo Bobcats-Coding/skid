@@ -15,11 +15,13 @@ test('the enabled status of a feature is overriden by the belonging environment 
 })
 
 type FfStore = {
-  isEnabled: FeatureFlipperService<typeof FEATURE_FLIPPER_CONFIG_TEST[number]['name']>['isEnabled']
+  isEnabled: FeatureFlipperService<
+    (typeof FEATURE_FLIPPER_CONFIG_TEST)[number]['name']
+  >['isEnabled']
   store: WriteableRawKeyValueStore<string | undefined>
 }
 
-const createFfStore = () : FfStore => {
+const createFfStore = (): FfStore => {
   const store = createMemoryRawKeyValueStore<string | undefined>()
   const { isEnabled } = createFeatureFlipperService(FEATURE_FLIPPER_CONFIG_TEST, store)
   return { isEnabled, store }
