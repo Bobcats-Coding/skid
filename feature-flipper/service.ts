@@ -10,8 +10,13 @@ export const createFeatureFlipperService = <const T extends readonly FeatureFlip
   store: WriteableRawKeyValueStore<string | undefined>,
 ): FeatureFlipperService<T[number]['name']> => {
   const isEnabled = (name: string): boolean => {
-    const formattedName = `FF_${name.toUpperCase()}`
-    const envVar = store.get(formattedName)
+    const formattedNameProcessEnv = `FF_${name.toUpperCase()}`
+    const formattedNameImportMetaEnv = `PUBLIC_FF_${name.toUpperCase()}`
+
+    const envVarProcess = store.get(formattedNameProcessEnv)
+    const envVarImportMeta = store.get(formattedNameImportMetaEnv)
+    const envVar = envVarProcess !== undefined ? envVarProcess : envVarImportMeta
+
     return envVar !== undefined
       ? envVar === 'true'
       : featureFlippers.find((ff) => ff.name === name)?.value ?? false
