@@ -4,7 +4,7 @@
     "paths": {
       "@bobcats-coding/skid/*": ["./*"]
     },
-    "module": "ES2022",
+    "module": "ES2022"
   },
   "exclude": ["infrastructure"]
 }

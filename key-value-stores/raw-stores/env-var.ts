@@ -1,6 +1,8 @@
 import type { ReadableRawKeyValueStore, WriteableRawKeyValueStore } from '../type'
 
-export const createProcessEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore<string | undefined> => {
+export const createProcessEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore<
+  string | undefined
+> => {
   return {
     get: (key) => process.env[key],
     set: (key, value) => {
