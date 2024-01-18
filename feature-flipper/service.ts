@@ -1,4 +1,4 @@
-import type { WriteableRawKeyValueStore } from '../key-value-stores/type'
+import type { ReadableRawKeyValueStore } from '../key-value-stores/type'
 import type { FeatureFlipperConfiguration } from './type'
 
 export type FeatureFlipperService<NAME> = {
@@ -7,7 +7,7 @@ export type FeatureFlipperService<NAME> = {
 
 export const createFeatureFlipperService = <const T extends readonly FeatureFlipperConfiguration[]>(
   featureFlippers: T,
-  store: WriteableRawKeyValueStore<string | undefined>,
+  store: ReadableRawKeyValueStore<string | undefined>,
 ): FeatureFlipperService<T[number]['name']> => {
   const isEnabled = (name: string): boolean => {
     const formattedNameProcessEnv = `FF_${name.toUpperCase()}`

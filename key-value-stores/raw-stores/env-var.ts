@@ -1,4 +1,4 @@
-import type { WriteableRawKeyValueStore } from '../type'
+import type { ReadableRawKeyValueStore, WriteableRawKeyValueStore } from '../type'
 
 export const createProcessEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore<string | undefined> => {
   return {
@@ -9,11 +9,12 @@ export const createProcessEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore
   }
 }
 
-export const createImportMetaEnvVarRawKeyValueStore = (): WriteableRawKeyValueStore<string | undefined> => {
+export const createImportMetaEnvVarRawKeyValueStore = (): ReadableRawKeyValueStore<
+  string | undefined
+> => {
   return {
-    get: (key) => import.meta.env[key],
-    set: (key, value) => {
-      import.meta.env[key] = value
+    get: (key) => {
+      return import.meta.env[key]
     },
   }
 }
