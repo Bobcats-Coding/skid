@@ -19,6 +19,8 @@ export const createInternalServicesHook = <
 ): InternalServicesHook<INTERNAL_SERVICES, APPLICATIONS> => {
   const serverServicesByKey = new Map<keyof APPLICATIONS, INTERNAL_SERVICES>()
 
+  const currentServicesByKey = new Map<keyof APPLICATIONS, INTERNAL_SERVICES>()
+
   type UseInternalServicesReturnType<SERVICE_NAME extends keyof INTERNAL_SERVICES> =
     SERVICE_NAME extends undefined ? INTERNAL_SERVICES : INTERNAL_SERVICES[SERVICE_NAME]
 
@@ -39,7 +41,13 @@ export const createInternalServicesHook = <
     if (application === undefined) {
       throw new Error(`Internal services are not set for "${key as string}"`)
     }
-    const internalServices: INTERNAL_SERVICES = application().getInternalServices()
+    if (!currentServicesByKey.has(key)) {
+      currentServicesByKey.set(key, application().getInternalServices())
+    }
+    const internalServices: INTERNAL_SERVICES | undefined = currentServicesByKey.get(key)
+    if (internalServices === undefined) {
+      throw new Error('Internal services were unable to generate')
+    }
     if (service === undefined) {
       return internalServices as UseInternalServicesReturnType<SERVICE_NAME>
     }
