@@ -45,7 +45,7 @@ export const nodeProcessRunner = ({
         console.log(`Container closed: ${path} ${args.join(' ')}}`)
       })
     })
-    .withWaitStrategy(Wait.forListeningPorts())
+    .withWaitStrategy(Wait.forListeningPorts().withStartupTimeout(300_000))
 
   return {
     start: async () => {
