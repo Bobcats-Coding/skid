@@ -2,9 +2,9 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@bobcats-coding/skid/*": ["./*"]
+      "@bobcats-coding/skid/*": ["./*"],
     },
-    "module": "ES2022"
+    "module": "ES2022",
   },
-  "exclude": ["infrastructure"]
+  "exclude": ["infrastructure"],
 }

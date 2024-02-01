@@ -54,13 +54,10 @@ export type CoreEvent<TYPE extends string = any, PAYLOAD = any> = {
   payload: PAYLOAD
 }
 
-export type NamespacedState<SLICE extends CoreStoreSlice> = SLICE extends CoreStoreSlice<
-  infer STATE,
-  any,
-  infer NAMESPACE
->
-  ? ObjectWithStringLiteralKey<NAMESPACE, STATE>
-  : never
+export type NamespacedState<SLICE extends CoreStoreSlice> =
+  SLICE extends CoreStoreSlice<infer STATE, any, infer NAMESPACE>
+    ? ObjectWithStringLiteralKey<NAMESPACE, STATE>
+    : never
 
 export type NamespacedStoreEvent<
   NAMESPACE extends string,
@@ -94,19 +91,17 @@ export type StoreEventCreator<EVENT extends CoreEvent> = EVENT extends {
     : (payload: PAYLOAD) => CoreEvent<TYPE, PAYLOAD>
   : never
 
-export type StoreEventCreators<
-  STATE,
-  CASE_REDUCERS extends CoreCaseReducersObject<STATE>,
-> = CASE_REDUCERS extends Record<infer K extends string, CoreCaseReducer<STATE, CoreEvent>>
-  ? {
-      [KEY in K as `create${Capitalize<KEY>}`]: CASE_REDUCERS[KEY] extends (
-        state: any,
-        event: infer EVENT extends CoreEvent,
-      ) => any
-        ? StoreEventCreator<EVENT>
-        : StoreEventCreator<CoreEvent>
-    }
-  : never
+export type StoreEventCreators<STATE, CASE_REDUCERS extends CoreCaseReducersObject<STATE>> =
+  CASE_REDUCERS extends Record<infer K extends string, CoreCaseReducer<STATE, CoreEvent>>
+    ? {
+        [KEY in K as `create${Capitalize<KEY>}`]: CASE_REDUCERS[KEY] extends (
+          state: any,
+          event: infer EVENT extends CoreEvent,
+        ) => any
+          ? StoreEventCreator<EVENT>
+          : StoreEventCreator<CoreEvent>
+      }
+    : never
 
 export type CoreStoreSlice<
   STATE = any,

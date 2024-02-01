@@ -4,16 +4,14 @@ import deepEqual from 'deep-equal'
 import { delay, mergeMap, of, throwError, timer } from 'rxjs'
 import type { Observable } from 'rxjs'
 
-export type StubEndpoint<API extends RestEndpoint> = API extends RestEndpoint<
-  infer Request,
-  infer Response
->
-  ? {
-      request: Request
-      response: Response
-      delay?: number
-    }
-  : never
+export type StubEndpoint<API extends RestEndpoint> =
+  API extends RestEndpoint<infer Request, infer Response>
+    ? {
+        request: Request
+        response: Response
+        delay?: number
+      }
+    : never
 
 export const createStubRestClient =
   <API extends RestEndpoint, ENDPOINTS extends ReadonlyArray<StubEndpoint<API>>>(

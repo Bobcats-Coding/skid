@@ -21,10 +21,8 @@ export type RecordToEntries<
   KEY = keyof RECORD,
 > = KEY extends string ? (KEY extends keyof RECORD ? EntryTuple<KEY, RECORD[KEY]> : never) : never
 
-export type GetValueByKey<
-  ENTRIES extends EntryTuple,
-  KEY extends string,
-> = ENTRIES extends EntryTuple<KEY, infer ENTRY> ? ENTRY : never
+export type GetValueByKey<ENTRIES extends EntryTuple, KEY extends string> =
+  ENTRIES extends EntryTuple<KEY, infer ENTRY> ? ENTRY : never
 
 export type GetKey<ENTRIES extends EntryTuple> = ENTRIES[0]
 
@@ -72,10 +70,10 @@ type PathsHelper<OBJECT, PATH extends string, ACC extends string> =
 export type GetValueByPath<OBJECT, PATH extends string> = PATH extends keyof OBJECT
   ? OBJECT[PATH]
   : PATH extends `${infer K}.${infer Rest}`
-  ? K extends keyof OBJECT
-    ? GetValueByPath<OBJECT[K], Rest & string>
+    ? K extends keyof OBJECT
+      ? GetValueByPath<OBJECT[K], Rest & string>
+      : never
     : never
-  : never
 
 export type JoinArray<
   STRINGS extends readonly string[],
@@ -84,14 +82,14 @@ export type JoinArray<
 > = STRINGS extends []
   ? ''
   : STRINGS extends [infer L, ...infer R]
-  ? L extends string
-    ? R['length'] extends 0
-      ? `${ACC}${L & string}`
-      : R extends string[]
-      ? JoinArray<R, DELIMITER, `${ACC}${L}${DELIMITER}`>
-      : never
-    : ACC
-  : never
+    ? L extends string
+      ? R['length'] extends 0
+        ? `${ACC}${L & string}`
+        : R extends string[]
+          ? JoinArray<R, DELIMITER, `${ACC}${L}${DELIMITER}`>
+          : never
+      : ACC
+    : never
 
 type CamelCaseSegments<
   S extends string,
@@ -104,8 +102,8 @@ type CamelCaseSegments<
       : CamelCaseSegments<Rest, First, readonly [...AccumulatedSegments, Lowercase<CurrentSegment>]>
     : CamelCaseSegments<Rest, `${CurrentSegment}${First}`, AccumulatedSegments>
   : CurrentSegment extends ''
-  ? AccumulatedSegments
-  : readonly [...AccumulatedSegments, Lowercase<CurrentSegment>]
+    ? AccumulatedSegments
+    : readonly [...AccumulatedSegments, Lowercase<CurrentSegment>]
 
 type CamelCaseArray<
   SEGMENTS extends readonly string[],

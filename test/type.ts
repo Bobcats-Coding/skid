@@ -29,18 +29,11 @@ export type TestEnviornmentConfig = Record<string, ServiceConfig>
 
 export type GetInstance<CONFIG extends ServiceConfig> = ReturnType<CONFIG['creator']>
 
-export type GetInstanceEntry<CONFIG extends ConfigEntry> = CONFIG extends ConfigEntry<
-  infer N,
-  infer C
->
-  ? InstanceEntry<N, GetInstance<C>>
-  : never
+export type GetInstanceEntry<CONFIG extends ConfigEntry> =
+  CONFIG extends ConfigEntry<infer N, infer C> ? InstanceEntry<N, GetInstance<C>> : never
 
-export type GetContext<INTERACTOR extends Interactor | Runner> = INTERACTOR extends Interactor<
-  infer CONTEXT
->
-  ? CONTEXT
-  : never
+export type GetContext<INTERACTOR extends Interactor | Runner> =
+  INTERACTOR extends Interactor<infer CONTEXT> ? CONTEXT : never
 
 export type ReportEntry =
   | {

@@ -35,12 +35,8 @@ export type RestEndpoint<REQUEST extends RestEndpointRequest = any, RESPONSE = a
   response: RESPONSE
 }
 
-export type GetResponseType<API, REQUEST extends RestEndpointRequest> = API extends RestEndpoint<
-  REQUEST,
-  infer RESPONSE
->
-  ? RESPONSE
-  : never
+export type GetResponseType<API, REQUEST extends RestEndpointRequest> =
+  API extends RestEndpoint<REQUEST, infer RESPONSE> ? RESPONSE : never
 
 export type GetRequestType<API> = API extends RestEndpoint<infer REQUEST, any> ? REQUEST : never
 
@@ -49,9 +45,8 @@ export type Fetcher<PARSED_TYPE = any> = (
   request: FetcherConfigArg,
 ) => Promise<PARSED_TYPE>
 
-type GetParsedType<FETCHER extends Fetcher> = FETCHER extends Fetcher<infer PARSED_TYPE>
-  ? PARSED_TYPE
-  : never
+type GetParsedType<FETCHER extends Fetcher> =
+  FETCHER extends Fetcher<infer PARSED_TYPE> ? PARSED_TYPE : never
 
 export const createRestClientCreator =
   <FETCHER extends Fetcher>(fetcher: FETCHER) =>

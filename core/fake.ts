@@ -85,10 +85,10 @@ type FakeWithThrowingMethods<FAKE extends object, FAKE_CONFIGS extends FakeConfi
     ? FAKE[KEY] extends (...args: any[]) => Observable<any>
       ? ThrowingObservable
       : FAKE[KEY] extends (...args: any[]) => Promise<any>
-      ? ThrowingAsync
-      : FAKE[KEY] extends (...args: any[]) => any
-      ? ThrowingSync
-      : FAKE[KEY]
+        ? ThrowingAsync
+        : FAKE[KEY] extends (...args: any[]) => any
+          ? ThrowingSync
+          : FAKE[KEY]
     : FAKE[KEY]
 }
 
@@ -96,10 +96,10 @@ type ThrowingMethods<FAKE extends object> = {
   [KEY in keyof FakeConfigs<FAKE>]: FAKE[KEY] extends (...args: any[]) => Observable<any>
     ? ThrowingObservable
     : FAKE[KEY] extends (...args: any[]) => Promise<any>
-    ? ThrowingAsync
-    : FAKE[KEY] extends (...args: any[]) => any
-    ? ThrowingSync
-    : FAKE[KEY]
+      ? ThrowingAsync
+      : FAKE[KEY] extends (...args: any[]) => any
+        ? ThrowingSync
+        : FAKE[KEY]
 }
 
 type ThrowingSync = (...args: any[]) => never
