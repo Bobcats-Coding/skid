@@ -1,6 +1,8 @@
 import type { FilterRecord, GetKey, GetValue, RecordToEntries } from '../core/type'
 import type {
   DefaultConfig,
+  GetContext,
+  GetInstance,
   GetInstanceEntry,
   InteractorConfig,
   InteractorInstance,
