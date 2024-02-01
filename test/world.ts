@@ -52,7 +52,10 @@ export const createWorld = <SERVICES extends Record<string, ServiceConfig>>(
       if (isInteractorConfig(service)) {
         const instance = service.creator(...arg)
         await instance.start()
-        interactorContexts.set(name, (await instance.startContext()).context)
+        const context: GetContext<GetInstance<GetValue<Interactors>>> = (
+          await instance.startContext()
+        ).context
+        interactorContexts.set(name, context)
         state.interactors.set(name, {
           instance,
           ...('hook' in service ? { hook: service.hook } : {}),

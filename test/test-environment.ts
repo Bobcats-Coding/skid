@@ -125,7 +125,13 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
         await instance.start()
       })
       const reportEntries = await mapInteractors(async ({ name, instance }) => {
-        const { context, reportEntry$ } = await instance.startContext()
+        const {
+          context,
+          reportEntry$,
+        }: {
+          context: GetContext<GetInstance<GetValue<Interactor>>>
+          reportEntry$: Observable<ReportEntry>
+        } = await instance.startContext()
         world.register(name, context)
         return reportEntry$.pipe(
           map(({ entry, type }) =>
