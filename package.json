@@ -1,6 +1,6 @@
 {
   "name": "@bobcats-coding/skid",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "An opinionated set of tools for building TypeScript applications.",
   "scripts": {
     "build": "tsc",
@@ -38,6 +38,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/koa": "^2.14.0",
     "allure-cucumberjs": "^2.12.0",
     "typescript": "5.3.3"
   },
