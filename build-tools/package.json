@@ -1,12 +1,7 @@
 {
-  "name": "@bobcats-coding/skid",
+  "name": "@bobcats-coding/skid-build-tools",
   "version": "0.9.5",
   "description": "An opinionated set of tools for building TypeScript applications.",
-  "scripts": {
-    "build": "tsc",
-    "build-tools": "tsc -p build-tools && vite build ./infrastructure/build-scripts/",
-    "postinstall": "npm run build"
-  },
   "dependencies": {
     "@playwright/test": "^1.41.1",
     "@reduxjs/toolkit": "^2.1.0",
