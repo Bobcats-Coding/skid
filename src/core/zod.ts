@@ -1,7 +1,14 @@
 import type { GetAllPaths, GetGuarded, GetValueByPath, Guard } from './type'
 import { join, split } from './util'
 
-import { z, type ZodObject, type ZodRawShape, type ZodSchema } from 'zod'
+import {
+  z,
+  type ZodObject,
+  type ZodRawShape,
+  type ZodSchema,
+  type ZodType,
+  type ZodTypeDef,
+} from 'zod'
 
 export type GetSchemaType<SCHEMA = ZodSchema> = SCHEMA extends ZodSchema<infer TYPE> ? TYPE : never
 
@@ -39,5 +46,8 @@ const _getSchemaByObjectPathHelper = (schema: ZodSchema<any>, path: string): Zod
   if (subschema === undefined) {
     throw new Error('Path does not exist in schema')
   }
-  return _getSchemaByObjectPathHelper(subschema, join<typeof restPath, '.'>(restPath, '.'))
+  return _getSchemaByObjectPathHelper(
+    subschema as ZodType<any, ZodTypeDef, any>,
+    join<typeof restPath, '.'>(restPath, '.'),
+  )
 }

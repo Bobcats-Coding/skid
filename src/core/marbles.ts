@@ -25,7 +25,7 @@ class ExtendedExpect<T> extends Expect<T> {
   }
 
   toBeObservableBoolean(marble: string): void {
-    this.toBeObservable(marble, MARBLES_BOOLEAN as any)
+    this.toBeObservable(marble, MARBLES_BOOLEAN as unknown as Record<string, T>)
   }
 }
 
@@ -46,7 +46,7 @@ export const coreMarbles =
       // potentially not future proof
       const expect = <T = any>(actual: Observable<T>, subscription?: string): ExtendedExpect<T> => {
         const { helpers_ } = m as any
-        return new ExtendedExpect(actual as any, helpers_, subscription)
+        return new ExtendedExpect(actual, helpers_ as ExpectHelpers, subscription)
       }
 
       // The methods on `m` (the RunContext) are on the prototype, so we have to bind the original
@@ -71,7 +71,7 @@ export const coreMarbles =
           teardown: m.teardown.bind(m),
           time: m.time.bind(m),
         },
-        ...args,
+        ...(args as Parameters<Runner>),
       )
     })()
 

@@ -107,12 +107,12 @@ type ThrowingAsync = (...args: any[]) => Promise<never>
 type ThrowingObservable = (...args: any[]) => Observable<never>
 
 export const addErrorMethodsToFake =
-  <T extends object>(originalFake: (...args: any[]) => T) =>
+  <T extends object, ARGS extends any[]>(originalFake: (...args: ARGS) => T) =>
   (
     configs: FakeConfigs<T> = {} as FakeConfigs<T>,
     ...restArgs: any[]
   ): FakeWithThrowingMethods<T, typeof configs> => {
-    const fake = originalFake(...restArgs)
+    const fake = originalFake(...(restArgs as ARGS))
     const throwingMethods = generateThrowingMethods<T>(configs)
     // It is a valid cast to more specific tpye
     // eslint-disable-next-line

@@ -28,7 +28,7 @@ export const createRouter = (routes: Route[]): Router => {
     action: (context: RouteContext, params: PathParams) => ({
       id: route.id,
       pathname: context.pathname,
-      search: new URLSearchParams(context['search']),
+      search: new URLSearchParams(context['search'] as Record<string, string>),
       hash: context['hash'],
       params,
       route: route.route,

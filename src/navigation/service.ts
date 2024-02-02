@@ -26,7 +26,7 @@ export const createNavigationService = (history: History): NavigationService => 
       fromEventPattern(
         (handler) => history.listen(handler),
         (_, cancel) => cancel(),
-        ({ location }) => toLocation(location),
+        ({ location }: { location: HistoryLocation }) => toLocation(location),
       ),
       of(toLocation(history.location)).pipe(delay(0)),
     ),

@@ -50,7 +50,7 @@ test.each([
   ['ft', 'ft'],
 ])(
   'it should work with each',
-  coreMarbles(({ expect, coldBoolean }, a, b) => {
+  coreMarbles(({ expect, coldBoolean }, a: string, b: string) => {
     expect(coldBoolean(a)).toBeObservableBoolean(b)
   }),
 )

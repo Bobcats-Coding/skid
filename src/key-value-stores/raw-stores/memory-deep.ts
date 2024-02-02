@@ -10,7 +10,7 @@ export const createMemoryDeepRawKeyValueStore: () => WriteableRawKeyValueStore =
       throw new Error('Not set value')
     }
     if (restPath.length > 0) {
-      return get(store[first], restPath.join('.'))
+      return get(store[first] as Record<string, any>, restPath.join('.'))
     }
     return store[first]
   }
@@ -23,7 +23,7 @@ export const createMemoryDeepRawKeyValueStore: () => WriteableRawKeyValueStore =
       if (!(store[first] instanceof Object)) {
         throw new Error(`Value under path: "${pathSoFar}" is not an object`)
       }
-      set(store[first], restPath.join('.'), value, pathSoFar)
+      set(store[first] as Record<string, any>, restPath.join('.'), value, pathSoFar)
     } else {
       store[first] = value
     }
