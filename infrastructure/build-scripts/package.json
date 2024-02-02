@@ -1,0 +1,17 @@
+{
+  "name": "@bobcats-coding/skid-build-scripts",
+  "version": "0.9.5",
+  "description": "Skid build scripts",
+  "scripts": {
+    "build-tools": "vite build ."
+  },
+  "dependencies": {
+    "vite": "5.0.12",
+    "zod": "^3.22.4"
+  },
+  "exports": {
+    "./index.js": "./dist/index.mjs"
+  },
+  "author": "info@bobcatscoding.com",
+  "license": "MIT"
+}
