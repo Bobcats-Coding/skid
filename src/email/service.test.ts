@@ -3,6 +3,8 @@ import { type EmailAddress } from './email-address'
 import { createFakeEmailBackend } from './fake'
 import { createSender } from './service'
 
+import { expect, test } from 'vitest'
+
 test('it should create a new sender using a fake backend', async () => {
   const { received, backend } = createFakeEmailBackend()
   const emailSender = createSender(backend)

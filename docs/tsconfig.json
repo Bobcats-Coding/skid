@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "target": "esnext"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mdx"],
+  "exclude": ["node_modules"]
+} 

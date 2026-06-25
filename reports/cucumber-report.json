@@ -1,0 +1,114 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "install-skid-binary;install-skid-binary",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "Install Skid Binary",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 809124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "the Skid Binary is published",
+            "match": {
+              "location": "file:/Users/eggdice/Projects/monorepo/skid/src/test/cucumber-test-environment.ts:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1508790834
+            },
+            "embeddings": [
+              {
+                "data": "c2tpZE5wbVB1Ymxpc2hlcjogQ29tbWFuZCBleGVjdXRlZDogZWNobyAiLy9ucG1yZWdpc3RyeTo0ODczLzpfYXV0aFRva2VuPVptWTRObUl6WVRnNFlXWTBNV0poWlRVeU9UY3hOR0kzTWpRMU16Z3hObVk2WWpFeU5EQXdPV1UxTkRZM01qaGlOemt5IiA+IC9yb290Ly5ucG1yYwpFeGl0IGNvZGU6IDA=",
+                "mime_type": "text/plain"
+              },
+              {
+                "data": "c2tpZE5wbVB1Ymxpc2hlcjogQ29tbWFuZCBleGVjdXRlZDogY2F0IH4vLm5wbXJjCkV4aXQgY29kZTogMA==",
+                "mime_type": "text/plain"
+              },
+              {
+                "data": "c2tpZE5wbVB1Ymxpc2hlcjogQ29tbWFuZCBleGVjdXRlZDogbnBtIHB1Ymxpc2ggLS1yZWdpc3RyeSBodHRwOi8vbnBtcmVnaXN0cnk6NDg3MwpFeGl0IGNvZGU6IDA=",
+                "mime_type": "text/plain"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 5,
+            "name": "the user installs the Skid Binary",
+            "match": {
+              "location": "file:/Users/eggdice/Projects/monorepo/skid/src/test/cucumber-test-environment.ts:75"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 852032582,
+              "error_message": "Error: Command failed: npm install -g @skid-lib/bin --registry http://npmregistry:4873\nExit code: 1\nOutput: npm error code EUNSUPPORTEDPROTOCOL\nnpm error Unsupported URL Type \"workspace:\": workspace:*\nnpm error A complete log of this run can be found in: /root/.npm/_logs/2025-03-15T08_34_30_367Z-debug-0.log\n\n    at Object.execWithAssertions (file:///Users/eggdice/Projects/monorepo/skid/src/test/interactors/node-command-line.ts:88:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async file:///Users/eggdice/Projects/monorepo/skid/e2e/src/steps/install-binary.steps.ts:12:15\n    at async TestEnvironmentWorld.<anonymous> (file:///Users/eggdice/Projects/monorepo/skid/src/test/cucumber-test-environment.ts:76:7)"
+            },
+            "embeddings": [
+              {
+                "data": "bm9kZUNvbW1hbmRMaW5lOiBDb21tYW5kIGV4ZWN1dGVkOiBucG0gaW5zdGFsbCAtZyBAc2tpZC1saWIvYmluIC0tcmVnaXN0cnkgaHR0cDovL25wbXJlZ2lzdHJ5OjQ4NzMKRXhpdCBjb2RlOiAx",
+                "mime_type": "text/plain"
+              }
+            ]
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 6,
+            "name": "the user should be able to run skid",
+            "match": {
+              "location": "file:/Users/eggdice/Projects/monorepo/skid/src/test/cucumber-test-environment.ts:78"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 458458
+            },
+            "embeddings": [
+              {
+                "data": "Tm9kZSBjb21tYW5kIGxpbmUgZmFpbGVkIGR1cmluZyB0ZXN0OiBJbnN0YWxsLVNraWQtQmluYXJ5",
+                "mime_type": "text/plain"
+              },
+              {
+                "data": "Tm9kZSBjb21tYW5kIGxpbmUgZmFpbGVkIGR1cmluZyB0ZXN0OiBJbnN0YWxsLVNraWQtQmluYXJ5",
+                "mime_type": "text/plain"
+              },
+              {
+                "data": "U3RhdHVzOiBGQUlMRUQuIER1cmF0aW9uOjBz",
+                "mime_type": "text/plain"
+              }
+            ]
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "install-skid-binary",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Install Skid Binary",
+    "tags": [],
+    "uri": "features/sample/install-binary.feature"
+  }
+]

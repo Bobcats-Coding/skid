@@ -1,6 +1,8 @@
 import { parseUrl, stringifyUrl } from './url'
 import type { Url } from './url'
 
+import { expect, test } from 'vitest'
+
 test('stringify full url', () => {
   expect(
     stringifyUrl({

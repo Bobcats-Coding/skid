@@ -1,11 +1,11 @@
 import { type AUTH_HEADER } from '../rest/type'
-import { HOST } from './config'
+import { BASE_URL } from './config'
 import { type Scenario, type ScenarioActionResponse } from './types'
 
 import { createJsonRestClient } from '@bobcats-coding/skid/rest/json'
 import type { RestEndpoint } from '@bobcats-coding/skid/rest/service'
 
-const SCENARIO_BASE_PATHNAME = 'api/v2/scenarios' as const
+const SCENARIO_BASE_PATHNAME = 'api/v2/scenarios'
 
 export enum SCENARIO_ACTIONS {
   START = 'start',
@@ -62,7 +62,7 @@ export type ScenarioApi =
   | ScenarioApiSingleEndpoint
   | ScenarioApiActionEndpoint
 
-export const scenarioApiClient = createJsonRestClient<ScenarioApi>('https', HOST)
+export const scenarioApiClient = createJsonRestClient<ScenarioApi>(BASE_URL)
 
 export type ScenarioApiClient = typeof scenarioApiClient
 

@@ -15,4 +15,21 @@ export const createFakeRooamService = (): RooamService => ({
       status: 'accepted',
       orderNumber: '12-345',
     }),
+  getProductsByGroup: () => of([]),
+  getGroups: () => of([]),
+  getProductByIdAndGroup: () =>
+    of({
+      id: 'product123',
+      groupId: 'group123',
+      name: 'fake-product',
+      price: 1000,
+      modifiers: [],
+    }),
+  getOrderPricePreview: () =>
+    of({
+      total: 150,
+      taxAmount: 50,
+      productPrice: 100,
+      serviceCharge: 0,
+    }),
 })

@@ -1,0 +1,19 @@
+{
+  "name": "@bobcats-coding/skid-docs",
+  "private": true,
+  "scripts": {
+    "dev": "vinci dev",
+    "build": "vinci build",
+    "start": "vinci start"
+  },
+  "dependencies": {
+    "@vinci/core": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+} 

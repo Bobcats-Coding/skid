@@ -50,3 +50,15 @@ variable "override-domain" {
   description = "Override domain"
   default = ""
 }
+
+variable "is-sleeping" {
+  type = bool
+  description = "Is sleeping"
+  default = true
+}
+
+variable "additional-domain" {
+  type = string
+  default = ""
+  description = "Additional domain"
+}

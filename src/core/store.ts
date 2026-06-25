@@ -1,4 +1,4 @@
-import type { CoreEffectFunction } from './effect'
+import type { CoreEffectFunction, CoreSourceEffectFunction } from './effect'
 import { type ObjectWithStringLiteralKey } from './type'
 
 import {
@@ -7,11 +7,12 @@ import {
   configureStore,
   createSlice,
   type CreateSliceOptions,
+  type Middleware,
   type ReducerFromReducersMapObject,
   type StateFromReducersMapObject,
 } from '@reduxjs/toolkit'
-import { Observable, Subject } from 'rxjs'
-import { mergeAll } from 'rxjs/operators'
+import { Observable, of, Subject } from 'rxjs'
+import { concatMap, mergeAll } from 'rxjs/operators'
 
 export type CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> = StateReadable<ALL_STATE> &
   EventReceiver<ALL_EVENT> &
@@ -38,6 +39,7 @@ export type EventReceiver<ALL_EVENT extends CoreEvent> = {
 
 export type EffectRegistry<ALL_STATE, ALL_EVENT extends CoreEvent> = {
   registerEffect: (effect: CoreEffectFunction<ALL_STATE, ALL_EVENT>) => void
+  registerSourceEffect: (sourceEffect: CoreSourceEffectFunction<ALL_STATE, ALL_EVENT>) => void
 }
 
 export type CoreReducer<STATE, EVENT extends CoreEvent = CoreEvent> = (
@@ -126,6 +128,7 @@ export type StoreError = {
 
 export const createCoreStore = <STATE, EVENT extends CoreEvent>(
   reducer: CoreReducersObject<STATE, EVENT>,
+  config: { rehydrateMode: boolean } = { rehydrateMode: false },
 ): CoreStore<STATE, EVENT> & CoreStoreImportExport<STATE> => {
   const combinedReducer = combineReducers(reducer)
   const reducerWithImport = (state: STATE | undefined, event: EVENT): STATE => {
@@ -138,7 +141,31 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
       ) as STATE
     }
   }
-  const store = configureStore({ reducer: reducerWithImport })
+
+  const rehydrationMiddleware: Middleware = (store) => {
+    const eventsUntilRehydration: EVENT[] = []
+    let rehydrationComplete = false
+    return (next) => (action) => {
+      const event = action as EVENT
+      if (config.rehydrateMode && !rehydrationComplete) {
+        if (event.type === 'IMPORT') {
+          rehydrationComplete = true
+          next(event)
+          eventsUntilRehydration.forEach((event) => store.dispatch(event))
+          return
+        } else {
+          eventsUntilRehydration.push(event)
+          return next(event)
+        }
+      }
+      return next(event)
+    }
+  }
+
+  const store = configureStore({
+    reducer: reducerWithImport,
+    middleware: (getDefultMiddleware) => getDefultMiddleware().concat(rehydrationMiddleware),
+  })
   const event$ = new Subject<EVENT>()
   const event$$ = new Subject<Observable<EVENT>>()
   const eventAfterEffects$ = new Subject<EVENT>()
@@ -157,8 +184,15 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
     event$.next(action)
   }
   const registerEffect = (effect: CoreEffectFunction<STATE, EVENT>): void => {
-    event$$.next(effect(eventAfterEffects$, state$))
+    const effect$ = eventAfterEffects$.pipe(concatMap((event) => effect(of(event), state$)))
+    event$$.next(effect$)
   }
+
+  const registerSourceEffect = (sourceEffect: CoreSourceEffectFunction<STATE, EVENT>): void => {
+    const effect$ = sourceEffect(state$)
+    event$$.next(effect$)
+  }
+
   const exportState = (): STATE => store.getState()
   const importState = (state: STATE): void => {
     store.dispatch({ type: 'IMPORT', payload: state })
@@ -168,6 +202,7 @@ export const createCoreStore = <STATE, EVENT extends CoreEvent>(
     state$,
     send,
     registerEffect,
+    registerSourceEffect,
     exportState,
     importState,
   }

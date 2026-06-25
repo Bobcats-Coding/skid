@@ -48,20 +48,44 @@ export type Fetcher<PARSED_TYPE = any> = (
 type GetParsedType<FETCHER extends Fetcher> =
   FETCHER extends Fetcher<infer PARSED_TYPE> ? PARSED_TYPE : never
 
+type ParsedBaseUrl = {
+  protocol: string
+  hostname: string
+  port: number | undefined
+  basePath: string
+}
+
+const parseBaseUrl = (baseUrl: string): ParsedBaseUrl => {
+  const url = new URL(baseUrl)
+  if (url.search !== '') {
+    throw new Error(`baseUrl must not contain a query string: ${baseUrl}`)
+  }
+  if (url.hash !== '') {
+    throw new Error(`baseUrl must not contain a hash fragment: ${baseUrl}`)
+  }
+  const rawPath = url.pathname
+  const basePath = rawPath.endsWith('/') ? rawPath.slice(0, -1) : rawPath
+  return {
+    protocol: url.protocol.replace(/:$/, ''),
+    hostname: url.hostname,
+    port: url.port !== '' ? Number(url.port) : undefined,
+    basePath,
+  }
+}
+
 export const createRestClientCreator =
   <FETCHER extends Fetcher>(fetcher: FETCHER) =>
-  <API extends RestEndpoint<RestEndpointRequest, GetParsedType<FETCHER>>>(
-    protocol: string,
-    host: string,
-  ) =>
-  <REQUEST extends GetRequestType<API>>(
-    request: REQUEST,
-  ): Observable<GetResponseType<API, REQUEST>> =>
-    // The value is unknown that comes from the fetcher, this is the boundary
-    // where from the type is set. That is why the casting is necessary
-    defer(async () => await fetcher(...getFetcherArg(protocol, host, request))) as Observable<
-      GetResponseType<API, REQUEST>
-    >
+  <API extends RestEndpoint<RestEndpointRequest, GetParsedType<FETCHER>>>(baseUrl: string) => {
+    const parsedBase = parseBaseUrl(baseUrl)
+    return <REQUEST extends GetRequestType<API>>(
+      request: REQUEST,
+    ): Observable<GetResponseType<API, REQUEST>> =>
+      // The value is unknown that comes from the fetcher, this is the boundary
+      // where from the type is set. That is why the casting is necessary
+      defer(async () => await fetcher(...getFetcherArg(parsedBase, request))) as Observable<
+        GetResponseType<API, REQUEST>
+      >
+  }
 
 type FetcherConfigArg = {
   method: string
@@ -69,15 +93,20 @@ type FetcherConfigArg = {
   body: unknown
 }
 
+const joinPath = (basePath: string, requestPath: string): string => {
+  const normalizedRequest = requestPath.startsWith('/') ? requestPath : `/${requestPath}`
+  return `${basePath}${normalizedRequest}`
+}
+
 const getFetcherArg = (
-  protocol: string,
-  hostname: string,
+  parsedBase: ParsedBaseUrl,
   { pathname, method, search, headers = {}, body = undefined }: RestEndpointRequest,
 ): [string, FetcherConfigArg] => [
   stringifyUrl({
-    protocol,
-    hostname,
-    pathname,
+    protocol: parsedBase.protocol,
+    hostname: parsedBase.hostname,
+    ...(parsedBase.port !== undefined && { port: parsedBase.port }),
+    pathname: joinPath(parsedBase.basePath, pathname),
     search,
   }),
   {

@@ -2,7 +2,7 @@ import { type typeKey } from '@bobcats-coding/skid/core/util'
 
 import { z } from 'zod'
 
-const emailAddress = z.string().email()
+export const emailAddress = z.string().email()
 
 export type EmailAddress = z.infer<typeof emailAddress> & { [typeKey]: 'EmailAddress' }
 

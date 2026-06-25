@@ -29,3 +29,16 @@ variable "resource-pool-bucket" {
   type = string
   description = "Resource pool bucket name"
 }
+
+variable "is-sleeping" {
+  type = bool
+  description = "Is sleeping"
+  default = true
+}
+
+variable "cloud-sql-connection-name" {
+  type = string
+  description = "Cloud SQL connection name (PROJECT:REGION:INSTANCE). When set, mounts the Cloud SQL Auth Proxy sidecar and allows connecting via unix socket."
+  default = null
+  nullable = true
+}

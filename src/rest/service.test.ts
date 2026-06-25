@@ -4,13 +4,14 @@ import { createRestClientCreator } from './service'
 import type { JsonType } from '@bobcats-coding/skid/core/type'
 
 import { firstValueFrom, type Observable } from 'rxjs'
+import { expect, test } from 'vitest'
 
 test('the client should return the narrowed type by the request config', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
     | RestEndpoint<GetRequestWithPath, Response>
     | RestEndpoint<GetRequestWithPath2, Response2>
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   client({
     method: 'GET',
     pathname: '/path',
@@ -28,14 +29,14 @@ test('the request config type should be required', () => {
     // @ts-expect-error cannot be undefined
     RestEndpoint<undefined, Response>
   // @ts-expect-error not a valid request config
-  createRestClient<Api>('host')
+  createRestClient<Api>('https://host')
 })
 
 test('the client should return the narrowed type by the request config', async () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Response = { a: number }
   type Api = RestEndpoint<GetRequestWithPath, Response>
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' }))
   expect(response).toEqual(TEST_RESPONSE)
 })
@@ -43,14 +44,14 @@ test('the client should return the narrowed type by the request config', async (
 test('the rest client should expect RestEndpoints', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   // @ts-expect-error not a valid request config
-  createRestClient<string>('host')
+  createRestClient<string>('https://host')
 })
 
 test('the fetcher type should narrow the possible response types', () => {
   const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api = RestEndpoint<GetRequestWithPath, () => void>
   // @ts-expect-error not a valid fetcher
-  createRestClient<Api>('https', 'host')
+  createRestClient<Api>('https://host')
 })
 
 test('the response type should be dependent on the method', () => {
@@ -58,7 +59,7 @@ test('the response type should be dependent on the method', () => {
   type Api =
     | RestEndpoint<GetRequestWithPath, Response>
     | RestEndpoint<PostRequestWithPath, Response2>
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   client({
     method: 'POST',
     pathname: '/path',
@@ -98,7 +99,7 @@ test('all request params should be passed to the fetcher', async () => {
         },
         Response2
       >
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   const search: Record<'a', number> = { a: 1 } as const
   const headers: Record<'header-1', 'value-1'> = {
     'header-1': 'value-1',
@@ -179,7 +180,7 @@ test('the client should return the narrowed type by the request config', () => {
         },
         Response4
       >
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   const search: Record<'a', string> = { a: '1' } as const
   const headers: Record<'header-1', 'value-1'> = {
     'header-1': 'value-1',
@@ -229,7 +230,7 @@ test('the client should only allow valid type requests', () => {
     },
     Response
   >
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   const search: Record<'a', string> = { a: '1' } as const
   const headers: Record<'header-1', 'value-1'> = {
     'header-1': 'value-1',
@@ -267,11 +268,66 @@ test('the awaited value should be narrowed', async () => {
   type Api =
     | RestEndpoint<GetRequestWithPath, Response>
     | RestEndpoint<GetRequestWithPath2, Response2>
-  const client = createRestClient<Api>('https', 'host')
+  const client = createRestClient<Api>('https://host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' } as const))
   response satisfies Response
   // @ts-expect-error it is not Response2
   response satisfies Response2
+})
+
+type ProbeResponse = { method: string; url: string; headers: Record<string, string> }
+const PROBE_FETCHER: Fetcher<ProbeResponse> = async (url, { method, headers = {} }) =>
+  await Promise.resolve({ method, url, headers })
+
+type ProbeApi = RestEndpoint<{ method: 'GET'; pathname: '/path' }, ProbeResponse>
+
+const probeUrl = async (baseUrl: string): Promise<string> => {
+  const client = createRestClientCreator(PROBE_FETCHER)<ProbeApi>(baseUrl)
+  const { url } = await firstValueFrom(client({ method: 'GET', pathname: '/path' }))
+  return url
+}
+
+test('baseUrl without a path: pathname is appended', async () => {
+  expect(await probeUrl('https://host')).toBe('https://host/path')
+})
+
+test('baseUrl with trailing slash only: pathname is appended', async () => {
+  expect(await probeUrl('https://host/')).toBe('https://host/path')
+})
+
+test('baseUrl with a path prefix: prefix is preserved', async () => {
+  expect(await probeUrl('https://host/api/v2')).toBe('https://host/api/v2/path')
+})
+
+test('baseUrl with a path prefix and trailing slash: no double slash', async () => {
+  expect(await probeUrl('https://host/api/v2/')).toBe('https://host/api/v2/path')
+})
+
+test('baseUrl with a port: port is preserved', async () => {
+  expect(await probeUrl('https://host:8080/api')).toBe('https://host:8080/api/path')
+})
+
+test('baseUrl with a query string: throws at client creation', () => {
+  expect(() => createRestClientCreator(PROBE_FETCHER)<ProbeApi>('https://host?key=abc')).toThrow(
+    /baseUrl must not contain a query string/,
+  )
+})
+
+test('baseUrl with a hash fragment: throws at client creation', () => {
+  expect(() => createRestClientCreator(PROBE_FETCHER)<ProbeApi>('https://host#section')).toThrow(
+    /baseUrl must not contain a hash fragment/,
+  )
+})
+
+test('malformed baseUrl: throws at client creation', () => {
+  expect(() => createRestClientCreator(PROBE_FETCHER)<ProbeApi>('not-a-url')).toThrow()
+})
+
+test('request pathname without leading slash: a separator is inserted', async () => {
+  type NoLeadingSlashApi = RestEndpoint<{ method: 'GET'; pathname: 'a/b' }, ProbeResponse>
+  const client = createRestClientCreator(PROBE_FETCHER)<NoLeadingSlashApi>('https://host/api')
+  const { url } = await firstValueFrom(client({ method: 'GET', pathname: 'a/b' }))
+  expect(url).toBe('https://host/api/a/b')
 })
 
 const TEST_RESPONSE = { a: 3 }

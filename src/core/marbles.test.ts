@@ -1,6 +1,7 @@
 import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
 
 import { Subject } from 'rxjs'
+import { test } from 'vitest'
 
 test(
   'it should run a single function',

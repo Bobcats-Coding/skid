@@ -27,6 +27,16 @@ resource "google_cloud_run_service" "api" {
         }
       }
     }
+    metadata {
+      annotations = merge(
+        {
+          "autoscaling.knative.dev/minScale" = var.is-sleeping ? "0" : "1"
+        },
+        var.cloud-sql-connection-name != null ? {
+          "run.googleapis.com/cloudsql-instances" = var.cloud-sql-connection-name
+        } : {}
+      )
+    }
   }
 
   traffic {

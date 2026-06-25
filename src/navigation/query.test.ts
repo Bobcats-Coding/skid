@@ -2,7 +2,9 @@ import { getStateReadable } from './fake'
 import { navigationQuery } from './query'
 import { createRouter } from './router'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
+
+import { test } from 'vitest'
 
 test(
   'location$ should give the current location',

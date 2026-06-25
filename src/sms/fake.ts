@@ -3,7 +3,7 @@ import {
   type SMSBackend,
   type VerificationAttempt,
   type VerificationRequest,
-} from './types'
+} from './types.js'
 
 import { of } from 'rxjs'
 

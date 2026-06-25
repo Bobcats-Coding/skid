@@ -22,7 +22,7 @@ import {
   type TicketItem,
   type TicketPayment,
   type TicketPaymentsResponse,
-} from './types'
+} from './types.js'
 
 import type { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'

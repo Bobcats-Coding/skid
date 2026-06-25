@@ -1,9 +1,10 @@
 import { filterByType } from '@bobcats-coding/skid/core/effect'
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 import type { CoreEvent } from '@bobcats-coding/skid/core/store'
 
 import type { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
+import { test } from 'vitest'
 
 test(
   'type safe filtering',

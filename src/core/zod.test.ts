@@ -1,5 +1,6 @@
 import { getSchemaByObjectPath, zodGuard } from './zod'
 
+import { expect, test } from 'vitest'
 import { z } from 'zod'
 
 test('zodGuard returns a custom schema based on the guard type', () => {

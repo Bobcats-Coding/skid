@@ -1,0 +1,19 @@
+{
+  "name": "@skid-lib/bin",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@skid-lib/core": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.2"
+  },
+  "bin": {
+    "skid": "./skid.ts"
+  },
+  "author": "info@bobcatscoding.com",
+  "license": "MIT"
+}

@@ -1,5 +1,5 @@
 import { filterByType } from '@bobcats-coding/skid/core/effect'
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 import {
   createCoreStore,
   createCoreStoreSlice,
@@ -9,7 +9,9 @@ import {
 } from '@bobcats-coding/skid/core/store'
 import type { CoreReducer } from '@bobcats-coding/skid/core/store'
 
-import { map, mergeMap } from 'rxjs/operators'
+import { of } from 'rxjs'
+import { catchError, map, mergeMap, take } from 'rxjs/operators'
+import { expect, test } from 'vitest'
 
 type CountState = number
 
@@ -168,6 +170,40 @@ test(
 )
 
 test(
+  'effect continuing after error',
+  coreMarbles(({ expect }) => {
+    const initialState: CountState = 0
+    const coreStore = createCoreStore<AllCountState, AllTestEvents>({
+      count: (state = initialState, event: AllTestEvents) => {
+        switch (event.type) {
+          case 'count/incrementAmount':
+            return state + event.payload
+          case 'count/increment':
+            return state + 1
+          default:
+            return state
+        }
+      },
+    })
+    coreStore.registerEffect((event$) =>
+      event$.pipe(
+        filterByType('count/incrementAmount' as const),
+        map((e) => {
+          if (e.payload === 0) {
+            throw new Error('error')
+          }
+          return e
+        }),
+        catchError(() => of({ type: 'count/increment', payload: undefined } as const)),
+      ),
+    )
+    coreStore.send({ type: 'count/incrementAmount', payload: 0 })
+    coreStore.send({ type: 'count/incrementAmount', payload: 0 })
+    expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
+  }),
+)
+
+test(
   'effect triggering another',
   coreMarbles(({ expect }) => {
     const initialState: CountState = 0
@@ -226,6 +262,35 @@ test(
     )
     coreStore.send({ type: 'count/start', payload: undefined })
     expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
+  }),
+)
+
+test(
+  'source effect',
+  coreMarbles(({ expect }) => {
+    const initialState: CountState = 2
+    const coreStore = createCoreStore<AllCountState, AllTestEvents>({
+      count: (state = initialState, event: AllTestEvents) => {
+        switch (event.type) {
+          case 'count/incrementAmount':
+            return state + event.payload
+          case 'count/increment':
+            return state + 1
+          default:
+            return state
+        }
+      },
+    })
+    coreStore.registerSourceEffect((state$) => {
+      const stateLimit$ = state$.pipe(take(1))
+      return of(0, 1).pipe(
+        mergeMap((count) => stateLimit$.pipe(map((state) => state.count + count))),
+        map((count) => ({ type: 'count/incrementAmount', payload: count })),
+      )
+    })
+    coreStore.send({ type: 'count/start', payload: undefined })
+    coreStore.send({ type: 'count/start', payload: undefined })
+    expect(coreStore.state$).toBeObservable('9', { 9: { count: 9 } })
   }),
 )
 
@@ -313,3 +378,48 @@ test('export state', () => {
     append: 'A',
   })
 })
+
+test(
+  'import state',
+  coreMarbles(({ expect }) => {
+    const countSlice = createCoreStoreSlice({
+      name: 'count',
+      initialState: 0,
+      reducers: {
+        increment: (state: CountState, _: TestIncrement) => state + 1,
+        incrementAmount: (state: CountState, event: TestIncrementAmount) => state + event.payload,
+      },
+    })
+    const appendSlice = createCoreStoreSlice({
+      name: 'append',
+      initialState: '',
+      reducers: {
+        appendA: (state: AppendState, _: TestAppendA) => {
+          console.log('appendA', state)
+          return state + 'A'
+        },
+      },
+    })
+    const coreStore = createCoreStore<AllTestState, AllTestEvents>(
+      {
+        count: countSlice.reducer,
+        append: appendSlice.reducer,
+      },
+      {
+        rehydrateMode: true,
+      },
+    )
+    coreStore.send(countSlice.eventCreators.createIncrement())
+    coreStore.send(appendSlice.eventCreators.createAppendA())
+    coreStore.importState({
+      count: 2,
+      append: 'B',
+    })
+    expect(coreStore.state$).toBeObservable('1', {
+      1: {
+        count: 3,
+        append: 'BA',
+      },
+    })
+  }),
+)

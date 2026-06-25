@@ -18,3 +18,9 @@ variable "is-wildcard" {
   default = true
   description = "is-wildcard"
 }
+
+variable "is-www" {
+  type = bool
+  default = false
+  description = "is-www"
+}

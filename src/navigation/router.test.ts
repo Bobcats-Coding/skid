@@ -1,5 +1,7 @@
 import { createRouter } from './router'
 
+import { expect, test } from 'vitest'
+
 test('Route not found', () => {
   const router = createRouter([])
   const resolve = (): void => {

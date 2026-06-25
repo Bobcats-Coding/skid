@@ -2,9 +2,10 @@ import { navigationEffect } from './effect'
 import { createNavigationServiceFake as createNavigationService } from './fake'
 import { createAppNavigation, createChangeLocation, createPlatformNavigation } from './store'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 
 import { of } from 'rxjs'
+import { test } from 'vitest'
 
 test(
   'app navigation',
@@ -31,7 +32,7 @@ test(
 
 test(
   'platform navigation',
-  coreMarbles(({ expect, cold }) => {
+  coreMarbles(({ expect }) => {
     const LOCATION = {
       pathname: '/',
       search: '',
@@ -41,7 +42,7 @@ test(
     const CHANGE_LOCATION = createChangeLocation(LOCATION)
     const navigationService = createNavigationService()
     const effect = navigationEffect(navigationService)
-    expect(effect.handlePlatformNavigation(cold('', {}), STATE$)).toBeObservable('(pc)', {
+    expect(effect.handlePlatformNavigation(STATE$)).toBeObservable('(pc)', {
       p: PLATFORM_NAVIGATION,
       c: CHANGE_LOCATION,
     })

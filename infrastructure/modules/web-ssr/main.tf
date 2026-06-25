@@ -27,6 +27,11 @@ resource "google_cloud_run_service" "web-ssr" {
         }
       }
     }
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/minScale" = var.is-sleeping ? "0" : "1"
+      }
+    }
   }
 
   traffic {
@@ -83,6 +88,7 @@ module "web-ssr-domain" {
   managed-zone = var.managed-zone
   ssl-certificate = var.ssl-certificate
   service = google_compute_backend_service.web-ssr-backend.self_link
+  additional-domain = var.additional-domain
   providers = {
     google.product = google.product
     google.domain = google.domain

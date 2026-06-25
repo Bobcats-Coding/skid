@@ -8,12 +8,11 @@ import { type CoreEffect, filterByType } from '@bobcats-coding/skid/core/effect'
 import { of } from 'rxjs'
 import { map, switchMap, tap } from 'rxjs/operators'
 
-type Effects = 'handleAppNavigation' | 'handlePlatformNavigation'
-
 type NavigationEffect<APP_STORE_STATE, APP_STORE_EVENT extends NavigationEvent> = CoreEffect<
   APP_STORE_STATE,
   APP_STORE_EVENT,
-  Effects
+  'handleAppNavigation',
+  'handlePlatformNavigation'
 >
 
 export const navigationEffect = <APP_STORE_STATE>(

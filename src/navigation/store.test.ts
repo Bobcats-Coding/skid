@@ -2,6 +2,8 @@ import { createChangeLocation, navigationReducer } from './store'
 
 import { STORE_INIT } from '@bobcats-coding/skid/core/fake'
 
+import { expect, test } from 'vitest'
+
 test('Default state is index', () => {
   const initialState = navigationReducer(undefined, STORE_INIT)
   expect(initialState).toEqual({

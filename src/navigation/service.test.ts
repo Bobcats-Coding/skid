@@ -1,8 +1,9 @@
 import { createNavigationService } from './service'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 
 import { createMemoryHistory } from 'history'
+import { expect, test } from 'vitest'
 
 test('get empty location', () => {
   const navigation = createNavigationService(createMemoryHistory())

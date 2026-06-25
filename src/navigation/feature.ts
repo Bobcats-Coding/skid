@@ -26,7 +26,7 @@ export const createNavigation = <APP_STORE_EVENT extends CoreEvent>({
   }>(navigationService)
 
   store.registerEffect(handleAppNavigation)
-  store.registerEffect(handlePlatformNavigation)
+  store.registerSourceEffect(handlePlatformNavigation)
 
   return {
     ...command,

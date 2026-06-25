@@ -61,6 +61,7 @@ resource "google_project_service" "apis" {
   for_each = local.apis_for_for_each
   project = each.value.project
   service = each.value.api
+  disable_on_destroy = true
 }
 
 resource "google_project_iam_member" "service-account-main-project-roles" {

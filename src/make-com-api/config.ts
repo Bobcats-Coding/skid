@@ -1,1 +1,1 @@
-export const HOST = 'eu2.make.com'
+export const BASE_URL = 'https://eu2.make.com'

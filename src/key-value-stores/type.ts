@@ -16,11 +16,11 @@ export type RawKeyValueStore<T = unknown> =
   | WriteableRawKeyValueStore<T>
 
 export type ReadableRawKeyValueStore<T = unknown> = {
-  get: (key: string) => T
+  get: (key: string) => T | undefined
 }
 
 export type WriteableRawKeyValueStore<T = unknown> = {
-  get: (key: string) => T
+  get: (key: string) => T | undefined
   set: (key: string, value: T) => void
 }
 
@@ -31,3 +31,12 @@ export const isWritableRawKeyValueStore = (
 ): store is WriteableRawKeyValueStore => {
   return 'set' in store
 }
+
+export type TransformedStore<T> = {
+  get: (key: string) => T | undefined
+}
+
+export type TransformKeyValueCallback<T> = (
+  key: string,
+  store: ReadableRawKeyValueStore,
+) => T | undefined

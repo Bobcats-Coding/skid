@@ -4,7 +4,16 @@ export type ObjectWithStringLiteralKey<KEY, VALUE> = {
   [K in StringLiteral<KEY>]: VALUE
 }
 
-export type JsonType = number | string | boolean | null | JsonType[] | { [key: string]: JsonType }
+export type Nullable<T> = T | null
+
+export type JsonType =
+  | number
+  | string
+  | boolean
+  | null
+  | undefined
+  | JsonType[]
+  | { [key: string]: JsonType }
 
 export type TokenNonEmptyString<TOKEN extends string | number> = TOKEN extends '' ? never : TOKEN
 
@@ -125,3 +134,16 @@ export type FromKebabCase<S extends string> = S extends '' ? readonly [] : Split
 export type FromSnakeCase<S extends string> = S extends '' ? readonly [] : Split<S, '_'>
 
 export type Mutable<T> = { -readonly [K in keyof T]: T[K] }
+
+export type PartialBesides<OBJECT, KEYS extends keyof OBJECT> = Partial<Omit<OBJECT, KEYS>> &
+  Pick<OBJECT, KEYS>
+
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
+}
+
+export type FunctionToAsync<FUNC extends (...args: any[]) => any> = FUNC extends (
+  ...args: infer ARGS
+) => infer RETURN
+  ? (...args: ARGS) => Promise<RETURN>
+  : never

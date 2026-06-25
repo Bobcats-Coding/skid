@@ -1,3 +1,5 @@
+import type { RooamAPIClient } from './api'
+
 import type { Observable } from 'rxjs'
 
 export type RequestConfig = {
@@ -13,15 +15,18 @@ export type Check = {
     groupId: Product['groupId']
     qty: number
     modifiers?: Array<{
-      id: string
-      groupId: string
-      qty: number
+      modifierId?: Modifier['modifierId']
+      groupId?: Modifier['modifierGroupId']
+      qty?: number
     }>
   }>
   discount?: number
   payment?: {
     amount: number
     tip: number
+  }
+  serviceCharge?: {
+    amount: number
   }
 }
 
@@ -40,6 +45,53 @@ export type CheckStatus = {
 export type Product = {
   id: string
   groupId: string
+  name: string
+  price: number
+  modifiers: Modifier[]
+}
+
+export type Modifier = {
+  modifierGroupId: string
+  modifierGroupName: string
+  modifierId: string
+  name: string
+  price: number
+}
+
+export type GetProductsByGroupParams = {
+  partnerId: string
+  groupId?: Product['groupId']
+}
+
+export type GetProductByIdAndGroupParams = {
+  partnerId: string
+  groupId: Product['groupId']
+  id: Product['id']
+}
+
+export type Group = {
+  id: string
+  name: string
+}
+
+export type GetGroupsParams = {
+  partnerId: string
+}
+
+export type GetOrderPricePreviewParams = {
+  idempotencyKey: string
+  partnerId: string
+  orderTypeId: string
+  id: Product['id']
+  groupId: Product['groupId']
+  modifiers: Array<Pick<Modifier, 'modifierId' | 'modifierGroupId'>>
+}
+
+export type OrderPricePreview = {
+  productPrice: number
+  serviceCharge: number
+  taxAmount: number
+  total: number
 }
 
 export type RooamBaseParams = {
@@ -47,7 +99,16 @@ export type RooamBaseParams = {
   password: string
 }
 
+export type RooamServiceCreator = (
+  rooamAPIClient: RooamAPIClient,
+  baseParams: RooamBaseParams,
+) => RooamService
+
 export type RooamService = {
   openCheck: (config: RequestConfig, check: Check) => Observable<OpenCheckResult>
   getCheckStatus: (id: OpenCheckResult['id']) => Observable<CheckStatus>
+  getProductsByGroup: (params: GetProductsByGroupParams) => Observable<Product[]>
+  getGroups: (params: GetGroupsParams) => Observable<Group[]>
+  getOrderPricePreview: (params: GetOrderPricePreviewParams) => Observable<OrderPricePreview>
+  getProductByIdAndGroup: (params: GetProductByIdAndGroupParams) => Observable<Product>
 }

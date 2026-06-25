@@ -69,7 +69,7 @@ export type TestEnviornmentState<
     RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>
   >,
 > = {
-  services: SERVICES
+  serviceConfigs: SERVICES
   interactors: Map<GetKey<INTERACTORS>, { instance: GetValue<INTERACTORS> } & DefaultConfig>
   runners: Map<GetKey<RUNNERS>, { instance: GetValue<RUNNERS> } & DefaultConfig>
 }

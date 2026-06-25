@@ -1,0 +1,9 @@
+{
+  "name": "@skid-lib/cli",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "type": "module",
+  "author": "info@bobcatscoding.com",
+  "license": "MIT"
+}

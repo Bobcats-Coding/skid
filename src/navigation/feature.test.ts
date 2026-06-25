@@ -2,7 +2,9 @@ import { NAVIGATION_NAMESPACE } from './config'
 import { createAppStore, createNavigationServiceFake as createNavigationService } from './fake'
 import { createNavigation } from './feature'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
+
+import { test } from 'vitest'
 
 test(
   'handle app navigations',

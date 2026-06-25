@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@skid-lib/core/*": ["./*"]
+    },
+    "module": "ES2022"
+  }
+}

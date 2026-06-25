@@ -1,26 +1,26 @@
 import type { Runner } from '@bobcats-coding/skid/test/type'
 
-import type { StartedTestContainer } from 'testcontainers'
-import { GenericContainer, TestContainers, Wait } from 'testcontainers'
+import type { StartedNetwork, StartedTestContainer } from 'testcontainers'
+import { GenericContainer, Wait } from 'testcontainers'
 
 export type NodeProcessRunnerConfig = {
   path: string
   args: string[]
   port: number
   environment?: Record<string, string>
+  network?: StartedNetwork
 }
-
-const GLOBAL_EXPOSED_PORTS = new Set<number>()
 
 export const nodeProcessRunner = ({
   path,
   args,
   port,
   environment = {},
+  network,
 }: NodeProcessRunnerConfig): Runner => {
   let runningContainer: StartedTestContainer | undefined
 
-  const container = new GenericContainer('node')
+  const container = new GenericContainer('node:22-bullseye')
     .withWorkingDir('/opt/app')
     .withEnvironment(environment)
     .withCopyDirectoriesToContainer([
@@ -47,17 +47,13 @@ export const nodeProcessRunner = ({
     })
     .withWaitStrategy(Wait.forListeningPorts().withStartupTimeout(300_000))
 
+  if (network !== undefined) {
+    container.withNetwork(network)
+  }
+
   return {
     start: async () => {
       runningContainer = await container.start()
-      console.log(`Checking port: ${port}`)
-      if (GLOBAL_EXPOSED_PORTS.has(port)) {
-        console.log(`Port already exposed: ${port}`)
-        return
-      }
-      await TestContainers.exposeHostPorts(port)
-      GLOBAL_EXPOSED_PORTS.add(port)
-      console.log(`Port exposed: ${port}`)
     },
     stop: async () => {
       if (runningContainer !== undefined) {

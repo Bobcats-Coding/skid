@@ -1,5 +1,7 @@
 import { createMemoryDeepRawKeyValueStore } from './memory-deep'
 
+import { expect, test } from 'vitest'
+
 test('MemoryDeepRawKeyValueStore non set key should throw an error', () => {
   const store = createMemoryDeepRawKeyValueStore()
   expect(() => store.get('key')).toThrow('Path: "key" is not set')

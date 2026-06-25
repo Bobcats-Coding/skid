@@ -9,8 +9,19 @@ export type CoreEffectFunction<STATE, EVENT extends CoreEvent> = (
   state$: Observable<STATE>,
 ) => Observable<EVENT>
 
-export type CoreEffect<STATE, EVENT extends CoreEvent, EFFECTS extends string> = {
+export type CoreSourceEffectFunction<STATE, EVENT extends CoreEvent> = (
+  state$: Observable<STATE>,
+) => Observable<EVENT>
+
+export type CoreEffect<
+  STATE,
+  EVENT extends CoreEvent,
+  EFFECTS extends string,
+  SOURCE_EFFECTS extends string = never,
+> = {
   [key in EFFECTS]: CoreEffectFunction<STATE, EVENT>
+} & {
+  [key in SOURCE_EFFECTS]: CoreSourceEffectFunction<STATE, EVENT>
 }
 
 type GetByType<ALL, TYPE_STRING> = Extract<ALL, { type: StringLiteral<TYPE_STRING> }>

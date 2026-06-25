@@ -9,9 +9,10 @@ import {
 } from './stub'
 import type { GetAllTicketsResponse, LocationResponse, SingleTicketResponse } from './types'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 
 import { filter, map } from 'rxjs/operators'
+import { test } from 'vitest'
 
 const omnivoreService = createOmnivoreService(omnivoreAPIClient, {
   apiKey: 'fake-api-key',

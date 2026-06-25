@@ -27,6 +27,11 @@ resource "google_cloud_run_service" "web-ssr" {
         }
       }
     }
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/minScale" = var.is-sleeping ? "0" : "1"
+      }
+    }
   }
 
   traffic {
@@ -90,4 +95,10 @@ resource "google_storage_bucket_object" "resource-pool" {
   bucket = var.resource-pool-bucket
   content = local.load-balancer-rendered-json
   provider = google.product
+}
+
+variable "is-sleeping" {
+  type = bool
+  description = "Is sleeping"
+  default = true
 }

@@ -278,7 +278,7 @@ export type OmnivoreAPI =
   | RetrievePaymentEndpoint
   | ThirdPartyPaymentEndpoint
 
-export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>('https', basePath)
+export const omnivoreAPIClient = createJsonRestClient<OmnivoreAPI>(basePath)
 export type OmnivoreAPIClient = typeof omnivoreAPIClient
 
 export const createRetrieveLocationRequest = ({

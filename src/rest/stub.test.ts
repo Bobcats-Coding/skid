@@ -2,10 +2,11 @@ import type { Fetcher, RestClient, RestEndpoint } from './service'
 import type { StubEndpoint } from './stub'
 import { createStubRestClient } from './stub'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 import { type JsonType } from '@bobcats-coding/skid/core/type'
 
 import type { Observable } from 'rxjs'
+import { test } from 'vitest'
 
 test(
   'the stub should be usable as client',

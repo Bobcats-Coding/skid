@@ -24,6 +24,7 @@ export const createStubRestClient =
       (endpoint: StubEndpoint<RestEndpoint>): endpoint is StubEndpoint<RestEndpoint<REQUEST>> =>
         deepEqual(endpoint.request, request),
     )
+    // @TODO How to test when undefined is the real return value?
     return getFakeValue(endpoint?.response, endpoint?.delay ?? 1)
   }
 

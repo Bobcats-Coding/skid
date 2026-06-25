@@ -28,3 +28,9 @@ variable "is-index-html-redirect" {
   default = false
   description = "If true: index.html redirects to /"
 }
+
+variable "additional-domain" {
+  type = string
+  default = ""
+  description = "Additional domain"
+}

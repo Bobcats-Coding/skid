@@ -1,63 +1,119 @@
-import { type Application } from '@bobcats-coding/skid/core/application'
+import { type GetValueByKey, type PartialBesides, type RecordToEntries } from '../core/type'
 
-type InternalServicesHook<
-  INTERNAL_SERVICES extends Record<string, any>,
-  APPLICATIONS extends Record<string, () => Application<any, INTERNAL_SERVICES, any, any>>,
-> = {
-  useInternalServices: <SERVICE_NAME extends keyof INTERNAL_SERVICES>(
-    key: keyof APPLICATIONS,
-    service?: SERVICE_NAME,
-  ) => typeof service extends undefined ? INTERNAL_SERVICES : INTERNAL_SERVICES[SERVICE_NAME]
-  loadServerInternalServices: (key: keyof APPLICATIONS, services: INTERNAL_SERVICES) => void
+import {
+  type Application,
+  type ApplicationRunReturn,
+  type ApplicationTypeConfig,
+} from '@bobcats-coding/skid/core/application'
+
+export type LoadInternalServicesByName<APPLICATION extends RequiredApplicationConfig> = <
+  SERVICE_NAME extends keyof APPLICATION['internalServices'] & string,
+>(
+  identity: APPLICATION['identity'],
+  serviceName: SERVICE_NAME,
+) => GetValueByKey<RecordToEntries<APPLICATION['internalServices']>, SERVICE_NAME>
+
+export type LoadInternalServices<APPLICATION extends RequiredApplicationConfig> = {
+  <SERVICE_NAME extends keyof APPLICATION['internalServices'] & string>(
+    identity: APPLICATION['identity'],
+    serviceName: SERVICE_NAME,
+  ): GetValueByKey<RecordToEntries<APPLICATION['internalServices']>, SERVICE_NAME>
+  (key: APPLICATION['identity']): APPLICATION['internalServices']
 }
 
-export const createInternalServicesHook = <
-  INTERNAL_SERVICES extends Record<string, any>,
-  const APPLICATIONS extends Record<string, () => Application<any, INTERNAL_SERVICES, any, any>>,
->(
-  applications: APPLICATIONS,
-): InternalServicesHook<INTERNAL_SERVICES, APPLICATIONS> => {
-  const serverServicesByKey = new Map<keyof APPLICATIONS, INTERNAL_SERVICES>()
+export type InternalServicesTools<APPLICATION extends RequiredApplicationConfig> = {
+  loadInternalServices: LoadInternalServices<APPLICATION>
+  setServerInternalServices: (
+    services: APPLICATION['internalServices'],
+    exportState?: () => APPLICATION['exportState'],
+  ) => void
+  exportInternalServicesState: (identity: APPLICATION['identity']) => APPLICATION['exportState']
+  importInternalServicesState: (
+    identity: APPLICATION['identity'],
+    state: APPLICATION['exportState'],
+  ) => void
+}
 
-  const currentServicesByKey = new Map<keyof APPLICATIONS, INTERNAL_SERVICES>()
+export const createInternalServicesHook = <const APPLICATION extends RequiredApplicationConfig>(
+  application: () => Application<APPLICATION>,
+  identityTransform: (i: APPLICATION['identity']) => APPLICATION['identity'] = (i) => i,
+): InternalServicesTools<APPLICATION> => {
+  let storedCurrentServices: APPLICATION['internalServices'] | undefined
+  let storedExportState: (() => APPLICATION['exportState']) | undefined
+  let storedImportState: ((state: APPLICATION['exportState']) => void) | undefined
 
-  type UseInternalServicesReturnType<SERVICE_NAME extends keyof INTERNAL_SERVICES> =
-    SERVICE_NAME extends undefined ? INTERNAL_SERVICES : INTERNAL_SERVICES[SERVICE_NAME]
-
-  const useInternalServices = <SERVICE_NAME extends keyof INTERNAL_SERVICES>(
-    key: keyof APPLICATIONS,
-    service?: SERVICE_NAME,
-  ): SERVICE_NAME extends undefined ? INTERNAL_SERVICES : INTERNAL_SERVICES[SERVICE_NAME] => {
-    if (serverServicesByKey.has(key)) {
-      const serverServices = serverServicesByKey.get(key)
-      if (serverServices !== undefined) {
-        if (service === undefined) {
-          return serverServices as UseInternalServicesReturnType<SERVICE_NAME>
-        }
-        return serverServices[service]
+  const loadFromApp = (identity: APPLICATION['identity']): void => {
+    const runApp = (): ApplicationRunReturn<APPLICATION> => {
+      try {
+        return application().run(identityTransform(identity))
+      } catch (e) {
+        throw new Error(`Internal services are not set for "${identity as string}"`, { cause: e })
       }
     }
-    const application = applications[key]
-    if (application === undefined) {
-      throw new Error(`Internal services are not set for "${key as string}"`)
+    if (storedCurrentServices === undefined) {
+      const appReturn = runApp()
+      storedCurrentServices = appReturn.internalServices
+      storedExportState = appReturn.exportState
+      storedImportState = appReturn.importState
     }
-    if (!currentServicesByKey.has(key)) {
-      currentServicesByKey.set(key, application().getInternalServices())
+  }
+
+  const loadInternalServices: LoadInternalServices<APPLICATION> = ((
+    identity: APPLICATION['identity'],
+    serviceName?: keyof APPLICATION['internalServices'],
+  ) => {
+    const getServicesOrService = (
+      services: APPLICATION['internalServices'],
+      serviceName: keyof APPLICATION['internalServices'] | undefined,
+    ):
+      | APPLICATION['internalServices']
+      | APPLICATION['internalServices'][keyof APPLICATION['internalServices']] =>
+      serviceName !== undefined ? services[serviceName] : services
+    loadFromApp(identity)
+    if (storedCurrentServices === undefined) {
+      throw new Error('Could not load internalServices')
     }
-    const internalServices: INTERNAL_SERVICES | undefined = currentServicesByKey.get(key)
-    if (internalServices === undefined) {
-      throw new Error('Internal services were unable to generate')
+    return getServicesOrService(storedCurrentServices, serviceName)
+  }) as LoadInternalServices<APPLICATION>
+
+  const setServerInternalServices = (
+    services: APPLICATION['internalServices'],
+    exportState: APPLICATION['exportState'],
+  ): void => {
+    storedCurrentServices = services
+    storedExportState = exportState
+  }
+
+  const exportInternalServicesState = (
+    identity: APPLICATION['identity'],
+  ): APPLICATION['exportState'] => {
+    loadFromApp(identity)
+    if (storedExportState === undefined) {
+      throw new Error('Export state is not defined')
     }
-    if (service === undefined) {
-      return internalServices as UseInternalServicesReturnType<SERVICE_NAME>
+    return storedExportState()
+  }
+
+  const importInternalServicesState = (
+    identity: APPLICATION['identity'],
+    state: APPLICATION['exportState'],
+  ): void => {
+    loadFromApp(identity)
+    if (storedImportState === undefined) {
+      throw new Error('Import state is not defined')
     }
-    return internalServices[service]
+    storedImportState(state)
   }
 
   return {
-    useInternalServices,
-    loadServerInternalServices: (key, services) => {
-      serverServicesByKey.set(key, services)
-    },
+    loadInternalServices,
+    exportInternalServicesState,
+    setServerInternalServices,
+    importInternalServicesState,
   }
 }
+
+export type RequiredApplicationConfig = PartialBesides<
+  ApplicationTypeConfig,
+  'internalServices' | 'exportState' | 'identity'
+>

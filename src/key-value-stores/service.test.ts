@@ -2,6 +2,7 @@ import { createMemoryRawKeyValueStore } from './raw-stores/memory'
 import { createKeyValueStore } from './service'
 import type { RawKeyValueStore } from './type'
 
+import { expect, test } from 'vitest'
 import { z } from 'zod'
 
 test('KeyValueStore single validator', () => {

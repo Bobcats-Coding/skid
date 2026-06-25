@@ -5,9 +5,15 @@
   "scripts": {
     "build-tools": "vite build ."
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
-    "vite": "5.0.12",
-    "zod": "^3.22.4"
+    "@bobcats-coding/skid": "workspace:^",
+    "@google-cloud/storage": "^7.11.2",
+    "vite": "5.3.1",
+    "zod": "^3.23.8",
+    "zx": "^8.1.2"
   },
   "exports": {
     "./index.js": "./dist/index.mjs"

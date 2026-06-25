@@ -1,8 +1,10 @@
 import { addErrorMethodsToFake } from './fake'
 
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
+
 import type { Observable } from 'rxjs'
 import { of } from 'rxjs'
-import { marbles } from 'rxjs-marbles/jest'
+import { expect, test } from 'vitest'
 
 type Original1 = {
   method: () => number
@@ -58,7 +60,7 @@ test('Create async throwing function', async () => {
 
 test(
   'Create observable throwing function',
-  marbles((m) => {
+  coreMarbles((m) => {
     const originalFake = (): Original1Observable => ({ method: () => of(1) })
     const fakeCreator = addErrorMethodsToFake(originalFake)
     const error = new Error('test error')

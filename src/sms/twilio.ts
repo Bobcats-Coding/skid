@@ -11,7 +11,9 @@ type TwilioConfig = {
 }
 
 export const createTwilioBackend = (config: TwilioConfig): SMSBackend => {
-  const client = twilio(config.accountSid, config.authToken)
+  const client = twilio(config.accountSid, config.authToken, {
+    timeout: 30000,
+  })
   return {
     sendMessage: (request) => {
       return from(

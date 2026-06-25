@@ -1,9 +1,11 @@
 import type {
+  DeepPartial,
   EntryTuple,
   FilterRecord,
   FromCamelCase,
   FromKebabCase,
   FromSnakeCase,
+  FunctionToAsync,
   GetAllPaths,
   GetGuarded,
   GetKey,
@@ -15,6 +17,7 @@ import type {
   JsonType,
   Mutable,
   ObjectWithStringLiteralKey,
+  PartialBesides,
   RecordToEntries,
   Split,
   SplitFilePath,
@@ -28,6 +31,7 @@ import type {
 
 import { assert } from 'tsafe'
 import type { Equals } from 'tsafe'
+import { test } from 'vitest'
 
 test('Split<PATH, DELIMITER>', () => {
   assert<Equals<Split<'a.a.a', '.'>, readonly ['a', 'a', 'a']>>()
@@ -60,7 +64,7 @@ test('SplitFilePath<PATH>', () => {
 })
 
 test('StringLiteral<LITERAL>', () => {
-  const literal: StringLiteral<'asd'> = 'asd' as const
+  const literal: StringLiteral<'asd'> = 'asd'
   assert<Equals<typeof literal, 'asd'>>()
   // @ts-expect-error it has to be a literal
   const nonLiteral: StringLiteral<'asd'> = 'asd' as string
@@ -97,10 +101,10 @@ test('JsonType', () => {
 })
 
 test('TokenNonEmptyString<TOKEN>', () => {
-  const token: TokenNonEmptyString<'a'> = 'a' as const
+  const token: TokenNonEmptyString<'a'> = 'a'
   assert<Equals<typeof token, 'a'>>()
   // @ts-expect-error it cannot be empty
-  const nonToken: TokenNonEmptyString<''> = '' as const
+  const nonToken: TokenNonEmptyString<''> = ''
   assert<Equals<typeof nonToken, never>>()
 })
 
@@ -202,4 +206,24 @@ test('Mutable<TYPE>', () => {
   assert<Equals<MutableObject, { a: 1; b: 2 }>>()
   type MutableArray = Mutable<readonly [1, 2]>
   assert<Equals<MutableArray, [1, 2]>>()
+})
+
+test('PartialBesides<OBJECT, KEYS>', () => {
+  type OptionalA = PartialBesides<{ a: string; b: number; c: boolean }, 'b' | 'c'>
+  assert<Equals<OptionalA, { a?: string; b: number; c: boolean }>>()
+})
+
+test('DeepPartial<T> - single level', () => {
+  type OptionalA = DeepPartial<{ a: string; b: number; c: boolean }>
+  assert<Equals<OptionalA, { a?: string; b?: number; c?: boolean }>>()
+})
+
+test('DeepPartial<T> - nested props', () => {
+  type OptionalA = DeepPartial<{ a: string; b: { d: boolean; e: boolean } }>
+  assert<Equals<OptionalA, { a?: string; b?: { d?: boolean; e?: boolean } }>>()
+})
+
+test('FunctionToAsync<FUNC>', () => {
+  type AsyncFunc = FunctionToAsync<(a: 1, b: 2) => 3>
+  assert<Equals<AsyncFunc, (a: 1, b: 2) => Promise<3>>>()
 })

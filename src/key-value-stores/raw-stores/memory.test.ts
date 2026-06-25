@@ -1,5 +1,7 @@
 import { createMemoryRawKeyValueStore } from './memory'
 
+import { expect, test } from 'vitest'
+
 test('MemoryRawKeyValueStore non set key should be undefined', () => {
   const store = createMemoryRawKeyValueStore()
   expect(store.get('key')).toBe(undefined)

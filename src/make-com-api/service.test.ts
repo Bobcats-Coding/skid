@@ -2,10 +2,11 @@ import { createScenarioService } from './service'
 import { FAKE_SCENARIO, scenarioApiClient } from './stub'
 import type { Scenario } from './types'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
 
 import type { Observable } from 'rxjs'
 import { filter, map } from 'rxjs/operators'
+import { test } from 'vitest'
 
 const scenarioService = createScenarioService(scenarioApiClient)
 

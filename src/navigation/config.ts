@@ -1,1 +1,1 @@
-export const NAVIGATION_NAMESPACE = 'navigation' as const
+export const NAVIGATION_NAMESPACE = 'navigation'

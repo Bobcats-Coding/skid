@@ -4,6 +4,13 @@ resource "google_certificate_manager_dns_authorization" "ssl-domain" {
   provider = google.product
 }
 
+resource "google_certificate_manager_dns_authorization" "ssl-sub-domain" {
+  count = var.is-www ? 1 : 0
+  name = "${var.name}-www-dns-authorization"
+  domain = "www.${var.domain}"
+  provider = google.product
+}
+
 resource "google_project_service" "certificate_manager" {
   service = "certificatemanager.googleapis.com"
   disable_on_destroy = false
@@ -20,6 +27,17 @@ resource "google_dns_record_set" "ssl-authorization-record" {
   provider = google.domain
 }
 
+resource "google_dns_record_set" "ssl-authorization-record-2" {
+  count = var.is-www ? 1 : 0
+  name = google_certificate_manager_dns_authorization.ssl-sub-domain[0].dns_resource_record[0].name
+  type = "CNAME"
+  ttl = 30
+  managed_zone = var.managed-zone
+  rrdatas = [google_certificate_manager_dns_authorization.ssl-sub-domain[0].dns_resource_record[0].data]
+  provider = google.domain
+}
+
+
 resource "google_certificate_manager_certificate" "ssl-certificate" {
   name = "${var.name}-wildcard-certificate"
   scope = "DEFAULT"
@@ -28,10 +46,16 @@ resource "google_certificate_manager_certificate" "ssl-certificate" {
     domains = var.is-wildcard ? [
       google_certificate_manager_dns_authorization.ssl-domain.domain,
       "*.${google_certificate_manager_dns_authorization.ssl-domain.domain}",
+    ] : var.is-www ? [
+        google_certificate_manager_dns_authorization.ssl-domain.domain,
+        "www.${google_certificate_manager_dns_authorization.ssl-domain.domain}",
+      ] : [
+        google_certificate_manager_dns_authorization.ssl-domain.domain,
+      ]
+    dns_authorizations = var.is-www ? [
+      google_certificate_manager_dns_authorization.ssl-domain.id,
+      google_certificate_manager_dns_authorization.ssl-sub-domain[0].id,
     ] : [
-      google_certificate_manager_dns_authorization.ssl-domain.domain,
-    ]
-    dns_authorizations = [
       google_certificate_manager_dns_authorization.ssl-domain.id,
     ]
   }
@@ -64,4 +88,14 @@ resource "google_certificate_manager_certificate_map_entry" "ssl-sub_domain_cert
   map = google_certificate_manager_certificate_map.ssl-certificate-map.name
   certificates = [google_certificate_manager_certificate.ssl-certificate.id]
   hostname = "*.${google_certificate_manager_dns_authorization.ssl-domain.domain}"
+}
+
+resource "google_certificate_manager_certificate_map_entry" "ssl-www_certificate_entry" {
+  count = var.is-www ? 1 : 0
+  name = "${var.name}-www-entry"
+  description = "www.${var.domain} certificate entry"
+  provider = google.product
+  map = google_certificate_manager_certificate_map.ssl-certificate-map.name
+  certificates = [google_certificate_manager_certificate.ssl-certificate.id]
+  hostname = "www.${google_certificate_manager_dns_authorization.ssl-domain.domain}"
 }

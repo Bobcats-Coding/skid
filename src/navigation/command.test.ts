@@ -1,7 +1,9 @@
 import { navigationCommand } from './command'
 import { createAppStore } from './fake'
 
-import { coreMarbles } from '@bobcats-coding/skid/core/marbles'
+import { coreMarbles } from '@bobcats-coding/skid/core/marbles-vitest'
+
+import { test } from 'vitest'
 
 test(
   'app navigation',

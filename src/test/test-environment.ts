@@ -27,36 +27,31 @@ export type TestEnviornment<SERVICES extends Record<string, ServiceConfig>> = {
   createWorld: () => TestEnvironmentWorld<SERVICES>
 }
 
+export const instantiateService = async <SERVICE extends InteractorConfig | RunnerConfig>(
+  { creator, hook }: SERVICE,
+  ...args: Parameters<SERVICE['creator']>
+): Promise<InstanceWithConfig<SERVICE>> => {
+  const created = creator(...args)
+  return {
+    instance: created instanceof Promise ? await created : created,
+    ...(Boolean(hook) && { hook }),
+  }
+}
+
+type InstanceWithConfig<T extends InteractorConfig | RunnerConfig> = {
+  instance: GetValue<ReturnType<T['creator']>>
+} & DefaultConfig
+
 export const createTestEnvironment = <const SERVICES extends Record<string, ServiceConfig>>(
-  services: SERVICES,
+  serviceConfigs: SERVICES,
 ): TestEnviornment<SERVICES> => {
-  type Interactor = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
   type Runner = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, RunnerConfig>>>
-
-  const isInteractorEntry = (entry: [string, ServiceConfig]): entry is [string, InteractorConfig] =>
-    entry[1].type === 'interactor'
-
-  const isRunnerEntry = (entry: [string, ServiceConfig]): entry is [string, RunnerConfig] =>
-    entry[1].type === 'runner'
+  type Interactor = GetInstanceEntry<RecordToEntries<FilterRecord<SERVICES, InteractorConfig>>>
 
   const state: TestEnviornmentState<SERVICES> = {
-    services,
-    interactors: new Map<string, { instance: GetValue<Interactor> } & DefaultConfig>(
-      Object.entries(services)
-        .filter(isInteractorEntry)
-        .map(([key, { creator, hook }]) => [
-          key,
-          { instance: creator(), ...(Boolean(hook) && { hook }) },
-        ]),
-    ),
-    runners: new Map<string, { instance: GetValue<Runner> } & DefaultConfig>(
-      Object.entries(services)
-        .filter(isRunnerEntry)
-        .map(([key, { creator, hook }]) => [
-          key,
-          { instance: creator(), ...(Boolean(hook) && { hook }) },
-        ]),
-    ),
+    serviceConfigs,
+    interactors: new Map<string, { instance: GetValue<Interactor> } & DefaultConfig>(),
+    runners: new Map<string, { instance: GetValue<Runner> } & DefaultConfig>(),
   }
 
   const isBeforeAll = ({ hook }: DefaultConfig): boolean => hook === 'before-all'
@@ -88,10 +83,12 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
     )
   }
 
-  const forEachBeforeInteractor = async (
+  const forEachBeforeService = async (
     mapper: (interactor: InteractorInstance) => Promise<void>,
   ): Promise<void> => {
-    await asyncTransform(state.interactors.values(), (list) => list.filter(isBefore).map(mapper))
+    await asyncTransform([...state.interactors.values(), ...state.runners.values()], (list) =>
+      list.filter(isBefore).map(mapper),
+    )
   }
 
   const mapInteractors = async <T>(
@@ -101,9 +98,32 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
       list.map(async ([name, interactor]) => await mapper({ name, ...interactor })),
     )
 
+  const addToInstances = {
+    interactor: (name: string, instance: InstanceWithConfig<InteractorConfig>) => {
+      state.interactors.set(name, instance)
+    },
+    runner: (name: string, instance: InstanceWithConfig<RunnerConfig>) => {
+      state.runners.set(name, instance)
+    },
+  }
+
+  const instantiateAll = async (
+    filter: (config: InteractorConfig | RunnerConfig) => boolean,
+  ): Promise<void> => {
+    await Promise.all(
+      Object.entries(serviceConfigs)
+        .filter(([_, config]) => filter(config))
+        .map(async ([key, service]) => {
+          const instance = await instantiateService(service)
+          addToInstances[service.type](key, instance)
+        }),
+    )
+  }
+
   return {
     onBeforeAll: async () => {
       const entries$ = new ReplaySubject<ReportEntry>()
+      await instantiateAll(isBeforeAll)
       await forEachBeforeAllService(async ({ instance, name }) => {
         await instance.start()
         const message = `${name}: Started in before-all`
@@ -123,7 +143,8 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
       return entries$.asObservable()
     },
     onBefore: async (world) => {
-      await forEachBeforeInteractor(async ({ instance }) => {
+      await instantiateAll(isBefore)
+      await forEachBeforeService(async ({ instance }) => {
         await instance.start()
       })
       const reportEntries = await mapInteractors(async ({ name, instance }) => {
@@ -152,7 +173,6 @@ export const createTestEnvironment = <const SERVICES extends Record<string, Serv
         await instance.stop()
         const message = `${name}: Stopped in after`
         entries$.next({ entry: message, type: 'text/plain' })
-        console.log(message)
       })
       return entries$.asObservable()
     },

@@ -1,6 +1,8 @@
 import { createFakeEventBrokerBackend } from './fake'
 import { createBroker } from './service'
 
+import { describe, expect, it } from 'vitest'
+
 const TEST_EVENT = 'test-event'
 const TEST_ARGS = {
   param1: 'test-arg',
